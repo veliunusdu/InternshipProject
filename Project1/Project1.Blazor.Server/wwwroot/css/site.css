@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+html, body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+app {
+    display: block;
+    height: 100%;
+}
+
+/* ==========================================
+   1. Modern Splash Screen
+   ========================================== */
+.dx-splash-screen, 
+.dxbl-splash-screen, 
+.dxbl-splash, 
+[class*="splash-screen"], 
+div[class*="splash"] {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.dx-splash-screen-content, 
+.dxbl-splash-screen-content, 
+.dxbl-splash-content, 
+[class*="splash-content"] {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+    padding: 36px !important;
+    color: #1e293b !important;
+    text-align: center !important;
+}
+
+.dx-splash-screen-caption, 
+.dxbl-splash-screen-caption, 
+.dxbl-splash-caption, 
+[class*="splash-caption"] {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #312e81 !important;
+    margin-bottom: 10px !important;
+}
+
+.dx-splash-screen-spinner, 
+.dxbl-splash-screen-spinner, 
+.dxbl-splash-spinner, 
+[class*="splash-spinner"] {
+    width: 40px !important;
+    height: 40px !important;
+    border: 3px solid #e2e8f0 !important;
+    border-top: 3px solid #4f46e5 !important;
+    border-radius: 50% !important;
+    animation: spin 0.8s linear infinite !important;
+    margin: 0 auto !important;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==========================================
+   2. Header & Navigation Logo Replacement
+   ========================================== */
+.header-logo,
+.dxbl-header-logo,
+.dx-header-logo,
+.xaf-header-logo,
+.navbar-brand,
+.header-logo-container,
+div[class*="header-logo"],
+div[class*="navbar-brand"] {
+    flex-shrink: 0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    background-image: url('../images/Logo.svg') !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+}
+
+/* Force image content replacement if XAF renders <img> tags */
+img[src*="Logo"], 
+img[src*="ExpressApp"], 
+img[src*="XAF"], 
+.header-logo img, 
+.dxbl-header-logo img, 
+.navbar-brand img {
+    content: url('../images/Logo.svg') !important;
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain !important;
+}
+
+/* Hide any inner inline SVGs of original XAF logo if present */
+.header-logo svg,
+.dxbl-header-logo svg,
+.dx-header-logo svg,
+.navbar-brand svg {
+    display: none !important;
+}
+
+/* ==========================================
+   3. Simple & Modern Dashboard Styles
+   ========================================== */
+.dashboard-container {
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.shadow-xs {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+.modern-card {
+    border-color: #e2e8f0 !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.modern-card:hover {
+    border-color: #cbd5e1 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-indigo { color: #6366f1; }
+.text-teal { color: #0d9488; }
+
+.modern-tile {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.modern-tile:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+}
+
+#blazor-error-ui {
+    background: inherit;
+    bottom: 0;
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 100001;
+}

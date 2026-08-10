@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application StartupNavigationItem="Dashboard_View">
+  <Options UIType="TabbedMDI"
+         FormStyle="Ribbon"
+         RestoreTabbedMdiLayout="True"
+         ShowTabImage="True"
+         VirtualScrollingEnabled="True">
+  </Options>
+  <NavigationItems NavigationStyle="Accordion">
+    <Items>
+      <Item Id="Default">
+        <Items>
+          <Item Id="Dashboard_View" ViewId="Dashboard_View" Caption="🚀 Ana Sayfa / Dashboard" Index="0" IsNewNode="True" ImageName="Action_Home" />
+        </Items>
+      </Item>
+    </Items>
+  </NavigationItems>
+  <Views>
+    <DashboardView Id="Dashboard_View" Caption="🚀 Ana Sayfa / Dashboard" IsNewNode="True">
+      <Items>
+        <ControlDetailItem Id="DashboardCustomItem" ControlTypeName="Project1.Blazor.Server.Pages.Dashboard" IsNewNode="True" />
+      </Items>
+      <Layout>
+        <LayoutGroup Id="Main" RelativeSize="100">
+          <LayoutItem Id="DashboardCustomItem" ViewItem="DashboardCustomItem" RelativeSize="100" IsNewNode="True" />
+        </LayoutGroup>
+      </Layout>
+    </DashboardView>
+  </Views>
+</Application>
