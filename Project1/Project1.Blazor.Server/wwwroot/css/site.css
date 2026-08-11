@@ -4,21 +4,23 @@ html, body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: #f8fafc;
     color: #0f172a;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
-app {
-    display: block;
-    height: 100%;
+/* Ensure full layout container expansion */
+.dxbl-scroll-viewer, 
+.xaf-layout, 
+.dxbl-drawer-content {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /* ==========================================
    1. Modern Splash Screen
    ========================================== */
-.dx-splash-screen, 
-.dxbl-splash-screen, 
-.dxbl-splash, 
-[class*="splash-screen"], 
-div[class*="splash"] {
+.dxbl-splash-screen {
     background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
     position: fixed !important;
     top: 0 !important;
@@ -31,10 +33,7 @@ div[class*="splash"] {
     justify-content: center !important;
 }
 
-.dx-splash-screen-content, 
-.dxbl-splash-screen-content, 
-.dxbl-splash-content, 
-[class*="splash-content"] {
+.dxbl-splash-screen-content {
     background: rgba(255, 255, 255, 0.95) !important;
     border-radius: 16px !important;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
@@ -43,79 +42,30 @@ div[class*="splash"] {
     text-align: center !important;
 }
 
-.dx-splash-screen-caption, 
-.dxbl-splash-screen-caption, 
-.dxbl-splash-caption, 
-[class*="splash-caption"] {
+.dxbl-splash-screen-caption {
     font-size: 1.5rem !important;
     font-weight: 700 !important;
     color: #312e81 !important;
     margin-bottom: 10px !important;
 }
 
-.dx-splash-screen-spinner, 
-.dxbl-splash-screen-spinner, 
-.dxbl-splash-spinner, 
-[class*="splash-spinner"] {
-    width: 40px !important;
-    height: 40px !important;
-    border: 3px solid #e2e8f0 !important;
-    border-top: 3px solid #4f46e5 !important;
-    border-radius: 50% !important;
-    animation: spin 0.8s linear infinite !important;
-    margin: 0 auto !important;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
 /* ==========================================
-   2. Header & Navigation Logo Replacement
+   2. Header Logo Replacement (Safely Scoped)
    ========================================== */
-.header-logo,
-.dxbl-header-logo,
-.dx-header-logo,
-.xaf-header-logo,
-.navbar-brand,
-.header-logo-container,
-div[class*="header-logo"],
-div[class*="navbar-brand"] {
-    flex-shrink: 0 !important;
-    width: 32px !important;
-    height: 32px !important;
-    background-image: url('../images/Logo.svg') !important;
-    background-size: contain !important;
-    background-repeat: no-repeat !important;
-    background-position: center !important;
-}
-
-/* Force image content replacement if XAF renders <img> tags */
-img[src*="Logo"], 
-img[src*="ExpressApp"], 
-img[src*="XAF"], 
-.header-logo img, 
-.dxbl-header-logo img, 
-.navbar-brand img {
+img[src*="ExpressAppLogo"], 
+img[src*="Logo.svg"],
+.header-logo-image {
     content: url('../images/Logo.svg') !important;
     width: 32px !important;
     height: 32px !important;
     object-fit: contain !important;
 }
 
-/* Hide any inner inline SVGs of original XAF logo if present */
-.header-logo svg,
-.dxbl-header-logo svg,
-.dx-header-logo svg,
-.navbar-brand svg {
-    display: none !important;
-}
-
 /* ==========================================
    3. Simple & Modern Dashboard Styles
    ========================================== */
 .dashboard-container {
+    width: 100%;
     max-width: 1300px;
     margin: 0 auto;
 }
@@ -163,14 +113,4 @@ img[src*="XAF"],
     border-color: #cbd5e1;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.04);
-}
-
-#blazor-error-ui {
-    background: inherit;
-    bottom: 0;
-    display: none;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    z-index: 100001;
 }
