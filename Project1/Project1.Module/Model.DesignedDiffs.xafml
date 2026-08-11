@@ -3,6 +3,11 @@
   <Options>
     <LayoutManagerOptions RequiredFieldMark="*" />
   </Options>
+  <ActionDesign>
+    <Actions>
+      <Action Id="MyDetails" Active="False" />
+    </Actions>
+  </ActionDesign>
   <Views>
     <ListView Id="Musteri_Notlar_ListView" DetailViewId="Not_DetailView" />
     <DetailView Id="Not_DetailView">

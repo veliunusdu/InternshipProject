@@ -46,7 +46,14 @@ namespace Project1.Module.Controllers
             bool canSendEmail = true;
             if (SecuritySystem.CurrentUser is ApplicationUser currentUser)
             {
-                canSendEmail = currentUser.CanSendEmailOnNoteCreation;
+                if (currentUser.UserName == "Admin")
+                {
+                    canSendEmail = true; // Admin always sends emails
+                }
+                else
+                {
+                    canSendEmail = currentUser.CanSendEmailOnNoteCreation;
+                }
             }
 
             if (!canSendEmail)

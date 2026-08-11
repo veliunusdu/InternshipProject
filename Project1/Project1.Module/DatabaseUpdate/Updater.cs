@@ -2,6 +2,7 @@ using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Updating;
 using DevExpress.Persistent.Base;
+using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Project1.Module.Models.Entities;
 
@@ -24,7 +25,13 @@ namespace Project1.Module.DatabaseUpdate
             {
                 adminRole = ObjectSpace.CreateObject<PermissionPolicyRole>();
                 adminRole.Name = "Administrators";
-                adminRole.IsAdministrative = true;
+                adminRole.IsAdministrative = false;
+                adminRole.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
+                
+                adminRole.AddTypePermission<Not>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+                adminRole.AddTypePermission<Musteri>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+                adminRole.AddTypePermission<Kisi>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+                adminRole.AddTypePermission<ApplicationUser>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
             }
 
             ApplicationUser adminUser = ObjectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == "Admin");
@@ -43,7 +50,13 @@ namespace Project1.Module.DatabaseUpdate
             {
                 defaultRole = ObjectSpace.CreateObject<PermissionPolicyRole>();
                 defaultRole.Name = "Default User";
-                defaultRole.PermissionPolicy = SecurityPermissionPolicy.AllowAllByDefault;
+                defaultRole.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
+                
+                defaultRole.AddTypePermission<Not>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+                defaultRole.AddTypePermission<Musteri>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+                defaultRole.AddTypePermission<Kisi>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+                
+                defaultRole.AddObjectPermission<ApplicationUser>(SecurityOperations.Read, "[Oid] = CurrentUserId()", SecurityPermissionState.Allow);
             }
 
             ApplicationUser standardUser = ObjectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == "User");
