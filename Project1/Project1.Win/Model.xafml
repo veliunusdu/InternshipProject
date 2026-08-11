@@ -1,4 +1,4 @@
-﻿<Application Logo="ExpressAppLogo">
+﻿<Application Logo="Logo" Title="Project1 CRM">
     <Options UIType="TabbedMDI" FormStyle="Ribbon" />
     <NavigationItems NavigationStyle="Accordion" DefaultChildItemsDisplayStyle="List"/>
 </Application>

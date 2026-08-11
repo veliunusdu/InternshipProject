@@ -8,7 +8,7 @@ using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Project1.Blazor.Server.Services;
-using Project1.Module.Models.Entities;
+using Project1.Module.Services;
 
 namespace Project1.Blazor.Server
 {
@@ -23,6 +23,9 @@ namespace Project1.Blazor.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            EmailSettings emailSettings = Configuration.GetSection("Email").Get<EmailSettings>() ?? new EmailSettings();
+            EmailService.Configure(emailSettings);
+
             services.AddSingleton(typeof(Microsoft.AspNetCore.SignalR.HubConnectionHandler<>), typeof(ProxyHubConnectionHandler<>));
 
             services.AddRazorPages();
@@ -36,7 +39,10 @@ namespace Project1.Blazor.Server
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
-            .AddCookie();
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/LoginPage";
+            });
 
             services.AddXaf(Configuration, builder =>
             {
@@ -54,7 +60,7 @@ namespace Project1.Blazor.Server
                     .UseIntegratedMode(options =>
                     {
                         options.RoleType = typeof(PermissionPolicyRole);
-                        options.UserType = typeof(ApplicationUser);
+                        options.UserType = typeof(PermissionPolicyUser);
                     })
                     .AddPasswordAuthentication();
 

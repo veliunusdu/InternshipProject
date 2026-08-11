@@ -1,6 +1,4 @@
-using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.DC;
-using DevExpress.ExpressApp.Editors;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
@@ -12,6 +10,7 @@ namespace Project1.Module.Models.Entities
 {
     [DefaultClassOptions]
     [DeferredDeletion(false)]
+    [ImageName("Crm_Not")]
     public class Not : BaseObject
     {
         public Not(Session session) : base(session)
@@ -44,7 +43,6 @@ namespace Project1.Module.Models.Entities
 
         private Musteri _musteri;
         [ImmediatePostData]
-        [Appearance("HideMusteriWhenMusteriIsSet", Criteria = "Musteri IS NOT NULL", Visibility = ViewItemVisibility.Hide, Context = "DetailView")]
         [VisibleInDetailView(true)]
         [VisibleInListView(true)]
         [Index(0)]
@@ -71,7 +69,6 @@ namespace Project1.Module.Models.Entities
         [DataSourceProperty(nameof(MusteriKisiler))]
         [ImmediatePostData]
         [RuleRequiredField("RuleRequired_Not_Kisi", DefaultContexts.Save, "Not bir kişiye bağlı olmak zorundadır.")]
-        [Appearance("HideKisiWhenBothSet", Criteria = "Kisi IS NOT NULL AND Musteri IS NOT NULL", Visibility = ViewItemVisibility.Hide, Context = "DetailView")]
         [VisibleInDetailView(true)]
         [VisibleInListView(true)]
         [Index(1)]

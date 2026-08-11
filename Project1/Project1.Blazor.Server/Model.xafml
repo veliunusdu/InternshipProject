@@ -8,19 +8,23 @@
   </Options>
   <NavigationItems NavigationStyle="Accordion">
     <Items>
-      <Item Id="Default" Caption="Genel" Index="0">
+      <Item Id="Default">
         <Items>
-          <Item Id="Dashboard_View" ViewId="Dashboard_View" Caption="🚀 Ana Sayfa / Dashboard" Index="0" IsNewNode="True" ImageName="Action_Home" />
-          <Item Id="Musteri_ListView" ViewId="Musteri_ListView" Caption="🏢 Müşteriler" Index="1" IsNewNode="True" ImageName="BO_Customer" />
-          <Item Id="Kisi_ListView" ViewId="Kisi_ListView" Caption="👥 Kişiler" Index="2" IsNewNode="True" ImageName="BO_Person" />
-          <Item Id="Not_ListView" ViewId="Not_ListView" Caption="📝 Notlar" Index="3" IsNewNode="True" ImageName="BO_Note" />
-          <Item Id="ApplicationUser_ListView" ViewId="ApplicationUser_ListView" Caption="👤 Kullanıcılar" Index="4" IsNewNode="True" ImageName="BO_User" />
+          <Item Id="Dashboard_View" ViewId="Dashboard_View" Caption="Ana Sayfa" Index="0" IsNewNode="True" ImageName="Action_Home" />
+          <Item Id="Musteri_ListView" ViewId="Musteri_ListView" Caption="Müşteriler" Index="1" IsNewNode="True" />
+          <Item Id="Kisi_ListView" ViewId="Kisi_ListView" Caption="Kişiler" Index="2" IsNewNode="True" />
+          <Item Id="Not_ListView" ViewId="Not_ListView" Caption="Notlar" Index="3" IsNewNode="True" />
+          <Item Id="Yonetim" Caption="Yönetim" Index="4" IsNewNode="True">
+            <Items>
+              <Item Id="UserEmailPermission_ListView" ViewId="UserEmailPermission_ListView" Caption="E-posta Yetkileri" Index="0" IsNewNode="True" />
+            </Items>
+          </Item>
         </Items>
       </Item>
     </Items>
   </NavigationItems>
   <Views>
-    <DashboardView Id="Dashboard_View" Caption="🚀 Ana Sayfa / Dashboard" IsNewNode="True">
+    <DashboardView Id="Dashboard_View" Caption="Ana Sayfa" IsNewNode="True">
       <Items>
         <ControlDetailItem Id="DashboardCustomItem" ControlTypeName="Project1.Blazor.Server.Pages.Dashboard" IsNewNode="True" />
       </Items>

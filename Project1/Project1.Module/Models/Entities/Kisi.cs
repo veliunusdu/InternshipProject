@@ -1,5 +1,3 @@
-using DevExpress.ExpressApp.ConditionalAppearance;
-using DevExpress.ExpressApp.Editors;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
@@ -11,6 +9,7 @@ namespace Project1.Module.Models.Entities
     [DefaultClassOptions]
     [DefaultProperty(nameof(AdSoyad))]
     [DeferredDeletion(false)]
+    [ImageName("Crm_Kisi")]
     public class Kisi : BaseObject
     {
         public Kisi(Session session) : base(session)
@@ -60,7 +59,6 @@ namespace Project1.Module.Models.Entities
         private Musteri _musteri;
         [Association("Musteri-Kisiler")]
         [RuleRequiredField("RuleRequired_Kisi_Musteri", DefaultContexts.Save, "Müşteri seçimi zorunludur. Lütfen bir müşteri seçiniz.")]
-        [Appearance("HideMusteriWhenSet", TargetItems = nameof(Musteri), Visibility = ViewItemVisibility.Hide, Criteria = "Musteri is not null")]
         [ImmediatePostData]
         public Musteri Musteri
         {

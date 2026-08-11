@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Application Title="Project1">
+<Application Title="Project1 CRM">
   <Options>
     <LayoutManagerOptions RequiredFieldMark="*" />
   </Options>

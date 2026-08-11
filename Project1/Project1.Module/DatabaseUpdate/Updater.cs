@@ -2,9 +2,9 @@ using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Updating;
 using DevExpress.Persistent.Base;
-using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Project1.Module.Models.Entities;
+using Project1.Module.Security;
 
 namespace Project1.Module.DatabaseUpdate
 {
@@ -19,66 +19,146 @@ namespace Project1.Module.DatabaseUpdate
         {
             base.UpdateDatabaseAfterUpdateSchema();
 
-            // 1. Seed Administrators Role & Admin User
-            PermissionPolicyRole adminRole = ObjectSpace.FirstOrDefault<PermissionPolicyRole>(r => r.Name == "Administrators");
-            if (adminRole == null)
-            {
-                adminRole = ObjectSpace.CreateObject<PermissionPolicyRole>();
-                adminRole.Name = "Administrators";
-            }
-            adminRole.IsAdministrative = true;
-            adminRole.PermissionPolicy = SecurityPermissionPolicy.AllowAllByDefault;
-            
-            adminRole.AddTypePermission<Not>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-            adminRole.AddTypePermission<Musteri>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-            adminRole.AddTypePermission<Kisi>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-            adminRole.AddTypePermission<ApplicationUser>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+            PermissionPolicyRole adminRole = EnsureAdministratorRole();
+            PermissionPolicyRole standardUserRole = EnsureStandardUserRole();
 
-            ApplicationUser adminUser = ObjectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == "Admin");
-            if (adminUser == null)
-            {
-                adminUser = ObjectSpace.CreateObject<ApplicationUser>();
-                adminUser.UserName = "Admin";
-                adminUser.SetPassword("");
-                adminUser.Roles.Add(adminRole);
-                adminUser.CanSendEmailOnNoteCreation = true;
-            }
+            PermissionPolicyUser adminUser = EnsureUser(SecurityConstants.AdministratorUserName, adminRole,
+                SecurityConstants.AdminInitialPasswordConfigurationKey);
+            PermissionPolicyUser standardUser = EnsureUser(SecurityConstants.StandardUserName, standardUserRole,
+                SecurityConstants.UserInitialPasswordConfigurationKey);
 
-            // 2. Seed Default User Role & User User
-            PermissionPolicyRole defaultRole = ObjectSpace.FirstOrDefault<PermissionPolicyRole>(r => r.Name == "Default User");
-            if (defaultRole == null)
-            {
-                defaultRole = ObjectSpace.CreateObject<PermissionPolicyRole>();
-                defaultRole.Name = "Default User";
-            }
-            defaultRole.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
-            
-            defaultRole.AddTypePermission<Not>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-            defaultRole.AddTypePermission<Musteri>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-            defaultRole.AddTypePermission<Kisi>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-            
-            defaultRole.AddObjectPermission<ApplicationUser>(SecurityOperations.Read, "[Oid] = CurrentUserId()", SecurityPermissionState.Allow);
-            defaultRole.AddNavigationPermission("Dashboard_View", SecurityPermissionState.Allow);
-            defaultRole.AddNavigationPermission("Musteri_ListView", SecurityPermissionState.Allow);
-            defaultRole.AddNavigationPermission("Kisi_ListView", SecurityPermissionState.Allow);
-            defaultRole.AddNavigationPermission("Not_ListView", SecurityPermissionState.Allow);
-
-            ApplicationUser standardUser = ObjectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == "User");
-            if (standardUser == null)
-            {
-                standardUser = ObjectSpace.CreateObject<ApplicationUser>();
-                standardUser.UserName = "User";
-                standardUser.SetPassword("");
-                standardUser.Roles.Add(defaultRole);
-                standardUser.CanSendEmailOnNoteCreation = true;
-            }
+            EnsureEmailPermission(standardUser, true);
+            RemoveAdminEmailPermission(adminUser);
+            RemoveLegacyOwnerPermissions();
 
             ObjectSpace.CommitChanges();
         }
 
-        public override void UpdateDatabaseBeforeUpdateSchema()
+        private PermissionPolicyRole EnsureAdministratorRole()
         {
-            base.UpdateDatabaseBeforeUpdateSchema();
+            PermissionPolicyRole role = ObjectSpace.FirstOrDefault<PermissionPolicyRole>(
+                r => r.Name == SecurityConstants.AdministratorRoleName);
+
+            if (role == null)
+            {
+                role = ObjectSpace.CreateObject<PermissionPolicyRole>();
+                role.Name = SecurityConstants.AdministratorRoleName;
+            }
+
+            ResetRolePermissions(role);
+            AdminRoleConfigurator.Configure(role);
+            return role;
         }
+
+        private PermissionPolicyRole EnsureStandardUserRole()
+        {
+            PermissionPolicyRole role = ObjectSpace.FirstOrDefault<PermissionPolicyRole>(
+                r => r.Name == SecurityConstants.StandardUserRoleName);
+
+            if (role == null)
+            {
+                role = ObjectSpace.CreateObject<PermissionPolicyRole>();
+                role.Name = SecurityConstants.StandardUserRoleName;
+            }
+
+            ResetRolePermissions(role);
+            StandardUserRoleConfigurator.Configure(role);
+            return role;
+        }
+
+        private void ResetRolePermissions(PermissionPolicyRole role)
+        {
+            foreach (PermissionPolicyTypePermissionObject permission in role.TypePermissions.ToList())
+            {
+                ObjectSpace.Delete(permission);
+            }
+
+            foreach (PermissionPolicyNavigationPermissionObject permission in role.NavigationPermissions.ToList())
+            {
+                ObjectSpace.Delete(permission);
+            }
+
+            foreach (PermissionPolicyActionPermissionObject permission in role.ActionPermissions.ToList())
+            {
+                ObjectSpace.Delete(permission);
+            }
+        }
+
+        private PermissionPolicyUser EnsureUser(string userName, PermissionPolicyRole role, string passwordConfigurationKey)
+        {
+            PermissionPolicyUser user = ObjectSpace.FirstOrDefault<PermissionPolicyUser>(
+                u => u.UserName == userName);
+            bool isNewUser = user == null;
+
+            if (isNewUser)
+            {
+                user = ObjectSpace.CreateObject<PermissionPolicyUser>();
+                user.UserName = userName;
+            }
+
+            if (!user.Roles.Contains(role))
+            {
+                user.Roles.Add(role);
+            }
+
+            RemoveLegacyDefaultUserRole(user, userName);
+
+            if (isNewUser || InitialUserPasswordProvider.ShouldResetInitialPasswords())
+            {
+                user.SetPassword(InitialUserPasswordProvider.GetRequiredPassword(passwordConfigurationKey, userName));
+            }
+
+            return user;
+        }
+
+        private void EnsureEmailPermission(PermissionPolicyUser user, bool defaultValue)
+        {
+            UserEmailPermission permission = ObjectSpace.FirstOrDefault<UserEmailPermission>(
+                item => item.User == user);
+            if (permission == null)
+            {
+                permission = ObjectSpace.CreateObject<UserEmailPermission>();
+                permission.User = user;
+                permission.CanSendEmail = defaultValue;
+            }
+        }
+
+        private void RemoveAdminEmailPermission(PermissionPolicyUser adminUser)
+        {
+            UserEmailPermission permission = ObjectSpace.FirstOrDefault<UserEmailPermission>(
+                item => item.User == adminUser);
+            if (permission != null)
+            {
+                ObjectSpace.Delete(permission);
+            }
+        }
+
+        private void RemoveLegacyOwnerPermissions()
+        {
+            foreach (PermissionPolicyObjectPermissionsObject permission in
+                     ObjectSpace.GetObjects<PermissionPolicyObjectPermissionsObject>().ToList())
+            {
+                if (permission.Criteria?.Contains("Owner", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    ObjectSpace.Delete(permission);
+                }
+            }
+        }
+
+        private void RemoveLegacyDefaultUserRole(PermissionPolicyUser user, string userName)
+        {
+            if (userName != SecurityConstants.StandardUserName)
+            {
+                return;
+            }
+
+            PermissionPolicyRole legacyRole = ObjectSpace.FirstOrDefault<PermissionPolicyRole>(
+                r => r.Name == "Default User");
+            if (legacyRole != null && user.Roles.Contains(legacyRole))
+            {
+                user.Roles.Remove(legacyRole);
+            }
+        }
+
     }
 }

@@ -1,11 +1,13 @@
-<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="80" height="80" rx="22" fill="url(#splash_logo_grad)"/>
-  <path d="M24 56V24L40 36L56 24V56" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="40" cy="52" r="5" fill="#A5B4FC"/>
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="2" y="2" width="116" height="116" rx="34" fill="url(#splash-bg)" stroke="rgba(255,255,255,.12)" stroke-width="4"/>
+  <path d="M37 86V34H63C77 34 84 41.5 84 53C84 64.5 77 72 63 72H51" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M51 72L73 86" stroke="#5EEAD4" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="87" cy="31" r="7" fill="#38BDF8" stroke="#0B1220" stroke-width="4"/>
+  <circle cx="85" cy="88" r="7" fill="#5EEAD4" stroke="#0B1220" stroke-width="4"/>
   <defs>
-    <linearGradient id="splash_logo_grad" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#4F46E5"/>
-      <stop offset="1" stop-color="#7C3AED"/>
+    <linearGradient id="splash-bg" x1="13" y1="7" x2="108" y2="115" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#172554"/>
+      <stop offset="1" stop-color="#0B1220"/>
     </linearGradient>
   </defs>
 </svg>

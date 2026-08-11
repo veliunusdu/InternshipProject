@@ -1,7 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.Base;
 using DevExpress.ExpressApp.Security;
 using Project1.Module.Models.Entities;
@@ -9,10 +10,11 @@ using Project1.Module.Services;
 
 namespace Project1.Module.Controllers
 {
-    public class NotController : ViewController
+    public sealed class NotController : ObjectViewController<ObjectView, Not>
     {
         private static readonly Dictionary<string, DateTime> _recentlySentNoteKeys = new Dictionary<string, DateTime>();
         private bool _showToastNotification = false;
+        private bool _emailPermissionDenied = false;
 
         protected override void OnActivated()
         {
@@ -28,19 +30,10 @@ namespace Project1.Module.Controllers
             base.OnDeactivated();
         }
 
-        private static List<Kisi> GetRecipientsForNote(Not note)
-        {
-            var result = new List<Kisi>();
-            if (note.Kisi != null && !string.IsNullOrWhiteSpace(note.Kisi.Email))
-            {
-                result.Add(note.Kisi);
-            }
-            return result;
-        }
-
         private void ObjectSpace_Committing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _showToastNotification = false;
+            _emailPermissionDenied = false;
 
             // Check if current user is allowed to send emails
             bool canSendEmail = true;
@@ -66,111 +59,133 @@ namespace Project1.Module.Controllers
                 .Where(n => !n.IsEmailSent)
                 .ToList();
 
+            if (pendingNotes.Count > 0 && !CanCurrentUserSendEmail())
+            {
+                _emailPermissionDenied = true;
+                return;
+            }
+
             foreach (var note in pendingNotes)
             {
-                var recipients = GetRecipientsForNote(note);
-                if (recipients.Count == 0)
+                Kisi recipient = note.Kisi;
+                if (recipient == null || string.IsNullOrWhiteSpace(recipient.Email))
                     continue;
 
-                bool anyEmailSentSuccessfully = false;
+                string deduplicationKey = $"{note.Oid}_{recipient.Email.ToLowerInvariant()}";
 
-                foreach (var kisi in recipients)
+                lock (_recentlySentNoteKeys)
                 {
-                    string deduplicationKey = $"{note.Oid}_{kisi.Email.ToLowerInvariant()}";
+                    var expiredKeys = _recentlySentNoteKeys
+                        .Where(kvp => (DateTime.UtcNow - kvp.Value).TotalSeconds > 15)
+                        .Select(kvp => kvp.Key)
+                        .ToList();
 
-                    lock (_recentlySentNoteKeys)
+                    foreach (var key in expiredKeys)
                     {
-                        var expiredKeys = _recentlySentNoteKeys
-                            .Where(kvp => (DateTime.Now - kvp.Value).TotalSeconds > 15)
-                            .Select(kvp => kvp.Key)
-                            .ToList();
-
-                        foreach (var key in expiredKeys)
-                        {
-                            _recentlySentNoteKeys.Remove(key);
-                        }
-
-                        if (_recentlySentNoteKeys.ContainsKey(deduplicationKey))
-                        {
-                            continue;
-                        }
-
-                        _recentlySentNoteKeys[deduplicationKey] = DateTime.Now;
+                        _recentlySentNoteKeys.Remove(key);
                     }
 
-                    var (success, errorMsg) = EmailService.SendNoteNotificationEmail(
-                        kisi.Email,
-                        kisi.AdSoyad,
-                        note.Baslik,
-                        note.Icerik,
-                        note.Derece.ToString(),
-                        note.Musteri?.Ad);
+                    if (_recentlySentNoteKeys.ContainsKey(deduplicationKey))
+                    {
+                        continue;
+                    }
 
-                    if (success)
-                    {
-                        anyEmailSentSuccessfully = true;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            Application?.ShowViewStrategy?.ShowMessage(new MessageOptions
-                            {
-                                Message = $"E-posta gönderilemedi ({kisi.Email}): {errorMsg}",
-                                Type = InformationType.Warning,
-                                Duration = 8000
-                            });
-                        }
-                        catch
-                        {
-                            // Fallback
-                        }
-                    }
+                    _recentlySentNoteKeys[deduplicationKey] = DateTime.UtcNow;
                 }
 
-                if (anyEmailSentSuccessfully)
+                var (success, errorMessage) = EmailService.SendNoteNotificationEmail(
+                    recipient.Email,
+                    recipient.AdSoyad,
+                    note.Baslik,
+                    note.Icerik,
+                    note.Derece.ToString(),
+                    note.Musteri?.Ad);
+
+                if (success)
                 {
                     note.IsEmailSent = true;
                     _showToastNotification = true;
+                }
+                else
+                {
+                    Application?.ShowViewStrategy?.ShowMessage(new MessageOptions
+                    {
+                        Message = $"E-posta gönderilemedi ({recipient.Email}): {errorMessage}",
+                        Type = InformationType.Warning,
+                        Duration = 8000
+                    });
                 }
             }
         }
 
         private void ObjectSpace_Committed(object sender, EventArgs e)
         {
+            if (_emailPermissionDenied)
+            {
+                _emailPermissionDenied = false;
+                Application?.ShowViewStrategy?.ShowMessage(new MessageOptions
+                {
+                    Message = "Not kaydedildi; e-posta gönderme yetkiniz kapalı olduğu için bildirim gönderilmedi.",
+                    Type = InformationType.Warning,
+                    Duration = 5000
+                });
+            }
+
             if (_showToastNotification)
             {
                 _showToastNotification = false;
-                try
+                Application?.ShowViewStrategy?.ShowMessage(new MessageOptions
                 {
-                    Application?.ShowViewStrategy?.ShowMessage(new MessageOptions
-                    {
-                        Message = "Not bu kişiye mail olarak gitti",
-                        Type = InformationType.Success,
-                        Duration = 2000
-                    });
-                }
-                catch
-                {
-                    // Fallback
-                }
+                    Message = "Not bu kişiye e-posta olarak gönderildi.",
+                    Type = InformationType.Success,
+                    Duration = 2000
+                });
+            }
+        }
+
+        private bool CanCurrentUserSendEmail()
+        {
+            ISecurityStrategyBase security = Application?.Security;
+            if (security?.IsAuthenticated != true || security.UserId == null)
+            {
+                return false;
             }
 
-            try
+            if (string.Equals(
+                security.UserName,
+                Security.SecurityConstants.AdministratorUserName,
+                StringComparison.OrdinalIgnoreCase))
             {
-                if (View is ListView listView && listView.CollectionSource != null)
-                {
-                    listView.CollectionSource.Reload();
-                }
-                else if (View != null && View.ObjectSpace != null)
-                {
-                    View.ObjectSpace.Refresh();
-                }
+                return true;
             }
-            catch
+
+            if (Application == null)
             {
-                // Fallback
+                return false;
             }
+
+            INonSecuredObjectSpaceFactory objectSpaceFactory = Application.ServiceProvider?
+                .GetService(typeof(INonSecuredObjectSpaceFactory)) as INonSecuredObjectSpaceFactory;
+
+            if (objectSpaceFactory != null)
+            {
+                using IObjectSpace permissionObjectSpace =
+                    objectSpaceFactory.CreateNonSecuredObjectSpace(typeof(UserEmailPermission));
+                return GetEmailPermission(permissionObjectSpace, security.UserId);
+            }
+
+            // Normalde Blazor uygulamasında non-secured factory her zaman bulunur.
+            // Yedek yol, uygulamanın farklı bir host ile çalıştırılması durumundadır.
+            using IObjectSpace fallbackObjectSpace =
+                Application.CreateObjectSpace(typeof(UserEmailPermission));
+            return GetEmailPermission(fallbackObjectSpace, security.UserId);
+        }
+
+        private static bool GetEmailPermission(IObjectSpace objectSpace, object userId)
+        {
+            UserEmailPermission permission = objectSpace.FindObject<UserEmailPermission>(
+                CriteriaOperator.Parse("User.Oid = ?", userId));
+            return permission?.CanSendEmail == true;
         }
     }
 }

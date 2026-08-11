@@ -1,17 +1,24 @@
+@page "/dashboard"
 @using Project1.Module.Models.Entities
 @using DevExpress.ExpressApp
 @using DevExpress.ExpressApp.Blazor
-@using DevExpress.ExpressApp.Blazor.Editors
 @using Microsoft.AspNetCore.Components.Authorization
+@using Project1.Module.Security
 @inject IObjectSpaceFactory ObjectSpaceFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
+@if (IsAdminUser)
+{
+    <AdminDashboard />
+}
+else
+{
     <div class="dashboard-container p-3 p-md-4">
-        <!-- Header -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div class="dashboard-hero d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
             <div>
-                <h3 class="fw-bold text-dark mb-1">@GreetingText</h3>
-                <p class="text-secondary mb-0 fs-6">Project1 Müşteri, Kişi & Not Yönetim Portalı</p>
+                <div class="role-chip mb-3">Kullanıcı Çalışma Alanı</div>
+                <h3 class="fw-bold text-dark mb-1">@GreetingText, @DisplayUserName</h3>
+                <p class="text-secondary mb-0 fs-6">Müşteri, kişi ve not operasyonlarını buradan yönetebilirsin.</p>
             </div>
             <div class="d-flex align-items-center gap-3 mt-3 mt-md-0">
                 <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill font-monospace fs-7">
@@ -23,9 +30,7 @@
             </div>
         </div>
 
-        <!-- Minimal Modern Metric Cards -->
         <div class="row g-3 mb-4">
-            <!-- Müşteriler -->
             <div class="col-12 col-md-4">
                 <a href="/#Musteri_ListView" class="text-decoration-none">
                     <div class="card border p-4 rounded-3 bg-white shadow-xs h-100 modern-card">
@@ -39,7 +44,6 @@
                 </a>
             </div>
 
-            <!-- Notlar -->
             <div class="col-12 col-md-4">
                 <a href="/#Not_ListView" class="text-decoration-none">
                     <div class="card border p-4 rounded-3 bg-white shadow-xs h-100 modern-card">
@@ -53,7 +57,6 @@
                 </a>
             </div>
 
-            <!-- Kişiler -->
             <div class="col-12 col-md-4">
                 <a href="/#Kisi_ListView" class="text-decoration-none">
                     <div class="card border p-4 rounded-3 bg-white shadow-xs h-100 modern-card">
@@ -68,16 +71,30 @@
             </div>
         </div>
 
-        <!-- Quick Shortcuts Panel -->
+        <div class="card border p-4 rounded-3 bg-white shadow-xs mb-4">
+            <h6 class="fw-bold text-uppercase text-secondary fs-7 font-monospace mb-3">Önerilen İş Akışı</h6>
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <div class="workflow-step"><span>1</span><div><strong>Müşteri oluştur</strong><small>Temel firma veya müşteri bilgilerini kaydet.</small></div></div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="workflow-step"><span>2</span><div><strong>Kişi ekle</strong><small>Müşteriye bağlı iletişim kişisini tanımla.</small></div></div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="workflow-step"><span>3</span><div><strong>Not oluştur</strong><small>İlgili kişi için görüşme veya işlem notu ekle.</small></div></div>
+                </div>
+            </div>
+        </div>
+
         <div class="card border p-4 rounded-3 bg-white shadow-xs">
-            <h6 class="fw-bold text-uppercase text-secondary fs-7 font-monospace mb-3">Hızlı İşlemler</h6>
+            <h6 class="fw-bold text-uppercase text-secondary fs-7 font-monospace mb-3">Hızlı Erişim</h6>
             <div class="row g-3">
                 <div class="col-12 col-md-4">
                     <a href="/#Musteri_ListView" class="modern-tile">
                         <div class="fs-4 me-3">🏢</div>
                         <div>
-                            <div class="fw-semibold text-dark">Müşteri Portalı</div>
-                            <small class="text-muted">Müşteri listesini görüntüle</small>
+                            <div class="fw-semibold text-dark">Müşteri Yönetimi</div>
+                            <small class="text-muted">Listele, ekle ve düzenle</small>
                         </div>
                     </a>
                 </div>
@@ -86,7 +103,7 @@
                         <div class="fs-4 me-3">📝</div>
                         <div>
                             <div class="fw-semibold text-dark">Not Yönetimi</div>
-                            <small class="text-muted">Not listesini görüntüle</small>
+                            <small class="text-muted">Listele, ekle ve düzenle</small>
                         </div>
                     </a>
                 </div>
@@ -95,23 +112,27 @@
                         <div class="fs-4 me-3">👥</div>
                         <div>
                             <div class="fw-semibold text-dark">İletişim Kişileri</div>
-                            <small class="text-muted">Kişi listesini görüntüle</small>
+                            <small class="text-muted">Listele, ekle ve düzenle</small>
                         </div>
                     </a>
                 </div>
             </div>
         </div>
     </div>
+}
 
 @code {
-    [CascadingParameter]
-    public BlazorControlViewItem ViewItem { get; set; }
-
     private int musteriSayisi = 0;
     private int notSayisi = 0;
     private int kisiSayisi = 0;
 
     private string currentUserName = "";
+    private bool currentPrincipalIsAdmin;
+    private bool IsAdminUser => currentPrincipalIsAdmin ||
+                                string.Equals(currentUserName, SecurityConstants.AdministratorUserName, StringComparison.OrdinalIgnoreCase);
+    private string DisplayUserName => string.IsNullOrWhiteSpace(currentUserName)
+        ? "Kullanıcı"
+        : currentUserName;
 
     private string GreetingText => DateTime.Now.Hour switch
     {
@@ -126,6 +147,7 @@
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             currentUserName = authState.User?.Identity?.Name ?? "";
+            currentPrincipalIsAdmin = authState.User?.IsInRole(SecurityConstants.AdministratorRoleName) == true;
         }
         catch
         {

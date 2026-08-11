@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Updating;
 
@@ -9,7 +7,6 @@ namespace Project1.Module
     {
         public Project1Module()
         {
-            // Projeye dahil edilen DevExpress temel modülleri
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.SystemModule.SystemModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.ConditionalAppearance.ConditionalAppearanceModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Validation.ValidationModule));
@@ -22,9 +19,5 @@ namespace Project1.Module
             return new ModuleUpdater[] { updater };
         }
 
-        public override void Setup(XafApplication application)
-        {
-            base.Setup(application);
-        }
     }
 }

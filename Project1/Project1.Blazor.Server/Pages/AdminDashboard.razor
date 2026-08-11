@@ -1,9 +1,79 @@
 @page "/admin-dashboard"
+@using DevExpress.ExpressApp
+@using DevExpress.Persistent.BaseImpl.PermissionPolicy
+@using Project1.Module.Models.Entities
+@inject IObjectSpaceFactory ObjectSpaceFactory
 
 <div class="dashboard-container p-3 p-md-4">
-    <div class="card border p-5 rounded-4 text-center bg-white shadow-xs">
-        <div class="display-3 text-secondary mb-3 opacity-75">🛡️</div>
-        <h3 class="fw-bold text-dark mb-2">Yönetici Paneli (Admin)</h3>
-        <p class="text-secondary fs-6 mb-0">Şu anlık admin paneli boş olarak ayarlanmıştır.</p>
+    <div class="dashboard-hero d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div>
+            <div class="role-chip admin mb-3">Yönetici Çalışma Alanı</div>
+            <h3 class="fw-bold text-dark mb-1">Yönetim Merkezi</h3>
+            <p class="text-secondary mb-0 fs-6">Tüm iş kayıtlarını ve kullanıcıların e-posta yetkilerini yönet.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+            <span class="system-status"><i></i> Sistem aktif</span>
+            <button class="btn btn-outline-secondary btn-sm px-3 rounded-3" @onclick="RefreshData">🔄 Yenile</button>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl">
+            <a href="/#Musteri_ListView" class="text-decoration-none"><div class="card border p-3 rounded-3 bg-white shadow-xs h-100 modern-card"><small class="text-muted">Müşteriler</small><h3 class="fw-bold text-dark mb-0 mt-2">@musteriSayisi</h3></div></a>
+        </div>
+        <div class="col-6 col-xl">
+            <a href="/#Kisi_ListView" class="text-decoration-none"><div class="card border p-3 rounded-3 bg-white shadow-xs h-100 modern-card"><small class="text-muted">Kişiler</small><h3 class="fw-bold text-dark mb-0 mt-2">@kisiSayisi</h3></div></a>
+        </div>
+        <div class="col-6 col-xl">
+            <a href="/#Not_ListView" class="text-decoration-none"><div class="card border p-3 rounded-3 bg-white shadow-xs h-100 modern-card"><small class="text-muted">Notlar</small><h3 class="fw-bold text-dark mb-0 mt-2">@notSayisi</h3></div></a>
+        </div>
+        <div class="col-6 col-xl">
+            <div class="card border p-3 rounded-3 bg-white shadow-xs h-100"><small class="text-muted">Kullanıcılar</small><h3 class="fw-bold text-dark mb-0 mt-2">@kullaniciSayisi</h3></div>
+        </div>
+        <div class="col-6 col-xl">
+            <a href="/#UserEmailPermission_ListView" class="text-decoration-none"><div class="card border p-3 rounded-3 bg-white shadow-xs h-100 modern-card"><small class="text-muted">E-posta Yetkileri</small><h3 class="fw-bold text-dark mb-0 mt-2">@emailYetkiSayisi</h3></div></a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-7">
+            <div class="card border p-4 rounded-3 bg-white shadow-xs h-100">
+                <h6 class="fw-bold text-uppercase text-secondary fs-7 font-monospace mb-3">Yönetim İşlemleri</h6>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6"><a href="/#UserEmailPermission_ListView" class="modern-tile"><div class="fs-4 me-3">✉️</div><div><div class="fw-semibold text-dark">E-posta Yetkileri</div><small class="text-muted">Kullanıcı bazında aç veya kapat</small></div></a></div>
+                    <div class="col-12 col-md-6"><a href="/#Musteri_ListView" class="modern-tile"><div class="fs-4 me-3">🏢</div><div><div class="fw-semibold text-dark">Müşteriler</div><small class="text-muted">Tüm müşteri kayıtlarını yönet</small></div></a></div>
+                    <div class="col-12 col-md-6"><a href="/#Not_ListView" class="modern-tile"><div class="fs-4 me-3">📝</div><div><div class="fw-semibold text-dark">Notlar</div><small class="text-muted">Tüm not kayıtlarını yönet</small></div></a></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <div class="card border p-4 rounded-3 bg-white shadow-xs h-100">
+                <h6 class="fw-bold text-uppercase text-secondary fs-7 font-monospace mb-3">Rol Özeti</h6>
+                <div class="permission-row"><span>🛡️ Admin</span><strong>Tam erişim</strong></div>
+                <div class="permission-row"><span>👤 Standard User</span><strong>Kendi kayıtları</strong></div>
+                <hr />
+                <small class="text-muted">Admin tüm iş kayıtlarında CRUD ve e-posta kısıtlama işlemi yapar; rol/yetki atayamaz. Standard User yalnızca kendisine ait kayıtları yönetir.</small>
+            </div>
+        </div>
     </div>
 </div>
+
+@code {
+    private int musteriSayisi;
+    private int kisiSayisi;
+    private int notSayisi;
+    private int kullaniciSayisi;
+    private int emailYetkiSayisi;
+
+    protected override void OnInitialized() => RefreshData();
+
+    private void RefreshData()
+    {
+        using var objectSpace = ObjectSpaceFactory.CreateObjectSpace(typeof(Musteri));
+        musteriSayisi = objectSpace.GetObjectsCount(typeof(Musteri), null);
+        kisiSayisi = objectSpace.GetObjectsCount(typeof(Kisi), null);
+        notSayisi = objectSpace.GetObjectsCount(typeof(Not), null);
+        kullaniciSayisi = objectSpace.GetObjectsCount(typeof(PermissionPolicyUser), null);
+        emailYetkiSayisi = objectSpace.GetObjectsCount(typeof(UserEmailPermission), null);
+    }
+}

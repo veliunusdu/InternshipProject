@@ -9,6 +9,7 @@ namespace Project1.Module.Models.Entities
     [DefaultClassOptions]
     [DefaultProperty(nameof(AdSoyad))]
     [DeferredDeletion(false)]
+    [ImageName("Crm_Musteri")]
     public class Musteri : BaseObject
     {
         public Musteri(Session session) : base(session)

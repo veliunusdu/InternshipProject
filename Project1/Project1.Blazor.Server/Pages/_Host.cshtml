@@ -4,22 +4,36 @@
 @using DevExpress.ExpressApp.Blazor.Components
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <title>Project1 Portal</title>
+    <meta name="theme-color" content="#0b1220" />
+    <meta name="description" content="Müşteri, kişi ve not yönetim sistemi" />
+    <title>Project1 CRM</title>
     <base href="~/" />
     <link rel="icon" type="image/svg+xml" href="images/Logo.svg" />
     <link rel="shortcut icon" href="images/Logo.svg" />
     <component type="typeof(BootstrapThemeLink)" render-mode="Static" />
     <link href="_content/DevExpress.ExpressApp.Blazor/styles.css" asp-append-version="true" rel="stylesheet" />
-    <link href="css/site.css" rel="stylesheet" />
+    <link href="css/site.css" asp-append-version="true" rel="stylesheet" />
 </head>
 <body>
-    <component type="typeof(SplashScreen)" render-mode="Static" param-Caption='"Project1 Portal"' param-ImagePath='"images/SplashScreen.svg"' />
+    <component type="typeof(SplashScreen)" render-mode="Static" param-Caption='"Project1 CRM"' param-ImagePath='"images/SplashScreen.svg"' />
+
+    <div id="brand-splash" class="brand-splash" role="status" aria-live="polite">
+        <div class="brand-splash__glow brand-splash__glow--one"></div>
+        <div class="brand-splash__glow brand-splash__glow--two"></div>
+        <div class="brand-splash__content">
+            <img src="images/SplashScreen.svg" alt="Project1 CRM" class="brand-splash__logo" />
+            <div class="brand-splash__name">Project1 <span>CRM</span></div>
+            <p>Müşteri ilişkileri çalışma alanı</p>
+            <div class="brand-splash__loader" aria-hidden="true"><span></span><span></span><span></span></div>
+            <small>Çalışma alanınız hazırlanıyor</small>
+        </div>
+    </div>
 
     <app class="d-none">
         <component type="typeof(App)" render-mode="Server" />
@@ -31,6 +45,28 @@
         <component type="typeof(BlazorError)" render-mode="Static" />
     </div>
 
+    <script>
+        (() => {
+            const app = document.querySelector('app');
+            const splash = document.getElementById('brand-splash');
+            if (!app || !splash) return;
+
+            const finish = () => {
+                if (!app.classList.contains('d-none')) {
+                    splash.classList.add('brand-splash--complete');
+                    window.setTimeout(() => splash.remove(), 450);
+                    return true;
+                }
+                return false;
+            };
+
+            if (!finish()) {
+                new MutationObserver((_, observer) => {
+                    if (finish()) observer.disconnect();
+                }).observe(app, { attributes: true, attributeFilter: ['class'] });
+            }
+        })();
+    </script>
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>

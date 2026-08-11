@@ -42,9 +42,21 @@ namespace Project1.Win
         {
             InitializeComponent();
             LoadBlankLogo();
-            this.labelApplicationName.Text = "Project1 Portal";
+            BackColor = Color.FromArgb(248, 250, 252);
+            pcApplicationName.Appearance.BackColor = Color.FromArgb(11, 18, 32);
+            labelApplicationName.Appearance.Font = new Font("Segoe UI", 28F, FontStyle.Bold);
+            labelApplicationName.Appearance.ForeColor = Color.White;
+            labelSubtitle.Appearance.ForeColor = Color.FromArgb(148, 163, 184);
+            labelStatus.Appearance.ForeColor = Color.FromArgb(71, 85, 105);
+            labelCopyright.Appearance.ForeColor = Color.FromArgb(100, 116, 139);
+            progressBarControl.Properties.StartColor = Color.FromArgb(20, 184, 166);
+            progressBarControl.Properties.EndColor = Color.FromArgb(56, 189, 248);
+            progressBarControl.Properties.Appearance.BorderColor = Color.FromArgb(203, 213, 225);
+
+            this.labelApplicationName.Text = "Project1 CRM";
             this.labelSubtitle.Text = "Müşteri, Kişi & Not Yönetim Sistemi";
-            this.labelCopyright.Text = "Copyright © " + DateTime.Now.Year.ToString() + " Project1. All rights reserved.";
+            this.labelStatus.Text = "Çalışma alanınız hazırlanıyor...";
+            this.labelCopyright.Text = "© " + DateTime.Now.Year.ToString() + " Project1 CRM";
             UpdateLabelsPosition();
         }
 
