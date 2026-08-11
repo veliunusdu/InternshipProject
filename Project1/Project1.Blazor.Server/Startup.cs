@@ -8,6 +8,7 @@ using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Project1.Blazor.Server.Services;
+using Project1.Module.Models.Entities;
 
 namespace Project1.Blazor.Server
 {
@@ -56,7 +57,7 @@ namespace Project1.Blazor.Server
                     .UseIntegratedMode(options =>
                     {
                         options.RoleType = typeof(PermissionPolicyRole);
-                        options.UserType = typeof(PermissionPolicyUser);
+                        options.UserType = typeof(ApplicationUser);
                     })
                     .AddPasswordAuthentication();
 

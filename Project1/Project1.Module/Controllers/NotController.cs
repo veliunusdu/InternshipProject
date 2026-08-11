@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DevExpress.ExpressApp;
 using DevExpress.Persistent.Base;
+using DevExpress.ExpressApp.Security;
 using Project1.Module.Models.Entities;
 using Project1.Module.Services;
 
@@ -40,6 +41,18 @@ namespace Project1.Module.Controllers
         private void ObjectSpace_Committing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _showToastNotification = false;
+
+            // Check if current user is allowed to send emails
+            bool canSendEmail = true;
+            if (SecuritySystem.CurrentUser is ApplicationUser currentUser)
+            {
+                canSendEmail = currentUser.CanSendEmailOnNoteCreation;
+            }
+
+            if (!canSendEmail)
+            {
+                return; // User is not allowed to send email, skip sending. (Note is still created)
+            }
 
             var pendingNotes = ObjectSpace.ModifiedObjects
                 .OfType<Not>()
