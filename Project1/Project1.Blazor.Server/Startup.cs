@@ -36,10 +36,7 @@ namespace Project1.Blazor.Server
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
-            .AddCookie(options =>
-            {
-                options.LoginPath = "/LoginPage";
-            });
+            .AddCookie();
 
             services.AddXaf(Configuration, builder =>
             {

@@ -8,9 +8,13 @@
   </Options>
   <NavigationItems NavigationStyle="Accordion">
     <Items>
-      <Item Id="Default">
+      <Item Id="Default" Caption="Genel" Index="0">
         <Items>
           <Item Id="Dashboard_View" ViewId="Dashboard_View" Caption="🚀 Ana Sayfa / Dashboard" Index="0" IsNewNode="True" ImageName="Action_Home" />
+          <Item Id="Musteri_ListView" ViewId="Musteri_ListView" Caption="🏢 Müşteriler" Index="1" IsNewNode="True" ImageName="BO_Customer" />
+          <Item Id="Kisi_ListView" ViewId="Kisi_ListView" Caption="👥 Kişiler" Index="2" IsNewNode="True" ImageName="BO_Person" />
+          <Item Id="Not_ListView" ViewId="Not_ListView" Caption="📝 Notlar" Index="3" IsNewNode="True" ImageName="BO_Note" />
+          <Item Id="ApplicationUser_ListView" ViewId="ApplicationUser_ListView" Caption="👤 Kullanıcılar" Index="4" IsNewNode="True" ImageName="BO_User" />
         </Items>
       </Item>
     </Items>

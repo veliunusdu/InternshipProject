@@ -25,14 +25,14 @@ namespace Project1.Module.DatabaseUpdate
             {
                 adminRole = ObjectSpace.CreateObject<PermissionPolicyRole>();
                 adminRole.Name = "Administrators";
-                adminRole.IsAdministrative = false;
-                adminRole.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
-                
-                adminRole.AddTypePermission<Not>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-                adminRole.AddTypePermission<Musteri>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-                adminRole.AddTypePermission<Kisi>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-                adminRole.AddTypePermission<ApplicationUser>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
             }
+            adminRole.IsAdministrative = true;
+            adminRole.PermissionPolicy = SecurityPermissionPolicy.AllowAllByDefault;
+            
+            adminRole.AddTypePermission<Not>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+            adminRole.AddTypePermission<Musteri>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+            adminRole.AddTypePermission<Kisi>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+            adminRole.AddTypePermission<ApplicationUser>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
 
             ApplicationUser adminUser = ObjectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == "Admin");
             if (adminUser == null)
@@ -50,14 +50,18 @@ namespace Project1.Module.DatabaseUpdate
             {
                 defaultRole = ObjectSpace.CreateObject<PermissionPolicyRole>();
                 defaultRole.Name = "Default User";
-                defaultRole.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
-                
-                defaultRole.AddTypePermission<Not>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-                defaultRole.AddTypePermission<Musteri>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-                defaultRole.AddTypePermission<Kisi>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
-                
-                defaultRole.AddObjectPermission<ApplicationUser>(SecurityOperations.Read, "[Oid] = CurrentUserId()", SecurityPermissionState.Allow);
             }
+            defaultRole.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
+            
+            defaultRole.AddTypePermission<Not>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+            defaultRole.AddTypePermission<Musteri>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+            defaultRole.AddTypePermission<Kisi>(SecurityOperations.CRUDAccess, SecurityPermissionState.Allow);
+            
+            defaultRole.AddObjectPermission<ApplicationUser>(SecurityOperations.Read, "[Oid] = CurrentUserId()", SecurityPermissionState.Allow);
+            defaultRole.AddNavigationPermission("Dashboard_View", SecurityPermissionState.Allow);
+            defaultRole.AddNavigationPermission("Musteri_ListView", SecurityPermissionState.Allow);
+            defaultRole.AddNavigationPermission("Kisi_ListView", SecurityPermissionState.Allow);
+            defaultRole.AddNavigationPermission("Not_ListView", SecurityPermissionState.Allow);
 
             ApplicationUser standardUser = ObjectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == "User");
             if (standardUser == null)

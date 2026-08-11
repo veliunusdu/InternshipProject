@@ -1,17 +1,11 @@
-@page "/dashboard"
 @using Project1.Module.Models.Entities
 @using DevExpress.ExpressApp
 @using DevExpress.ExpressApp.Blazor
+@using DevExpress.ExpressApp.Blazor.Editors
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IObjectSpaceFactory ObjectSpaceFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-@if (IsAdminUser)
-{
-    <AdminDashboard />
-}
-else
-{
     <div class="dashboard-container p-3 p-md-4">
         <!-- Header -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
@@ -108,16 +102,16 @@ else
             </div>
         </div>
     </div>
-}
 
 @code {
+    [CascadingParameter]
+    public BlazorControlViewItem ViewItem { get; set; }
+
     private int musteriSayisi = 0;
     private int notSayisi = 0;
     private int kisiSayisi = 0;
 
     private string currentUserName = "";
-    private bool IsAdminUser => string.Equals(currentUserName, "Admin", StringComparison.OrdinalIgnoreCase) ||
-                                (SecuritySystem.CurrentUserName != null && string.Equals(SecuritySystem.CurrentUserName, "Admin", StringComparison.OrdinalIgnoreCase));
 
     private string GreetingText => DateTime.Now.Hour switch
     {

@@ -44,7 +44,7 @@ namespace Project1.Module.Controllers
 
             // Check if current user is allowed to send emails
             bool canSendEmail = true;
-            if (SecuritySystem.CurrentUser is ApplicationUser currentUser)
+            if (SecuritySystem.CurrentUserId != null && ObjectSpace.GetObjectByKey<ApplicationUser>(SecuritySystem.CurrentUserId) is ApplicationUser currentUser)
             {
                 if (currentUser.UserName == "Admin")
                 {
