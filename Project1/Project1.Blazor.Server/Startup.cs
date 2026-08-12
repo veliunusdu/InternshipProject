@@ -1,4 +1,4 @@
-using DevExpress.ExpressApp.ApplicationBuilder;
+﻿using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.Services;
 using DevExpress.ExpressApp.Security;
@@ -25,6 +25,18 @@ namespace Project1.Blazor.Server
         {
             EmailSettings emailSettings = Configuration.GetSection("Email").Get<EmailSettings>() ?? new EmailSettings();
             EmailService.Configure(emailSettings);
+
+            services.AddSingleton<ISystemStatusService, SystemStatusService>();
+            services.AddControllers();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
 
             services.AddSingleton(typeof(Microsoft.AspNetCore.SignalR.HubConnectionHandler<>), typeof(ProxyHubConnectionHandler<>));
 
@@ -101,6 +113,7 @@ namespace Project1.Blazor.Server
             app.UseRequestLocalization();
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseXaf();

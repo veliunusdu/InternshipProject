@@ -1,9 +1,9 @@
+using System.ComponentModel;
 using DevExpress.ExpressApp.DC;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
-using System.ComponentModel;
 using Project1.Module.Models.Enums;
 
 namespace Project1.Module.Models.Entities
@@ -11,6 +11,7 @@ namespace Project1.Module.Models.Entities
     [DefaultClassOptions]
     [DeferredDeletion(false)]
     [ImageName("Crm_Not")]
+    [XafDisplayName("Not")]
     public class Not : BaseObject
     {
         public Not(Session session) : base(session)
@@ -18,6 +19,7 @@ namespace Project1.Module.Models.Entities
         }
 
         private string _baslik;
+        [XafDisplayName("Not Başlığı")]
         [RuleRequiredField("RuleRequired_Not_Baslik", DefaultContexts.Save, "Not başlığı boş bırakılamaz.")]
         public string Baslik
         {
@@ -26,6 +28,7 @@ namespace Project1.Module.Models.Entities
         }
 
         private string _icerik;
+        [XafDisplayName("Not İçeriği")]
         [RuleRequiredField("RuleRequired_Not_Icerik", DefaultContexts.Save, "Not içeriği boş bırakılamaz.")]
         [FieldSize(FieldSizeAttribute.Unlimited)]
         public string Icerik
@@ -35,6 +38,7 @@ namespace Project1.Module.Models.Entities
         }
 
         private NotDerecesi _derece;
+        [XafDisplayName("Önem Derecesi")]
         public NotDerecesi Derece
         {
             get => _derece;
@@ -42,6 +46,7 @@ namespace Project1.Module.Models.Entities
         }
 
         private Musteri _musteri;
+        [XafDisplayName("Müşteri")]
         [ImmediatePostData]
         [VisibleInDetailView(true)]
         [VisibleInListView(true)]
@@ -66,6 +71,7 @@ namespace Project1.Module.Models.Entities
         public XPCollection<Kisi> MusteriKisiler => Musteri?.Kisiler ?? new XPCollection<Kisi>(Session);
 
         private Kisi _kisi;
+        [XafDisplayName("İlgili Kişi")]
         [DataSourceProperty(nameof(MusteriKisiler))]
         [ImmediatePostData]
         [RuleRequiredField("RuleRequired_Not_Kisi", DefaultContexts.Save, "Not bir kişiye bağlı olmak zorundadır.")]

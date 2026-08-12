@@ -1,75 +1,56 @@
+using System;
+using System.Linq;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
-using DevExpress.ExpressApp.Editors;
-using DevExpress.Persistent.Base;
-using Project1.Module.Models.Entities;
-using Project1.Module.Models.Enums;
+using DevExpress.ExpressApp.SystemModule;
 
 namespace Project1.Module.Controllers
 {
-    public sealed class MusteriController : ObjectViewController<DetailView, Musteri>
+    /// <summary>
+    /// Müşteri ve genel navigasyon/güvenlik menülerini yöneten denetleyici.
+    /// Standart kullanıcılar için menüdeki teknik güvenlik öğelerini (Roller, Kullanıcılar) gizler.
+    /// </summary>
+    public sealed class MusteriController : WindowController
     {
-        private readonly PopupWindowShowAction notEkleAction;
-
         public MusteriController()
         {
-            notEkleAction = new PopupWindowShowAction(this, "MusteriNotEkleAction", PredefinedCategory.View)
-            {
-                Caption = "Not Ekle",
-                ImageName = "Action_New",
-                TargetObjectType = typeof(Musteri),
-                TargetViewType = ViewType.DetailView,
-                SelectionDependencyType = SelectionDependencyType.Independent
-            };
-            notEkleAction.CustomizePopupWindowParams += NotEkleAction_CustomizePopupWindowParams;
-            notEkleAction.Execute += NotEkleAction_Execute;
+            TargetWindowType = WindowType.Main;
         }
 
-        private void NotEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
+        protected override void OnActivated()
         {
-            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(Not));
+            base.OnActivated();
 
-            Not yeniNot = objectSpace.CreateObject<Not>();
-            yeniNot.Derece = NotDerecesi.Normal;
-
-            if (View.CurrentObject is Musteri seciliMusteri)
+            ShowNavigationItemController navigationController = Frame.GetController<ShowNavigationItemController>();
+            if (navigationController != null)
             {
-                var musteriInSpace = objectSpace.GetObject(seciliMusteri);
-                yeniNot.Musteri = musteriInSpace;
+                navigationController.ItemsInitialized += NavigationController_ItemsInitialized;
             }
-
-            DetailView popUpView = Application.CreateDetailView(objectSpace, yeniNot);
-            popUpView.ViewEditMode = ViewEditMode.Edit;
-            HideMusteriEditor(popUpView);
-
-            e.View = popUpView;
         }
 
-        private void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
+        private void NavigationController_ItemsInitialized(object sender, EventArgs e)
         {
-            if (e.PopupWindowViewCurrentObject is Not yeniNot)
+            if (sender is ShowNavigationItemController navigationController)
             {
-                IObjectSpace popupObjectSpace = e.PopupWindowView.ObjectSpace;
-                if (popupObjectSpace != null)
+                bool isAdmin = string.Equals(Application?.Security?.UserName, "Admin", StringComparison.OrdinalIgnoreCase);
+                if (!isAdmin)
                 {
-                    if (popupObjectSpace.IsModified)
+                    ChoiceActionItem defaultGroup = navigationController.ShowNavigationItemAction.Items.FirstOrDefault(i => i.Id == "Default");
+                    if (defaultGroup != null)
                     {
-                        popupObjectSpace.CommitChanges();
+                        ChoiceActionItem roleItem = defaultGroup.Items.FirstOrDefault(i => i.Id == "Role");
+                        if (roleItem != null)
+                        {
+                            defaultGroup.Items.Remove(roleItem);
+                        }
+
+                        ChoiceActionItem userItem = defaultGroup.Items.FirstOrDefault(i => i.Id == "User");
+                        if (userItem != null)
+                        {
+                            defaultGroup.Items.Remove(userItem);
+                        }
                     }
                 }
-
-                if (View.ObjectSpace != null)
-                {
-                    View.ObjectSpace.Refresh();
-                }
-            }
-        }
-
-        private static void HideMusteriEditor(DetailView detailView)
-        {
-            if (detailView.FindItem(nameof(Not.Musteri)) is IAppearanceVisibility musteriEditor)
-            {
-                musteriEditor.Visibility = ViewItemVisibility.Hide;
             }
         }
     }

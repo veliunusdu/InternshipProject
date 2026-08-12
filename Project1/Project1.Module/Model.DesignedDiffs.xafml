@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Application Title="Project1 CRM">
+  <ActionDesign>
+    <Actions>
+      <Action Id="MyDetails" Active="False" />
+    </Actions>
+  </ActionDesign>
   <Options>
     <LayoutManagerOptions RequiredFieldMark="*" />
   </Options>
   <Views>
-    <DetailView Id="ApplicationUser_DetailView">
-      <Layout>
-        <LayoutGroup Id="Main">
-          <LayoutGroup Id="Roles_Group" Removed="True" />
-        </LayoutGroup>
-      </Layout>
-    </DetailView>
+    <DetailView Id="ApplicationUser_DetailView" Remove="True" />
     <ListView Id="Musteri_Notlar_ListView" DetailViewId="Not_DetailView" />
     <DetailView Id="Not_DetailView">
       <Items>

@@ -1,16 +1,23 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using DevExpress.Data.Filtering;
 using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.Actions;
+using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Security;
+using DevExpress.ExpressApp.SystemModule;
 using DevExpress.Persistent.Base;
-using DevExpress.ExpressApp.Security;
 using Project1.Module.Models.Entities;
+using Project1.Module.Models.Enums;
 using Project1.Module.Services;
 
 namespace Project1.Module.Controllers
 {
-    public sealed class NotController : ObjectViewController<ObjectView, Not>
+    /// <summary>
+    /// Not nesnesi kaydedildiğinde tetiklenir; ilgili Kişi'ye otomatik HTML e-posta bildirimi gönderir.
+    /// </summary>
+    public sealed class NotEmailNotificationController : ObjectViewController<ObjectView, Not>
     {
         private static readonly Dictionary<string, DateTime> _recentlySentNoteKeys = new Dictionary<string, DateTime>();
         private bool _showToastNotification = false;
@@ -35,13 +42,13 @@ namespace Project1.Module.Controllers
             _showToastNotification = false;
             _emailPermissionDenied = false;
 
-            // Check if current user is allowed to send emails
             bool canSendEmail = true;
-            if (SecuritySystem.CurrentUserId != null && ObjectSpace.GetObjectByKey<ApplicationUser>(SecuritySystem.CurrentUserId) is ApplicationUser currentUser)
+            object currentUserId = Application?.Security?.UserId;
+            if (currentUserId != null && ObjectSpace.GetObjectByKey<ApplicationUser>(currentUserId) is ApplicationUser currentUser)
             {
                 if (currentUser.UserName == "Admin")
                 {
-                    canSendEmail = true; // Admin always sends emails
+                    canSendEmail = true;
                 }
                 else
                 {
@@ -51,7 +58,7 @@ namespace Project1.Module.Controllers
 
             if (!canSendEmail)
             {
-                return; // User is not allowed to send email, skip sending. (Note is still created)
+                return;
             }
 
             var pendingNotes = ObjectSpace.ModifiedObjects
@@ -174,8 +181,6 @@ namespace Project1.Module.Controllers
                 return GetEmailPermission(permissionObjectSpace, security.UserId);
             }
 
-            // Normalde Blazor uygulamasında non-secured factory her zaman bulunur.
-            // Yedek yol, uygulamanın farklı bir host ile çalıştırılması durumundadır.
             using IObjectSpace fallbackObjectSpace =
                 Application.CreateObjectSpace(typeof(UserEmailPermission));
             return GetEmailPermission(fallbackObjectSpace, security.UserId);
@@ -186,6 +191,213 @@ namespace Project1.Module.Controllers
             UserEmailPermission permission = objectSpace.FindObject<UserEmailPermission>(
                 CriteriaOperator.Parse("User.Oid = ?", userId));
             return permission?.CanSendEmail == true;
+        }
+    }
+
+    /// <summary>
+    /// Müşteri detay sayfasındaki "Not Ekle" açılır pencere (popup) butonunu yönetir.
+    /// </summary>
+    public sealed class NotDetailPopupController : ObjectViewController<DetailView, Musteri>
+    {
+        private readonly PopupWindowShowAction notEkleAction;
+
+        public NotDetailPopupController()
+        {
+            notEkleAction = new PopupWindowShowAction(this, "MusteriNotEkleAction", PredefinedCategory.View)
+            {
+                Caption = "Not Ekle",
+                ImageName = "Action_New",
+                TargetObjectType = typeof(Musteri),
+                TargetViewType = ViewType.DetailView,
+                SelectionDependencyType = SelectionDependencyType.Independent
+            };
+            notEkleAction.CustomizePopupWindowParams += NotEkleAction_CustomizePopupWindowParams;
+            notEkleAction.Execute += NotEkleAction_Execute;
+        }
+
+        private void NotEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
+        {
+            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(Not));
+
+            Not yeniNot = objectSpace.CreateObject<Not>();
+            yeniNot.Derece = NotDerecesi.Normal;
+
+            if (View.CurrentObject is Musteri seciliMusteri)
+            {
+                var musteriInSpace = objectSpace.GetObject(seciliMusteri);
+                yeniNot.Musteri = musteriInSpace;
+            }
+
+            DetailView popUpView = Application.CreateDetailView(objectSpace, yeniNot);
+            popUpView.ViewEditMode = ViewEditMode.Edit;
+            if (popUpView.FindItem(nameof(Not.Musteri)) is IAppearanceVisibility musteriEditor)
+            {
+                musteriEditor.Visibility = ViewItemVisibility.Hide;
+            }
+
+            e.View = popUpView;
+        }
+
+        private void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
+        {
+            if (e.PopupWindowViewCurrentObject is Not)
+            {
+                IObjectSpace popupObjectSpace = e.PopupWindowView?.ObjectSpace;
+                if (popupObjectSpace?.IsModified == true)
+                {
+                    popupObjectSpace.CommitChanges();
+                }
+
+                View.ObjectSpace?.Refresh();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Müşteri ve kişi detaylarındaki alt listelerin ekleme işlemlerini sayfa geçişi
+    /// yerine küçük kayıt pencerelerinde (popup) açar.
+    /// </summary>
+    public sealed class RelatedRecordPopupController : ViewController<ListView>
+    {
+        private const string MusteriKisilerListViewId = "Musteri_Kisiler_ListView";
+        private const string MusteriNotlarListViewId = "Musteri_Notlar_ListView";
+        private const string KisiNotlarListViewId = "Kisi_Notlar_ListView";
+
+        private readonly PopupWindowShowAction kisiEkleAction;
+        private readonly PopupWindowShowAction musteriNotEkleAction;
+        private readonly PopupWindowShowAction kisiNotEkleAction;
+
+        public RelatedRecordPopupController()
+        {
+            kisiEkleAction = CreatePopupAction("MusteriDetayKisiEkle", "Kişi Ekle", typeof(Kisi), MusteriKisilerListViewId);
+            kisiEkleAction.CustomizePopupWindowParams += KisiEkleAction_CustomizePopupWindowParams;
+            kisiEkleAction.Execute += PopupAction_Execute;
+
+            musteriNotEkleAction = CreatePopupAction("MusteriDetayNotEkle", "Not Ekle", typeof(Not), MusteriNotlarListViewId);
+            musteriNotEkleAction.CustomizePopupWindowParams += MusteriNotEkleAction_CustomizePopupWindowParams;
+            musteriNotEkleAction.Execute += PopupAction_Execute;
+
+            kisiNotEkleAction = CreatePopupAction("KisiDetayNotEkle", "Not Ekle", typeof(Not), KisiNotlarListViewId);
+            kisiNotEkleAction.CustomizePopupWindowParams += KisiNotEkleAction_CustomizePopupWindowParams;
+            kisiNotEkleAction.Execute += PopupAction_Execute;
+        }
+
+        protected override void OnActivated()
+        {
+            base.OnActivated();
+
+            NewObjectViewController newObjectController = Frame.GetController<NewObjectViewController>();
+            if (newObjectController != null && IsRelatedRecordListView(View.Id))
+            {
+                newObjectController.NewObjectAction.Active.SetItemValue(nameof(RelatedRecordPopupController), false);
+            }
+        }
+
+        protected override void OnDeactivated()
+        {
+            NewObjectViewController newObjectController = Frame.GetController<NewObjectViewController>();
+            newObjectController?.NewObjectAction.Active.RemoveItem(nameof(RelatedRecordPopupController));
+            base.OnDeactivated();
+        }
+
+        private PopupWindowShowAction CreatePopupAction(string id, string caption, Type objectType, string targetViewId)
+        {
+            return new PopupWindowShowAction(this, id, PredefinedCategory.Edit)
+            {
+                Caption = caption,
+                ImageName = "Action_New",
+                TargetObjectType = objectType,
+                TargetViewType = ViewType.ListView,
+                TargetViewNesting = Nesting.Nested,
+                TargetViewId = targetViewId
+            };
+        }
+
+        private void KisiEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
+        {
+            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(Kisi));
+            Kisi yeniKisi = objectSpace.CreateObject<Kisi>();
+
+            if (View.CollectionSource is PropertyCollectionSource collectionSource && collectionSource.MasterObject is Musteri musteri)
+            {
+                yeniKisi.Musteri = objectSpace.GetObject(musteri);
+            }
+
+            DetailView popUpView = Application.CreateDetailView(objectSpace, yeniKisi);
+            popUpView.ViewEditMode = ViewEditMode.Edit;
+            if (popUpView.FindItem(nameof(Kisi.Musteri)) is IAppearanceVisibility musteriEditor)
+            {
+                musteriEditor.Visibility = ViewItemVisibility.Hide;
+            }
+            e.View = popUpView;
+        }
+
+        private void MusteriNotEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
+        {
+            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(Not));
+            Not yeniNot = objectSpace.CreateObject<Not>();
+            yeniNot.Derece = NotDerecesi.Normal;
+
+            if (View.CollectionSource is PropertyCollectionSource collectionSource && collectionSource.MasterObject is Musteri musteri)
+            {
+                yeniNot.Musteri = objectSpace.GetObject(musteri);
+            }
+
+            DetailView popUpView = CreateEditableDetailView(objectSpace, yeniNot);
+            HideEditor(popUpView, nameof(Not.Musteri));
+            e.View = popUpView;
+        }
+
+        private void KisiNotEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
+        {
+            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(Not));
+            Not yeniNot = objectSpace.CreateObject<Not>();
+            yeniNot.Derece = NotDerecesi.Normal;
+
+            if (View.CollectionSource is PropertyCollectionSource collectionSource &&
+                collectionSource.MasterObject is Kisi kisi)
+            {
+                yeniNot.Kisi = objectSpace.GetObject(kisi);
+                yeniNot.Musteri = objectSpace.GetObject(kisi.Musteri);
+            }
+
+            DetailView popUpView = CreateEditableDetailView(objectSpace, yeniNot);
+            HideEditor(popUpView, nameof(Not.Musteri));
+            HideEditor(popUpView, nameof(Not.Kisi));
+            e.View = popUpView;
+        }
+
+        private DetailView CreateEditableDetailView(IObjectSpace objectSpace, object currentObject)
+        {
+            DetailView detailView = Application.CreateDetailView(objectSpace, currentObject);
+            detailView.ViewEditMode = ViewEditMode.Edit;
+            return detailView;
+        }
+
+        private static void HideEditor(DetailView detailView, string itemId)
+        {
+            if (detailView.FindItem(itemId) is IAppearanceVisibility editor)
+            {
+                editor.Visibility = ViewItemVisibility.Hide;
+            }
+        }
+
+        private void PopupAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
+        {
+            IObjectSpace popupObjectSpace = e.PopupWindowView?.ObjectSpace;
+            if (popupObjectSpace?.IsModified == true)
+            {
+                popupObjectSpace.CommitChanges();
+            }
+
+            View.ObjectSpace.Refresh();
+        }
+
+        private static bool IsRelatedRecordListView(string viewId)
+        {
+            return viewId == MusteriKisilerListViewId ||
+                   viewId == MusteriNotlarListViewId ||
+                   viewId == KisiNotlarListViewId;
         }
     }
 }

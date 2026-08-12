@@ -11,6 +11,16 @@ namespace Project1.Module.Services
         public static void Configure(EmailSettings emailSettings)
         {
             settings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+
+            if (string.IsNullOrWhiteSpace(settings.SenderEmail))
+            {
+                settings.SenderEmail = Environment.GetEnvironmentVariable("Email__SenderEmail") ?? string.Empty;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.SenderPassword))
+            {
+                settings.SenderPassword = Environment.GetEnvironmentVariable("Email__SenderPassword") ?? string.Empty;
+            }
         }
 
         public static (bool Success, string ErrorMessage) SendNoteNotificationEmail(
@@ -102,10 +112,20 @@ namespace Project1.Module.Services
             if (string.IsNullOrWhiteSpace(settings.SenderEmail) ||
                 string.IsNullOrWhiteSpace(settings.SenderPassword))
             {
-                return "Gönderici e-posta hesabı yapılandırılmamış.";
+                return "Gönderici e-posta hesabı veya uygulama şifresi tanımlanmamış (appsettings.json veya Email__SenderEmail / Email__SenderPassword ortam değişkenini doldurun).";
             }
 
             return null;
         }
+    }
+
+    public sealed class EmailSettings
+    {
+        public string SmtpHost { get; set; } = "smtp.gmail.com";
+        public int SmtpPort { get; set; } = 587;
+        public bool EnableSsl { get; set; } = true;
+        public string SenderName { get; set; } = "Project1 Sistem Bildirimi";
+        public string SenderEmail { get; set; } = string.Empty;
+        public string SenderPassword { get; set; } = string.Empty;
     }
 }

@@ -1,8 +1,9 @@
+using System.ComponentModel;
+using DevExpress.ExpressApp.DC;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
-using System.ComponentModel;
 
 namespace Project1.Module.Models.Entities
 {
@@ -10,6 +11,7 @@ namespace Project1.Module.Models.Entities
     [DefaultProperty(nameof(AdSoyad))]
     [DeferredDeletion(false)]
     [ImageName("Crm_Kisi")]
+    [XafDisplayName("Kişi")]
     public class Kisi : BaseObject
     {
         public Kisi(Session session) : base(session)
@@ -17,6 +19,7 @@ namespace Project1.Module.Models.Entities
         }
 
         private string _ad;
+        [XafDisplayName("Ad")]
         [ImmediatePostData]
         public string Ad
         {
@@ -31,6 +34,7 @@ namespace Project1.Module.Models.Entities
         }
 
         private string _soyad;
+        [XafDisplayName("Soyad")]
         [ImmediatePostData]
         public string Soyad
         {
@@ -45,6 +49,7 @@ namespace Project1.Module.Models.Entities
         }
 
         private string _email;
+        [XafDisplayName("E-posta Adresi")]
         [RuleRegularExpression("RuleRegularExpression_Kisi_Email", DefaultContexts.Save, @"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$", CustomMessageTemplate = "Lütfen geçerli bir e-posta adresi giriniz.")]
         public string Email
         {
@@ -52,11 +57,13 @@ namespace Project1.Module.Models.Entities
             set => SetPropertyValue(nameof(Email), ref _email, value);
         }
 
+        [XafDisplayName("Ad Soyad")]
         [VisibleInDetailView(false)]
         [VisibleInListView(false)]
         public string AdSoyad => $"{Ad} {Soyad}".Trim();
 
         private Musteri _musteri;
+        [XafDisplayName("Bağlı Olduğu Müşteri")]
         [Association("Musteri-Kisiler")]
         [RuleRequiredField("RuleRequired_Kisi_Musteri", DefaultContexts.Save, "Müşteri seçimi zorunludur. Lütfen bir müşteri seçiniz.")]
         [ImmediatePostData]
@@ -66,6 +73,7 @@ namespace Project1.Module.Models.Entities
             set => SetPropertyValue(nameof(Musteri), ref _musteri, value);
         }
 
+        [XafDisplayName("Notlar")]
         [Association("Kisi-Notlar"), DevExpress.Xpo.Aggregated]
         public XPCollection<Not> Notlar => GetCollection<Not>(nameof(Notlar));
     }

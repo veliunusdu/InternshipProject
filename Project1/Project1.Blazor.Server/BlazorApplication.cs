@@ -19,7 +19,8 @@ namespace Project1.Blazor.Server
             base.OnSetupStarted();
 
 #if DEBUG
-            if(System.Diagnostics.Debugger.IsAttached && CheckCompatibilityType == CheckCompatibilityType.DatabaseSchema) {
+            if (CheckCompatibilityType == CheckCompatibilityType.DatabaseSchema)
+            {
                 DatabaseUpdateMode = DatabaseUpdateMode.UpdateDatabaseAlways;
             }
 #endif
