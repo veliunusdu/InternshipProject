@@ -5,12 +5,15 @@ using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using Project1.Module.BusinessObjects.Notes;
+using DevExpress.ExpressApp.ConditionalAppearance;
+using DevExpress.ExpressApp.Editors;
 
 namespace Project1.Module.BusinessObjects.Customers
 {
     [DefaultClassOptions]
     [ImageName("BO_Person")]
     [XafDisplayName("Kişi")]
+    [Appearance("HideMusteriInKisiPopup", TargetItems = "Musteri", Criteria = "[IsMusteriHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
     public class Kisi : BaseObject
     {
         public Kisi(Session session) : base(session)
@@ -37,6 +40,7 @@ namespace Project1.Module.BusinessObjects.Customers
 
         [XafDisplayName("Ad Soyad")]
         [VisibleInListView(true)]
+        [VisibleInDetailView(false)]
         public string AdSoyad => $"{Ad} {Soyad}".Trim();
 
         private string _email;
@@ -70,5 +74,9 @@ namespace Project1.Module.BusinessObjects.Customers
         [Association("Kisi-Notlar")]
         [XafDisplayName("Notlar")]
         public XPCollection<Not> Notlar => GetCollection<Not>(nameof(Notlar));
+
+        [Browsable(false)]
+        [NonPersistent]
+        public bool IsMusteriHidden { get; set; }
     }
 }

@@ -6,6 +6,8 @@ using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using Project1.Module.BusinessObjects.Customers;
 using Project1.Module.BusinessObjects.Enums;
+using DevExpress.ExpressApp.ConditionalAppearance;
+using DevExpress.ExpressApp.Editors;
 
 namespace Project1.Module.BusinessObjects.Notes
 {
@@ -13,6 +15,8 @@ namespace Project1.Module.BusinessObjects.Notes
     [DeferredDeletion(false)]
     [ImageName("Crm_Not")]
     [XafDisplayName("Not")]
+    [Appearance("HideMusteriInPopup", TargetItems = "Musteri", Criteria = "[IsMusteriHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
+    [Appearance("HideKisiInPopup", TargetItems = "Kisi", Criteria = "[IsKisiHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
     public class Not : BaseObject
     {
         public Not(Session session) : base(session)
@@ -107,5 +111,13 @@ namespace Project1.Module.BusinessObjects.Notes
 
         [Browsable(false)]
         public bool EmailGonderilebilir => !IsEmailSent && Kisi != null && !string.IsNullOrWhiteSpace(Kisi.Email);
+
+        [Browsable(false)]
+        [NonPersistent]
+        public bool IsMusteriHidden { get; set; }
+
+        [Browsable(false)]
+        [NonPersistent]
+        public bool IsKisiHidden { get; set; }
     }
 }

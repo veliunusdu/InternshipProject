@@ -34,19 +34,25 @@ namespace Project1.Module.Services.Implementations
             return _objectSpaceFactory.CreateObjectSpace(typeof(Not));
         }
 
+        private NoteDto MapToDto(Not n)
+        {
+            return new NoteDto(
+                n.Oid,
+                n.Baslik ?? string.Empty,
+                n.Icerik ?? string.Empty,
+                n.Derece.ToString(),
+                n.Musteri != null ? n.Musteri.Ad : string.Empty,
+                n.Kisi != null ? (n.Kisi.Ad + " " + n.Kisi.Soyad).Trim() : string.Empty,
+                n.IsEmailSent
+            );
+        }
+
         public Task<IEnumerable<NoteDto>> GetNotesAsync(CancellationToken cancellationToken = default)
         {
             using IObjectSpace objectSpace = CreateObjectSpace();
             var notes = objectSpace.GetObjectsQuery<Not>()
-                .Select(n => new NoteDto(
-                    n.Oid,
-                    n.Baslik ?? string.Empty,
-                    n.Icerik ?? string.Empty,
-                    n.Derece.ToString(),
-                    n.Musteri != null ? n.Musteri.Ad : string.Empty,
-                    n.Kisi != null ? (n.Kisi.Ad + " " + n.Kisi.Soyad).Trim() : string.Empty,
-                    n.IsEmailSent
-                ))
+                .AsEnumerable()
+                .Select(n => MapToDto(n))
                 .ToList();
 
             return Task.FromResult<IEnumerable<NoteDto>>(notes);
@@ -58,17 +64,7 @@ namespace Project1.Module.Services.Implementations
             var n = objectSpace.GetObjectByKey<Not>(id);
             if (n == null) return Task.FromResult<NoteDto?>(null);
 
-            var dto = new NoteDto(
-                n.Oid,
-                n.Baslik ?? string.Empty,
-                n.Icerik ?? string.Empty,
-                n.Derece.ToString(),
-                n.Musteri != null ? n.Musteri.Ad : string.Empty,
-                n.Kisi != null ? (n.Kisi.Ad + " " + n.Kisi.Soyad).Trim() : string.Empty,
-                n.IsEmailSent
-            );
-
-            return Task.FromResult<NoteDto?>(dto);
+            return Task.FromResult<NoteDto?>(MapToDto(n));
         }
 
         public Task<NoteDto> CreateNoteAsync(CreateNoteRequestDto request, CancellationToken cancellationToken = default)
@@ -81,17 +77,7 @@ namespace Project1.Module.Services.Implementations
 
             objectSpace.CommitChanges();
 
-            var dto = new NoteDto(
-                not.Oid,
-                not.Baslik,
-                not.Icerik,
-                not.Derece.ToString(),
-                string.Empty,
-                string.Empty,
-                not.IsEmailSent
-            );
-
-            return Task.FromResult(dto);
+            return Task.FromResult(MapToDto(not));
         }
     }
 }

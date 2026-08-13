@@ -35,6 +35,7 @@
               <LayoutItem Id="Ad" Index="1" />
               <LayoutItem Id="Soyad" Index="2" />
               <LayoutItem Id="Email" Index="3" />
+              <LayoutItem Id="Telefon" Index="4" />
             </LayoutGroup>
           </LayoutGroup>
         </LayoutGroup>
