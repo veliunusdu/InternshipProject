@@ -1,29 +1,30 @@
+using System;
 using System.Net;
 using System.Net.Mail;
 using DevExpress.Persistent.Base;
 
 namespace Project1.Module.Services
 {
-    public static class EmailService
+    public class EmailService : IEmailService
     {
-        private static EmailSettings settings = new();
+        private readonly EmailSettings _settings;
 
-        public static void Configure(EmailSettings emailSettings)
+        public EmailService(EmailSettings settings)
         {
-            settings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-            if (string.IsNullOrWhiteSpace(settings.SenderEmail))
+            if (string.IsNullOrWhiteSpace(_settings.SenderEmail))
             {
-                settings.SenderEmail = Environment.GetEnvironmentVariable("Email__SenderEmail") ?? string.Empty;
+                _settings.SenderEmail = Environment.GetEnvironmentVariable("Email__SenderEmail") ?? string.Empty;
             }
 
-            if (string.IsNullOrWhiteSpace(settings.SenderPassword))
+            if (string.IsNullOrWhiteSpace(_settings.SenderPassword))
             {
-                settings.SenderPassword = Environment.GetEnvironmentVariable("Email__SenderPassword") ?? string.Empty;
+                _settings.SenderPassword = Environment.GetEnvironmentVariable("Email__SenderPassword") ?? string.Empty;
             }
         }
 
-        public static (bool Success, string ErrorMessage) SendNoteNotificationEmail(
+        public (bool Success, string ErrorMessage) SendNoteNotificationEmail(
             string toEmail,
             string kisiName,
             string baslik,
@@ -44,7 +45,7 @@ namespace Project1.Module.Services
 
             try
             {
-                string cleanPassword = settings.SenderPassword.Replace(" ", string.Empty);
+                string cleanPassword = _settings.SenderPassword.Replace(" ", string.Empty);
                 string safeKisiName = WebUtility.HtmlEncode(kisiName);
                 string safeMusteriName = WebUtility.HtmlEncode(musteriName);
                 string safeBaslik = WebUtility.HtmlEncode(baslik);
@@ -53,7 +54,7 @@ namespace Project1.Module.Services
 
                 using var message = new MailMessage
                 {
-                    From = new MailAddress(settings.SenderEmail, settings.SenderName),
+                    From = new MailAddress(_settings.SenderEmail, _settings.SenderName),
                     Subject = $"[Yeni Not Bildirimi] {musteriName} - {baslik}",
                     IsBodyHtml = true,
                     Body = $@"
@@ -77,11 +78,11 @@ namespace Project1.Module.Services
                 };
                 message.To.Add(new MailAddress(toEmail, kisiName));
 
-                using var client = new SmtpClient(settings.SmtpHost, settings.SmtpPort)
+                using var client = new SmtpClient(_settings.SmtpHost, _settings.SmtpPort)
                 {
                     UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(settings.SenderEmail, cleanPassword),
-                    EnableSsl = settings.EnableSsl,
+                    Credentials = new NetworkCredential(_settings.SenderEmail, cleanPassword),
+                    EnableSsl = _settings.EnableSsl,
                     DeliveryMethod = SmtpDeliveryMethod.Network
                 };
 
@@ -91,26 +92,25 @@ namespace Project1.Module.Services
             }
             catch (Exception exception)
             {
-                string errorMessage = exception.InnerException?.Message ?? exception.Message;
                 Tracing.Tracer.LogError($"[Email Error] Mail gönderilemedi ({toEmail}): {exception}");
-                return (false, errorMessage);
+                return (false, exception.Message);
             }
         }
 
-        private static string ValidateConfiguration()
+        private string ValidateConfiguration()
         {
-            if (string.IsNullOrWhiteSpace(settings.SmtpHost))
+            if (string.IsNullOrWhiteSpace(_settings.SmtpHost))
             {
                 return "SMTP sunucusu yapılandırılmamış.";
             }
 
-            if (settings.SmtpPort <= 0)
+            if (_settings.SmtpPort <= 0)
             {
                 return "SMTP portu geçersiz.";
             }
 
-            if (string.IsNullOrWhiteSpace(settings.SenderEmail) ||
-                string.IsNullOrWhiteSpace(settings.SenderPassword))
+            if (string.IsNullOrWhiteSpace(_settings.SenderEmail) ||
+                string.IsNullOrWhiteSpace(_settings.SenderPassword))
             {
                 return "Gönderici e-posta hesabı veya uygulama şifresi tanımlanmamış (appsettings.json veya Email__SenderEmail / Email__SenderPassword ortam değişkenini doldurun).";
             }
