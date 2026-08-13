@@ -32,7 +32,7 @@ namespace Project1.Module.Controllers
         {
             if (sender is ShowNavigationItemController navigationController)
             {
-                bool isAdmin = string.Equals(Application?.Security?.UserName, "Admin", StringComparison.OrdinalIgnoreCase);
+                bool isAdmin = string.Equals(Application?.Security?.UserName, Security.SecurityConstants.AdministratorUserName, StringComparison.OrdinalIgnoreCase);
                 if (!isAdmin)
                 {
                     ChoiceActionItem defaultGroup = navigationController.ShowNavigationItemAction.Items.FirstOrDefault(i => i.Id == "Default");

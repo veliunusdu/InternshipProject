@@ -1,6 +1,9 @@
+#nullable enable
 using System;
 using System.Net;
 using System.Net.Mail;
+using System.Threading;
+using System.Threading.Tasks;
 using DevExpress.Persistent.Base;
 
 namespace Project1.Module.Services
@@ -24,80 +27,91 @@ namespace Project1.Module.Services
             }
         }
 
-        public (bool Success, string ErrorMessage) SendNoteNotificationEmail(
-            string toEmail,
-            string kisiName,
-            string baslik,
-            string icerik,
-            string derece,
-            string musteriName)
+        public async Task<EmailResult> SendNoteNotificationEmailAsync(
+            SendNoteNotificationRequest request,
+            CancellationToken cancellationToken = default)
         {
-            string configurationError = ValidateConfiguration();
-            if (configurationError != null)
+            if (request == null)
             {
-                return (false, configurationError);
+                throw new ArgumentNullException(nameof(request));
             }
 
-            if (string.IsNullOrWhiteSpace(toEmail))
+            string? configurationError = ValidateConfiguration();
+            if (configurationError != null)
             {
-                return (false, "E-posta adresi belirtilmemiş.");
+                return new EmailResult(false, configurationError);
+            }
+
+            if (string.IsNullOrWhiteSpace(request.ToEmail))
+            {
+                return new EmailResult(false, "E-posta adresi belirtilmemiş.");
             }
 
             try
             {
-                string cleanPassword = _settings.SenderPassword.Replace(" ", string.Empty);
-                string safeKisiName = WebUtility.HtmlEncode(kisiName);
-                string safeMusteriName = WebUtility.HtmlEncode(musteriName);
-                string safeBaslik = WebUtility.HtmlEncode(baslik);
-                string safeIcerik = WebUtility.HtmlEncode(icerik);
-                string safeDerece = WebUtility.HtmlEncode(derece);
+                using var message = CreateMailMessage(request);
+                using var client = CreateSmtpClient();
 
-                using var message = new MailMessage
-                {
-                    From = new MailAddress(_settings.SenderEmail, _settings.SenderName),
-                    Subject = $"[Yeni Not Bildirimi] {musteriName} - {baslik}",
-                    IsBodyHtml = true,
-                    Body = $@"
-                        <div style='font-family: Arial, sans-serif; padding: 24px; background-color: #f4f6f9; border-radius: 8px;'>
-                            <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;'>
-                                <h2 style='color: #2c3e50; margin-top: 0;'>Merhaba {safeKisiName},</h2>
-                                <p style='color: #34495e; font-size: 15px;'>Tarafınıza <strong>{safeMusteriName}</strong> müşterisi ile ilgili yeni bir not eklenmiştir.</p>
-                                <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;' />
-                                <table style='width: 100%; border-collapse: collapse; font-size: 14px;'>
-                                    <tr><td style='padding: 8px 0; color: #7f8c8d; width: 120px;'><strong>Müşteri:</strong></td><td style='padding: 8px 0; color: #2c3e50;'>{safeMusteriName}</td></tr>
-                                    <tr><td style='padding: 8px 0; color: #7f8c8d;'><strong>Not Başlığı:</strong></td><td style='padding: 8px 0; color: #2c3e50;'><strong>{safeBaslik}</strong></td></tr>
-                                    <tr><td style='padding: 8px 0; color: #7f8c8d;'><strong>Önem Derecesi:</strong></td><td style='padding: 8px 0; color: #e74c3c;'><strong>{safeDerece}</strong></td></tr>
-                                </table>
-                                <div style='margin-top: 20px; padding: 16px; background-color: #ebf5fb; border-left: 4px solid #3498db; border-radius: 4px;'>
-                                    <strong style='color: #2980b9;'>Not İçeriği:</strong>
-                                    <p style='margin: 8px 0 0 0; color: #2c3e50; white-space: pre-wrap;'>{safeIcerik}</p>
-                                </div>
-                                <p style='font-size: 12px; color: #95a5a6; text-align: center;'>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
-                            </div>
-                        </div>"
-                };
-                message.To.Add(new MailAddress(toEmail, kisiName));
-
-                using var client = new SmtpClient(_settings.SmtpHost, _settings.SmtpPort)
-                {
-                    UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(_settings.SenderEmail, cleanPassword),
-                    EnableSsl = _settings.EnableSsl,
-                    DeliveryMethod = SmtpDeliveryMethod.Network
-                };
-
-                client.Send(message);
-                Tracing.Tracer.LogText($"[Email Success] Mail sent to {toEmail} successfully.");
-                return (true, null);
+                await client.SendMailAsync(message);
+                Tracing.Tracer.LogText($"[Email Success Async] Mail sent to {request.ToEmail} successfully.");
+                return new EmailResult(true, null);
             }
             catch (Exception exception)
             {
-                Tracing.Tracer.LogError($"[Email Error] Mail gönderilemedi ({toEmail}): {exception}");
-                return (false, exception.Message);
+                Tracing.Tracer.LogError($"[Email Error Async] Mail gönderilemedi ({request.ToEmail}): {exception}");
+                return new EmailResult(false, exception.Message);
             }
         }
 
-        private string ValidateConfiguration()
+        private MailMessage CreateMailMessage(SendNoteNotificationRequest request)
+        {
+            string safeKisiName = WebUtility.HtmlEncode(request.RecipientName);
+            string safeMusteriName = WebUtility.HtmlEncode(request.CustomerName);
+            string safeBaslik = WebUtility.HtmlEncode(request.Title);
+            string safeIcerik = WebUtility.HtmlEncode(request.Content);
+            string safeDerece = WebUtility.HtmlEncode(request.Severity);
+
+            var message = new MailMessage
+            {
+                From = new MailAddress(_settings.SenderEmail, _settings.SenderName),
+                Subject = $"[Yeni Not Bildirimi] {request.CustomerName} - {request.Title}",
+                IsBodyHtml = true,
+                Body = $@"
+                    <div style='font-family: Arial, sans-serif; padding: 24px; background-color: #f4f6f9; border-radius: 8px;'>
+                        <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px;'>
+                            <h2 style='color: #2c3e50; margin-top: 0;'>Merhaba {safeKisiName},</h2>
+                            <p style='color: #34495e; font-size: 15px;'>Tarafınıza <strong>{safeMusteriName}</strong> müşterisi ile ilgili yeni bir not eklenmiştir.</p>
+                            <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;' />
+                            <table style='width: 100%; border-collapse: collapse; font-size: 14px;'>
+                                <tr><td style='padding: 8px 0; color: #7f8c8d; width: 120px;'><strong>Müşteri:</strong></td><td style='padding: 8px 0; color: #2c3e50;'>{safeMusteriName}</td></tr>
+                                <tr><td style='padding: 8px 0; color: #7f8c8d;'><strong>Not Başlığı:</strong></td><td style='padding: 8px 0; color: #2c3e50;'><strong>{safeBaslik}</strong></td></tr>
+                                <tr><td style='padding: 8px 0; color: #7f8c8d;'><strong>Önem Derecesi:</strong></td><td style='padding: 8px 0; color: #e74c3c;'><strong>{safeDerece}</strong></td></tr>
+                            </table>
+                            <div style='margin-top: 20px; padding: 16px; background-color: #ebf5fb; border-left: 4px solid #3498db; border-radius: 4px;'>
+                                <strong style='color: #2980b9;'>Not İçeriği:</strong>
+                                <p style='margin: 8px 0 0 0; color: #2c3e50; white-space: pre-wrap;'>{safeIcerik}</p>
+                            </div>
+                            <p style='font-size: 12px; color: #95a5a6; text-align: center;'>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
+                        </div>
+                    </div>"
+            };
+            message.To.Add(new MailAddress(request.ToEmail, request.RecipientName));
+            return message;
+        }
+
+        private SmtpClient CreateSmtpClient()
+        {
+            string cleanPassword = _settings.SenderPassword.Replace(" ", string.Empty);
+            return new SmtpClient(_settings.SmtpHost, _settings.SmtpPort)
+            {
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(_settings.SenderEmail, cleanPassword),
+                EnableSsl = _settings.EnableSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network
+            };
+        }
+
+        private string? ValidateConfiguration()
         {
             if (string.IsNullOrWhiteSpace(_settings.SmtpHost))
             {
