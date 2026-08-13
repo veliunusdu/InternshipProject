@@ -29,6 +29,7 @@ namespace Project1.Blazor.Server
             services.AddSingleton<IEmailService, EmailService>();
 
             services.AddSingleton<ISystemStatusService, SystemStatusService>();
+            services.AddScoped<INoteService, NoteService>();
             services.AddControllers();
             services.AddCors(options =>
             {

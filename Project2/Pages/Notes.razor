@@ -1,0 +1,81 @@
+@page "/notes"
+@inject Project2.ViewModels.NoteListViewModel ViewModel
+
+<PageTitle>Not Listesi - Project2</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Müşteri Notları (MVVM & DTO)</h3>
+        <button class="btn btn-primary" @onclick="ViewModel.LoadNotesAsync" disabled="@ViewModel.IsLoading">
+            @if (ViewModel.IsLoading)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span> Yükleniyor...</span>
+            }
+            else
+            {
+                <span>🔄 Yenile</span>
+            }
+        </button>
+    </div>
+
+    <p class="text-muted">Bu sayfa Project1 REST API'den DTO nesneleri çekip ViewModel ile bağlamaktadır (MVVM Pattern).</p>
+
+    @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewModel.ErrorMessage
+        </div>
+    }
+
+    @if (ViewModel.Notes.Count == 0 && !ViewModel.IsLoading)
+    {
+        <div class="alert alert-info shadow-sm">Henüz kayıtlı bir not bulunamadı.</div>
+    }
+    else if (ViewModel.Notes.Count > 0)
+    {
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Başlık</th>
+                        <th>İçerik</th>
+                        <th>Derece</th>
+                        <th>Müşteri</th>
+                        <th>İlgili Kişi</th>
+                        <th>E-posta Bildirimi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var note in ViewModel.Notes)
+                    {
+                        <tr>
+                            <td><strong>@note.Baslik</strong></td>
+                            <td>@note.Icerik</td>
+                            <td><span class="badge bg-secondary">@note.Derece</span></td>
+                            <td>@note.MusteriUnvan</td>
+                            <td>@note.KisiAdSoyad</td>
+                            <td>
+                                @if (note.IsEmailSent)
+                                {
+                                    <span class="badge bg-success">Gönderildi</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Bekliyor</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ViewModel.LoadNotesAsync();
+    }
+}
