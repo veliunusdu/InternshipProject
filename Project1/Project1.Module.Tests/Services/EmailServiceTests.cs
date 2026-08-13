@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Project1.Module.Services.Implementations;
-using Project1.Module.Services.Interfaces;
+using Project1.Core.Services.Interfaces;
 using Xunit;
 
 namespace Project1.Module.Tests.Services

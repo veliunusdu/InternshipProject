@@ -4,13 +4,13 @@ using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
 using Project1.Module.BusinessObjects.Customers;
 using Project1.Module.BusinessObjects.Enums;
-using Project1.Module.BusinessObjects.Notes;
+using Project1.Module.BusinessObjects.NonPersistent;
+using Project1.Core.Commands;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Project1.Module.Controllers.Customers
 {
-    /// <summary>
-    /// Müşteri detay veya liste sayfalarındaki "Not Ekle" ve "Kişi Ekle" açılır pencere (popup) butonlarını yönetir.
-    /// </summary>
     public sealed class MusteriPopupController : ObjectViewController<ObjectView, Musteri>
     {
         private readonly PopupWindowShowAction notEkleAction;
@@ -43,45 +43,64 @@ namespace Project1.Module.Controllers.Customers
 
         private void NotEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
         {
-            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(Not));
-
-            Not yeniNot = objectSpace.CreateObject<Not>();
-            yeniNot.Derece = NotDerecesi.Normal;
+            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(CreateNoteParameters));
+            CreateNoteParameters parameters = objectSpace.CreateObject<CreateNoteParameters>();
+            parameters.Derece = NotDerecesi.Normal;
 
             if (View.CurrentObject is Musteri seciliMusteri)
             {
-                var musteriInSpace = objectSpace.GetObject(seciliMusteri);
-                yeniNot.Musteri = musteriInSpace;
-                yeniNot.IsMusteriHidden = true;
+                // We keep a reference to pass the ID later
+                parameters.Musteri = objectSpace.GetObject(seciliMusteri);
             }
 
-            e.View = PopupHelper.CreateEditableDetailView(Application, objectSpace, yeniNot);
+            e.View = Application.CreateDetailView(objectSpace, parameters);
         }
 
         private void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            PopupHelper.CommitAndRefresh(e, View);
+            var parameters = (CreateNoteParameters)e.PopupWindowView.CurrentObject;
+            
+            var command = new CreateNoteCommand(
+                parameters.Baslik, 
+                parameters.Icerik, 
+                (int)parameters.Derece, 
+                parameters.Musteri?.Oid, 
+                parameters.Kisi?.Oid);
+
+            var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
+            mediator.Send(command).Wait();
+
+            View.ObjectSpace.Refresh();
         }
 
         private void KisiEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
         {
-            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(Kisi));
-
-            Kisi yeniKisi = objectSpace.CreateObject<Kisi>();
+            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(CreateKisiParameters));
+            CreateKisiParameters parameters = objectSpace.CreateObject<CreateKisiParameters>();
 
             if (View.CurrentObject is Musteri seciliMusteri)
             {
-                var musteriInSpace = objectSpace.GetObject(seciliMusteri);
-                yeniKisi.Musteri = musteriInSpace;
-                yeniKisi.IsMusteriHidden = true;
+                parameters.Musteri = objectSpace.GetObject(seciliMusteri);
             }
 
-            e.View = PopupHelper.CreateEditableDetailView(Application, objectSpace, yeniKisi);
+            e.View = Application.CreateDetailView(objectSpace, parameters);
         }
 
         private void KisiEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            PopupHelper.CommitAndRefresh(e, View);
+            var parameters = (CreateKisiParameters)e.PopupWindowView.CurrentObject;
+
+            var command = new CreateKisiCommand(
+                parameters.Ad, 
+                parameters.Soyad, 
+                parameters.Email,
+                parameters.Telefon,
+                parameters.Musteri?.Oid);
+
+            var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
+            mediator.Send(command).Wait();
+
+            View.ObjectSpace.Refresh();
         }
     }
 }

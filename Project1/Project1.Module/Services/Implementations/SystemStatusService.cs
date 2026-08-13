@@ -1,4 +1,4 @@
-using Project1.Module.Services.Interfaces;
+using Project1.Core.Services.Interfaces;
 
 namespace Project1.Module.Services.Implementations
 {

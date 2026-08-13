@@ -12,6 +12,7 @@ using DevExpress.ExpressApp.Editors;
 namespace Project1.Module.BusinessObjects.Notes
 {
     [DefaultClassOptions]
+    [DefaultProperty(nameof(Baslik))]
     [DeferredDeletion(false)]
     [ImageName("Crm_Not")]
     [XafDisplayName("Not")]

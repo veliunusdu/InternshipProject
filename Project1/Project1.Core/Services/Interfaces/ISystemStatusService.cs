@@ -1,4 +1,4 @@
-namespace Project1.Module.Services.Interfaces
+namespace Project1.Core.Services.Interfaces
 {
     public interface ISystemStatusService
     {

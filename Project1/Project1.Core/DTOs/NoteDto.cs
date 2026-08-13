@@ -1,6 +1,6 @@
 using System;
 
-namespace Project1.Module.DTOs
+namespace Project1.Core.DTOs
 {
     public record NoteDto(
         Guid Oid,

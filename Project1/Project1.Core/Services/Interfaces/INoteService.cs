@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Project1.Module.DTOs;
+using Project1.Core.DTOs;
 
-namespace Project1.Module.Services.Interfaces
+namespace Project1.Core.Services.Interfaces
 {
     public interface INoteService
     {

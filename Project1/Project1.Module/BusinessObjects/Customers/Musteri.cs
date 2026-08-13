@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using DevExpress.ExpressApp.DC;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
@@ -8,6 +9,7 @@ using Project1.Module.BusinessObjects.Notes;
 namespace Project1.Module.BusinessObjects.Customers
 {
     [DefaultClassOptions]
+    [DefaultProperty(nameof(Ad))]
     [ImageName("BO_Customer")]
     [XafDisplayName("Müşteri")]
     public class Musteri : BaseObject

@@ -10,7 +10,7 @@ using Project1.Module.BusinessObjects.Customers;
 using Project1.Module.BusinessObjects.Notes;
 using Project1.Module.BusinessObjects.Security;
 using Project1.Module.Security;
-using Project1.Module.Services.Interfaces;
+using Project1.Core.Services.Interfaces;
 
 namespace Project1.Module.Controllers.Notes
 {

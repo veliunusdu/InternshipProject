@@ -5,7 +5,7 @@ using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using DevExpress.Persistent.Base;
-using Project1.Module.Services.Interfaces;
+using Project1.Core.Services.Interfaces;
 
 namespace Project1.Module.Services.Implementations
 {

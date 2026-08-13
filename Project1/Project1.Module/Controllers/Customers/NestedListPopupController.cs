@@ -5,6 +5,10 @@ using DevExpress.ExpressApp.SystemModule;
 using Project1.Module.BusinessObjects.Customers;
 using Project1.Module.BusinessObjects.Notes;
 using Project1.Module.BusinessObjects.Enums;
+using Project1.Module.BusinessObjects.NonPersistent;
+using Project1.Core.Commands;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using DevExpress.Persistent.Base;
 
 namespace Project1.Module.Controllers.Customers
@@ -61,48 +65,68 @@ namespace Project1.Module.Controllers.Customers
 
         private void PopupEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
         {
-            IObjectSpace popupObjectSpace = Application.CreateObjectSpace(View.ObjectTypeInfo.Type);
-            object newObject = popupObjectSpace.CreateObject(View.ObjectTypeInfo.Type);
+            Type paramType = View.ObjectTypeInfo.Type == typeof(Kisi) ? typeof(CreateKisiParameters) : typeof(CreateNoteParameters);
+            IObjectSpace popupObjectSpace = Application.CreateObjectSpace(paramType);
+            object newObject = popupObjectSpace.CreateObject(paramType);
 
             // Master objeyi al (Müşteri veya Kişi)
             PropertyCollectionSource collectionSource = View.CollectionSource as PropertyCollectionSource;
             object masterObject = collectionSource?.MasterObject;
 
-            if (newObject is Kisi yeniKisi)
+            if (newObject is CreateKisiParameters kisiParams)
             {
                 if (masterObject is Musteri musteri)
                 {
-                    yeniKisi.Musteri = popupObjectSpace.GetObject(musteri);
+                    kisiParams.Musteri = popupObjectSpace.GetObject(musteri);
                 }
-                yeniKisi.IsMusteriHidden = true;
             }
-            else if (newObject is Not yeniNot)
+            else if (newObject is CreateNoteParameters noteParams)
             {
-                yeniNot.Derece = NotDerecesi.Normal;
+                noteParams.Derece = NotDerecesi.Normal;
                 
                 if (masterObject is Musteri musteri)
                 {
-                    yeniNot.Musteri = popupObjectSpace.GetObject(musteri);
-                    yeniNot.IsMusteriHidden = true;
+                    noteParams.Musteri = popupObjectSpace.GetObject(musteri);
                 }
                 else if (masterObject is Kisi kisi)
                 {
-                    yeniNot.Kisi = popupObjectSpace.GetObject(kisi);
+                    noteParams.Kisi = popupObjectSpace.GetObject(kisi);
                     if (kisi.Musteri != null)
                     {
-                        yeniNot.Musteri = popupObjectSpace.GetObject(kisi.Musteri);
+                        noteParams.Musteri = popupObjectSpace.GetObject(kisi.Musteri);
                     }
-                    yeniNot.IsKisiHidden = true;
-                    yeniNot.IsMusteriHidden = true;
                 }
             }
 
-            e.View = PopupHelper.CreateEditableDetailView(Application, popupObjectSpace, newObject);
+            e.View = Application.CreateDetailView(popupObjectSpace, newObject);
         }
 
         private void PopupEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            PopupHelper.CommitAndRefresh(e, View);
+            var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
+
+            if (e.PopupWindowView.CurrentObject is CreateKisiParameters kisiParams)
+            {
+                var command = new CreateKisiCommand(
+                    kisiParams.Ad, 
+                    kisiParams.Soyad, 
+                    kisiParams.Email,
+                    kisiParams.Telefon,
+                    kisiParams.Musteri?.Oid);
+                mediator.Send(command).Wait();
+            }
+            else if (e.PopupWindowView.CurrentObject is CreateNoteParameters noteParams)
+            {
+                var command = new CreateNoteCommand(
+                    noteParams.Baslik, 
+                    noteParams.Icerik, 
+                    (int)noteParams.Derece, 
+                    noteParams.Musteri?.Oid, 
+                    noteParams.Kisi?.Oid);
+                mediator.Send(command).Wait();
+            }
+
+            View.ObjectSpace.Refresh();
         }
     }
 }

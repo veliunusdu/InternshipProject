@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Project1.Module.Services.Interfaces
+namespace Project1.Core.Services.Interfaces
 {
     /// <summary>
     /// E-posta bildirim isteği için parametre nesnesi.

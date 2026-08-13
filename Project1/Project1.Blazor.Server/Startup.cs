@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Project1.Blazor.Server.Services;
 using Project1.Module.Services.Implementations;
-using Project1.Module.Services.Interfaces;
+using Project1.Core.Services.Interfaces;
+using Project1.Module.Handlers;
+using MediatR;
 
 namespace Project1.Blazor.Server
 {
@@ -30,6 +32,10 @@ namespace Project1.Blazor.Server
 
             services.AddSingleton<ISystemStatusService, SystemStatusService>();
             services.AddScoped<INoteService, NoteService>();
+            
+            // MediatR Configuration
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateNoteCommandHandler).Assembly));
+            
             services.AddControllers();
             services.AddCors(options =>
             {

@@ -1,0 +1,19 @@
+using System;
+using DevExpress.ExpressApp.DC;
+using Project1.Module.BusinessObjects.Enums;
+using Project1.Module.BusinessObjects.Customers;
+
+namespace Project1.Module.BusinessObjects.NonPersistent
+{
+    [DomainComponent]
+    public class CreateNoteParameters
+    {
+        public string Baslik { get; set; } = string.Empty;
+        public string Icerik { get; set; } = string.Empty;
+        public NotDerecesi Derece { get; set; } = NotDerecesi.Normal;
+
+        // Gizli tutulacak veya arka planda atanacak alanlar
+        public Musteri? Musteri { get; set; }
+        public Kisi? Kisi { get; set; }
+    }
+}

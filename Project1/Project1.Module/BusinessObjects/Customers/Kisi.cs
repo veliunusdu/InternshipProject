@@ -11,6 +11,7 @@ using DevExpress.ExpressApp.Editors;
 namespace Project1.Module.BusinessObjects.Customers
 {
     [DefaultClassOptions]
+    [DefaultProperty(nameof(AdSoyad))]
     [ImageName("BO_Person")]
     [XafDisplayName("Kişi")]
     [Appearance("HideMusteriInKisiPopup", TargetItems = "Musteri", Criteria = "[IsMusteriHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]

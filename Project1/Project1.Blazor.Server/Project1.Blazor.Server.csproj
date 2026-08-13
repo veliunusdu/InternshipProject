@@ -24,6 +24,7 @@
     <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="26.1.4" />
+    <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.10.0">
       <ExcludeAssets>contentFiles</ExcludeAssets>
     </PackageReference>

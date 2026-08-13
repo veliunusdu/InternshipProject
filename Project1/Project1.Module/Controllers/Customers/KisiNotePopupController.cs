@@ -4,13 +4,13 @@ using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
 using Project1.Module.BusinessObjects.Customers;
 using Project1.Module.BusinessObjects.Enums;
-using Project1.Module.BusinessObjects.Notes;
+using Project1.Module.BusinessObjects.NonPersistent;
+using Project1.Core.Commands;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Project1.Module.Controllers.Customers
 {
-    /// <summary>
-    /// Kişi detay sayfasından veya kişi listesinden "Not Ekle" popup işlemini yönetir.
-    /// </summary>
     public sealed class KisiNotePopupController : ObjectViewController<ObjectView, Kisi>
     {
         private readonly PopupWindowShowAction notEkleAction;
@@ -31,30 +31,34 @@ namespace Project1.Module.Controllers.Customers
 
         private void NotEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
         {
-            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(Not));
-            Not yeniNot = objectSpace.CreateObject<Not>();
-            yeniNot.Derece = NotDerecesi.Normal;
+            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(CreateNoteParameters));
+            CreateNoteParameters parameters = objectSpace.CreateObject<CreateNoteParameters>();
+            parameters.Derece = NotDerecesi.Normal;
 
             if (View.CurrentObject is Kisi seciliKisi)
             {
-                var kisiInSpace = objectSpace.GetObject(seciliKisi);
-                yeniNot.Kisi = kisiInSpace;
-                
-                if (kisiInSpace.Musteri != null)
-                {
-                    yeniNot.Musteri = kisiInSpace.Musteri;
-                }
-                
-                yeniNot.IsMusteriHidden = true;
-                yeniNot.IsKisiHidden = true;
+                parameters.Kisi = objectSpace.GetObject(seciliKisi);
+                parameters.Musteri = objectSpace.GetObject(seciliKisi.Musteri);
             }
 
-            e.View = PopupHelper.CreateEditableDetailView(Application, objectSpace, yeniNot);
+            e.View = Application.CreateDetailView(objectSpace, parameters);
         }
 
         private void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            PopupHelper.CommitAndRefresh(e, View);
+            var parameters = (CreateNoteParameters)e.PopupWindowView.CurrentObject;
+
+            var command = new CreateNoteCommand(
+                parameters.Baslik,
+                parameters.Icerik,
+                (int)parameters.Derece,
+                parameters.Musteri?.Oid,
+                parameters.Kisi?.Oid);
+
+            var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
+            mediator.Send(command).Wait();
+
+            View.ObjectSpace.Refresh();
         }
     }
 }
