@@ -52,6 +52,7 @@ namespace Project1.Module.BusinessObjects.Notes
         [VisibleInDetailView(true)]
         [VisibleInListView(true)]
         [Index(0)]
+        [Association("Musteri-Notlar")]
         public Musteri Musteri
         {
             get => _musteri;

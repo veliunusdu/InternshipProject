@@ -3,6 +3,7 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
+using Project1.Module.BusinessObjects.Notes;
 
 namespace Project1.Module.BusinessObjects.Customers
 {
@@ -44,5 +45,9 @@ namespace Project1.Module.BusinessObjects.Customers
         [Association("Musteri-Kisiler")]
         [XafDisplayName("İlgili Kişiler")]
         public XPCollection<Kisi> Kisiler => GetCollection<Kisi>(nameof(Kisiler));
+
+        [Association("Musteri-Notlar")]
+        [XafDisplayName("Müşteri Notları")]
+        public XPCollection<Not> Notlar => GetCollection<Not>(nameof(Notlar));
     }
 }
