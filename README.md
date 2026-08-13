@@ -3,6 +3,7 @@
 ![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square&logo=dotnet)
 ![DevExpress XAF](https://img.shields.io/badge/DevExpress-XAF-FF7200?style=flat-square)
 ![Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-blue?style=flat-square)
+![Testing](https://img.shields.io/badge/Testing-xUnit%20%7C%20FluentAssertions%20%7C%20Moq-brightgreen?style=flat-square)
 
 DevExpress eXpressApp Framework (XAF) tabanlı, modern **Blazor Server (Web UI)** ve **WinForms (Desktop UI)** destekli müşteri ve not yönetim sistemi.
 
