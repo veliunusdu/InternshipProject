@@ -103,5 +103,8 @@ namespace Project1.Module.BusinessObjects.Notes
             get => _isEmailSent;
             set => SetPropertyValue(nameof(IsEmailSent), ref _isEmailSent, value);
         }
+
+        [Browsable(false)]
+        public bool EmailGonderilebilir => !IsEmailSent && Kisi != null && !string.IsNullOrWhiteSpace(Kisi.Email);
     }
 }
