@@ -1,11 +1,7 @@
-namespace Project1.Module.Services
-{
-    public interface ISystemStatusService
-    {
-        bool IsActive { get; set; }
-        bool Toggle();
-    }
+using Project1.Module.Services.Interfaces;
 
+namespace Project1.Module.Services.Implementations
+{
     public class SystemStatusService : ISystemStatusService
     {
         private bool _isActive = true;

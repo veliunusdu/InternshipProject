@@ -3,7 +3,9 @@ using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Updating;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
-using Project1.Module.Models.Entities;
+using Project1.Module.BusinessObjects.Customers;
+using Project1.Module.BusinessObjects.Notes;
+using Project1.Module.BusinessObjects.Security;
 using Project1.Module.Security;
 
 namespace Project1.Module.DatabaseUpdate

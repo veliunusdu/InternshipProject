@@ -2,17 +2,19 @@ using System;
 using System.Linq;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
+using DevExpress.ExpressApp.Security;
 using DevExpress.ExpressApp.SystemModule;
+using Project1.Module.Security;
 
-namespace Project1.Module.Controllers
+namespace Project1.Module.Controllers.Navigation
 {
     /// <summary>
     /// Müşteri ve genel navigasyon/güvenlik menülerini yöneten denetleyici.
     /// Standart kullanıcılar için menüdeki teknik güvenlik öğelerini (Roller, Kullanıcılar) gizler.
     /// </summary>
-    public sealed class MusteriController : WindowController
+    public sealed class MenuSecurityController : WindowController
     {
-        public MusteriController()
+        public MenuSecurityController()
         {
             TargetWindowType = WindowType.Main;
         }
@@ -32,7 +34,7 @@ namespace Project1.Module.Controllers
         {
             if (sender is ShowNavigationItemController navigationController)
             {
-                bool isAdmin = string.Equals(Application?.Security?.UserName, Security.SecurityConstants.AdministratorUserName, StringComparison.OrdinalIgnoreCase);
+                bool isAdmin = string.Equals(Application?.Security?.UserName, SecurityConstants.AdministratorUserName, StringComparison.OrdinalIgnoreCase);
                 if (!isAdmin)
                 {
                     ChoiceActionItem defaultGroup = navigationController.ShowNavigationItemAction.Items.FirstOrDefault(i => i.Id == "Default");

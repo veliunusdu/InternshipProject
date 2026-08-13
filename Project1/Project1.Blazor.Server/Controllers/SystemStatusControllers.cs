@@ -3,7 +3,7 @@ using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Project1.Module.Services;
+using Project1.Module.Services.Interfaces;
 using System;
 using static System.Net.Mime.MediaTypeNames;
 

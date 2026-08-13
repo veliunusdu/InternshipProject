@@ -4,9 +4,10 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
-using Project1.Module.Models.Enums;
+using Project1.Module.BusinessObjects.Customers;
+using Project1.Module.BusinessObjects.Enums;
 
-namespace Project1.Module.Models.Entities
+namespace Project1.Module.BusinessObjects.Notes
 {
     [DefaultClassOptions]
     [DeferredDeletion(false)]

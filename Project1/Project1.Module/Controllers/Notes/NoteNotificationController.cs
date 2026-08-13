@@ -6,15 +6,18 @@ using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.Base;
-using Project1.Module.Models.Entities;
-using Project1.Module.Services;
+using Project1.Module.BusinessObjects.Customers;
+using Project1.Module.BusinessObjects.Notes;
+using Project1.Module.BusinessObjects.Security;
+using Project1.Module.Security;
+using Project1.Module.Services.Interfaces;
 
-namespace Project1.Module.Controllers
+namespace Project1.Module.Controllers.Notes
 {
     /// <summary>
     /// Not nesnesi kaydedildiğinde tetiklenir; ilgili Kişi'ye otomatik HTML e-posta bildirimi gönderir.
     /// </summary>
-    public sealed class NotEmailNotificationController : ObjectViewController<ObjectView, Not>
+    public sealed class NoteNotificationController : ObjectViewController<ObjectView, Not>
     {
         private static readonly Dictionary<string, DateTime> _recentlySentNoteKeys = new Dictionary<string, DateTime>();
         private bool _showToastNotification = false;
@@ -43,7 +46,7 @@ namespace Project1.Module.Controllers
             object currentUserId = Application?.Security?.UserId;
             if (currentUserId != null && ObjectSpace.GetObjectByKey<ApplicationUser>(currentUserId) is ApplicationUser currentUser)
             {
-                if (string.Equals(currentUser.UserName, Security.SecurityConstants.AdministratorUserName, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(currentUser.UserName, SecurityConstants.AdministratorUserName, StringComparison.OrdinalIgnoreCase))
                 {
                     canSendEmail = true;
                 }
@@ -173,7 +176,7 @@ namespace Project1.Module.Controllers
 
             if (string.Equals(
                 security.UserName,
-                Security.SecurityConstants.AdministratorUserName,
+                SecurityConstants.AdministratorUserName,
                 StringComparison.OrdinalIgnoreCase))
             {
                 return true;

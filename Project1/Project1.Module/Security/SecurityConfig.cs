@@ -2,7 +2,9 @@ using System;
 using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
-using Project1.Module.Models.Entities;
+using Project1.Module.BusinessObjects.Customers;
+using Project1.Module.BusinessObjects.Notes;
+using Project1.Module.BusinessObjects.Security;
 
 namespace Project1.Module.Security
 {

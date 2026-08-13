@@ -3,19 +3,20 @@ using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.Editors;
 using DevExpress.Persistent.Base;
-using Project1.Module.Models.Entities;
-using Project1.Module.Models.Enums;
+using Project1.Module.BusinessObjects.Customers;
+using Project1.Module.BusinessObjects.Enums;
+using Project1.Module.BusinessObjects.Notes;
 
-namespace Project1.Module.Controllers
+namespace Project1.Module.Controllers.Notes
 {
     /// <summary>
     /// Müşteri detay sayfasındaki "Not Ekle" açılır pencere (popup) butonunu yönetir.
     /// </summary>
-    public sealed class NotDetailPopupController : ObjectViewController<DetailView, Musteri>
+    public sealed class NotePopupController : ObjectViewController<DetailView, Musteri>
     {
         private readonly PopupWindowShowAction notEkleAction;
 
-        public NotDetailPopupController()
+        public NotePopupController()
         {
             notEkleAction = new PopupWindowShowAction(this, "MusteriNotEkleAction", PredefinedCategory.View)
             {
