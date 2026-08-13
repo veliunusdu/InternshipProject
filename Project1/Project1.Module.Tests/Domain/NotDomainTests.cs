@@ -1,5 +1,6 @@
 #nullable enable
 using DevExpress.Xpo;
+using DevExpress.Xpo.DB;
 using FluentAssertions;
 using Project1.Module.BusinessObjects.Customers;
 using Project1.Module.BusinessObjects.Notes;
@@ -11,9 +12,8 @@ namespace Project1.Module.Tests.Domain
     {
         private Session CreateInMemorySession()
         {
-            var dataLayer = SimpleDataLayer.GetInstance(
-                new DevExpress.Xpo.DB.InMemoryDataStore(DevExpress.Xpo.DB.AutoCreateOption.DatabaseAndSchema),
-                DevExpress.Xpo.DB.AutoCreateOption.DatabaseAndSchema);
+            var dataStore = new InMemoryDataStore(AutoCreateOption.DatabaseAndSchema);
+            var dataLayer = new SimpleDataLayer(dataStore);
             return new Session(dataLayer);
         }
 
