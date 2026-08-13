@@ -1,4 +1,4 @@
-﻿using DevExpress.ExpressApp.ApplicationBuilder;
+using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.Services;
 using DevExpress.ExpressApp.Security;
@@ -24,7 +24,8 @@ namespace Project1.Blazor.Server
         public void ConfigureServices(IServiceCollection services)
         {
             EmailSettings emailSettings = Configuration.GetSection("Email").Get<EmailSettings>() ?? new EmailSettings();
-            EmailService.Configure(emailSettings);
+            services.AddSingleton(emailSettings);
+            services.AddSingleton<IEmailService, EmailService>();
 
             services.AddSingleton<ISystemStatusService, SystemStatusService>();
             services.AddControllers();
