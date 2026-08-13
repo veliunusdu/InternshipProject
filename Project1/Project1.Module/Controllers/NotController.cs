@@ -100,13 +100,14 @@ namespace Project1.Module.Controllers
                     _recentlySentNoteKeys[deduplicationKey] = DateTime.UtcNow;
                 }
 
-                var (success, errorMessage) = EmailService.SendNoteNotificationEmail(
+                var emailService = Application.ServiceProvider?.GetService(typeof(IEmailService)) as IEmailService;
+                var (success, errorMessage) = emailService?.SendNoteNotificationEmail(
                     recipient.Email,
                     recipient.AdSoyad,
                     note.Baslik,
                     note.Icerik,
                     note.Derece.ToString(),
-                    note.Musteri?.Ad);
+                    note.Musteri?.Ad) ?? (false, "E-posta servisi bulunamadı.");
 
                 if (success)
                 {
