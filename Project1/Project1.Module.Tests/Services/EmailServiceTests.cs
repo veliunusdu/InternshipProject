@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Project1.Module.Services.Implementations;
@@ -87,6 +88,38 @@ namespace Project1.Module.Tests.Services
             // Assert
             await act.Should().ThrowAsync<ArgumentNullException>()
                 .WithParameterName("request");
+        }
+
+        [Fact]
+        public async Task SendNoteNotificationEmailAsync_ShouldReturnFailure_WhenCancellationTokenIsCancelled()
+        {
+            // Arrange
+            var settings = new EmailSettings
+            {
+                SmtpHost = "smtp.test.com",
+                SmtpPort = 587,
+                SenderEmail = "sender@example.com",
+                SenderPassword = "password"
+            };
+            var emailService = new EmailService(settings);
+            var request = new SendNoteNotificationRequest(
+                ToEmail: "recipient@example.com",
+                RecipientName: "Ahmet Yılmaz",
+                Title: "Test Notu",
+                Content: "Test İçeriği",
+                Severity: "Normal",
+                CustomerName: "Test Müşteri"
+            );
+
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            // Act
+            EmailResult result = await emailService.SendNoteNotificationEmailAsync(request, cts.Token);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.ErrorMessage.Should().Contain("iptal");
         }
     }
 }

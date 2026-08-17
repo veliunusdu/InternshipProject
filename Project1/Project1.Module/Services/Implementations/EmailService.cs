@@ -5,6 +5,7 @@ using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using DevExpress.Persistent.Base;
+using Microsoft.Extensions.Logging;
 using Project1.Core.Services.Interfaces;
 
 namespace Project1.Module.Services.Implementations
@@ -37,25 +38,32 @@ namespace Project1.Module.Services.Implementations
                 throw new ArgumentNullException(nameof(request));
             }
 
-            string? configurationError = ValidateConfiguration();
-            if (configurationError != null)
-            {
-                return new EmailResult(false, configurationError);
-            }
-
-            if (string.IsNullOrWhiteSpace(request.ToEmail))
-            {
-                return new EmailResult(false, "E-posta adresi belirtilmemiş.");
-            }
-
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                string? configurationError = ValidateConfiguration();
+                if (configurationError != null)
+                {
+                    return new EmailResult(false, configurationError);
+                }
+
+                if (string.IsNullOrWhiteSpace(request.ToEmail))
+                {
+                    return new EmailResult(false, "E-posta adresi belirtilmemiş.");
+                }
+
                 using var message = CreateMailMessage(request);
                 using var client = CreateSmtpClient();
 
-                await client.SendMailAsync(message).ConfigureAwait(false);
+                await client.SendMailAsync(message, cancellationToken).ConfigureAwait(false);
                 Tracing.Tracer.LogText($"[Email Success Async] Mail sent to {request.ToEmail} successfully.");
                 return new EmailResult(true, null);
+            }
+            catch (OperationCanceledException)
+            {
+                Tracing.Tracer.LogText($"[Email Cancelled Async] Mail sending was cancelled for {request.ToEmail}.");
+                return new EmailResult(false, "E-posta gönderim işlemi iptal edildi.");
             }
             catch (Exception exception)
             {
