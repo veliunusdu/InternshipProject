@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Application StartupNavigationItem="Dashboard_View">
+<Application StartupNavigationItem="UserDashboard_View">
   <ActionDesign>
     <Actions>
       <Action Id="MyDetails" Active="False" />
     </Actions>
   </ActionDesign>
   <Options UIType="TabbedMDI"
-         FormStyle="Ribbon"
-         RestoreTabbedMdiLayout="True"
-         ShowTabImage="True"
-         VirtualScrollingEnabled="True">
+          FormStyle="Ribbon"
+          RestoreTabbedMdiLayout="True"
+          ShowTabImage="True"
+          VirtualScrollingEnabled="True">
   </Options>
   <NavigationItems NavigationStyle="Accordion">
     <Items>
       <Item Id="Default">
         <Items>
-          <Item Id="Dashboard_View" ViewId="Dashboard_View" Caption="Ana Sayfa" Index="0" IsNewNode="True" ImageName="Action_Home" />
-          <Item Id="Musteri_ListView" ViewId="Musteri_ListView" Caption="Müşteriler" Index="1" IsNewNode="True" />
-          <Item Id="Kisi_ListView" ViewId="Kisi_ListView" Caption="Kişiler" Index="2" IsNewNode="True" />
-          <Item Id="Not_ListView" ViewId="Not_ListView" Caption="Notlar" Index="3" IsNewNode="True" />
-          <Item Id="Yonetim" Caption="Yönetim" Index="4" IsNewNode="True">
+          <Item Id="AdminDashboard_View" ViewId="AdminDashboard_View" Caption="Yönetici Paneli" Index="0" IsNewNode="True" ImageName="Action_Grant" />
+          <Item Id="UserDashboard_View" ViewId="UserDashboard_View" Caption="Kullanıcı Paneli" Index="1" IsNewNode="True" ImageName="Action_Home" />
+          <Item Id="Musteri_ListView" ViewId="Musteri_ListView" Caption="Müşteriler" Index="2" IsNewNode="True" />
+          <Item Id="Kisi_ListView" ViewId="Kisi_ListView" Caption="Kişiler" Index="3" IsNewNode="True" />
+          <Item Id="Not_ListView" ViewId="Not_ListView" Caption="Notlar" Index="4" IsNewNode="True" />
+          <Item Id="Yonetim" Caption="Yönetim" Index="5" IsNewNode="True">
             <Items>
               <Item Id="UserEmailPermission_ListView" ViewId="UserEmailPermission_ListView" Caption="E-posta Yetkileri" Index="0" IsNewNode="True" />
             </Items>
@@ -29,13 +30,23 @@
     </Items>
   </NavigationItems>
   <Views>
-    <DashboardView Id="Dashboard_View" Caption="Ana Sayfa" IsNewNode="True">
+    <DashboardView Id="AdminDashboard_View" Caption="Yönetici Paneli" IsNewNode="True">
       <Items>
-        <ControlDetailItem Id="DashboardCustomItem" ControlTypeName="Project1.Blazor.Server.Pages.Dashboard" IsNewNode="True" />
+        <ControlDetailItem Id="AdminDashboardCustomItem" ControlTypeName="Project1.Blazor.Server.Pages.AdminDashboard" IsNewNode="True" />
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100">
-          <LayoutItem Id="DashboardCustomItem" ViewItem="DashboardCustomItem" RelativeSize="100" IsNewNode="True" />
+          <LayoutItem Id="AdminDashboardCustomItem" ViewItem="AdminDashboardCustomItem" RelativeSize="100" IsNewNode="True" />
+        </LayoutGroup>
+      </Layout>
+    </DashboardView>
+    <DashboardView Id="UserDashboard_View" Caption="Kullanıcı Paneli" IsNewNode="True">
+      <Items>
+        <ControlDetailItem Id="UserDashboardCustomItem" ControlTypeName="Project1.Blazor.Server.Pages.Dashboard" IsNewNode="True" />
+      </Items>
+      <Layout>
+        <LayoutGroup Id="Main" RelativeSize="100">
+          <LayoutItem Id="UserDashboardCustomItem" ViewItem="UserDashboardCustomItem" RelativeSize="100" IsNewNode="True" />
         </LayoutGroup>
       </Layout>
     </DashboardView>
