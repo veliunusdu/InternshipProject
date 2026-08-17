@@ -31,8 +31,6 @@
     <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="26.1.4" />
     <PackageReference Include="DevExpress.Xpo" Version="26.1.4" />
     <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.4" NoWarn="NU1510" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />
