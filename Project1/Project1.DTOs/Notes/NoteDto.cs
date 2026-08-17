@@ -16,7 +16,7 @@ namespace Project1.DTOs.Notes
         string Baslik,
         string Icerik,
         int Derece,
-        Guid MusteriOid,
-        Guid KisiOid
+        Guid? MusteriOid = null,
+        Guid? KisiOid = null
     );
 }

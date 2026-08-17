@@ -27,7 +27,7 @@
     <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="26.1.4" />
-    <PackageReference Include="MediatR" Version="14.2.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />

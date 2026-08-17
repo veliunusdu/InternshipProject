@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Security;
+using Project1.Module.BusinessObjects.Customers;
 using Project1.Module.BusinessObjects.Notes;
 using Project1.DTOs.Notes;
 using Project1.Core.Services.Interfaces;
@@ -69,11 +70,23 @@ namespace Project1.Module.Services.Implementations
 
         public Task<NoteDto> CreateNoteAsync(CreateNoteRequestDto request, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             using IObjectSpace objectSpace = CreateObjectSpace();
             var not = objectSpace.CreateObject<Not>();
             not.Baslik = request.Baslik;
             not.Icerik = request.Icerik;
             not.Derece = (BusinessObjects.Enums.NotDerecesi)request.Derece;
+
+            if (request.MusteriOid.HasValue && request.MusteriOid.Value != Guid.Empty)
+            {
+                not.Musteri = objectSpace.GetObjectByKey<Musteri>(request.MusteriOid.Value);
+            }
+
+            if (request.KisiOid.HasValue && request.KisiOid.Value != Guid.Empty)
+            {
+                not.Kisi = objectSpace.GetObjectByKey<Kisi>(request.KisiOid.Value);
+            }
 
             objectSpace.CommitChanges();
 
