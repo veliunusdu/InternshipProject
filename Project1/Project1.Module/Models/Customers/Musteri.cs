@@ -5,9 +5,9 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
-using Project1.Module.BusinessObjects.Notes;
+using Project1.Module.Models.Notes;
 
-namespace Project1.Module.BusinessObjects.Customers
+namespace Project1.Module.Models.Customers
 {
     [DefaultClassOptions]
     [DefaultProperty(nameof(Ad))]

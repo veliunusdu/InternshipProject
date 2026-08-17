@@ -1,8 +1,8 @@
 using MediatR;
 using DevExpress.ExpressApp;
 using Project1.Core.Commands;
-using Project1.Module.BusinessObjects.Notes;
-using Project1.Module.BusinessObjects.Customers;
+using Project1.Module.Models.Notes;
+using Project1.Module.Models.Customers;
 using Project1.Module.BusinessObjects.Enums;
 using System;
 using System.Threading;

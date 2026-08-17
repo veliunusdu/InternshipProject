@@ -6,8 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Security;
-using Project1.Module.BusinessObjects.Customers;
-using Project1.Module.BusinessObjects.Notes;
+using Project1.Module.Models.Customers;
+using Project1.Module.Models.Notes;
 using Project1.DTOs.Notes;
 using Project1.Core.Services.Interfaces;
 

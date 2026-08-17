@@ -9,8 +9,8 @@ using DevExpress.Xpo.DB;
 using FluentAssertions;
 using Moq;
 using Project1.DTOs.Notes;
-using Project1.Module.BusinessObjects.Customers;
-using Project1.Module.BusinessObjects.Notes;
+using Project1.Module.Models.Customers;
+using Project1.Module.Models.Notes;
 using Project1.Module.Services.Implementations;
 using Xunit;
 

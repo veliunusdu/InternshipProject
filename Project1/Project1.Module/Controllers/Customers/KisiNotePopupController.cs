@@ -2,7 +2,7 @@ using System;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
-using Project1.Module.BusinessObjects.Customers;
+using Project1.Module.Models.Customers;
 using Project1.Module.BusinessObjects.Enums;
 using Project1.Module.BusinessObjects.NonPersistent;
 using Project1.Core.Commands;

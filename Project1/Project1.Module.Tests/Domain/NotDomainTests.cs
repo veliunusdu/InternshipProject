@@ -2,8 +2,8 @@
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using FluentAssertions;
-using Project1.Module.BusinessObjects.Customers;
-using Project1.Module.BusinessObjects.Notes;
+using Project1.Module.Models.Customers;
+using Project1.Module.Models.Notes;
 using Xunit;
 
 namespace Project1.Module.Tests.Domain

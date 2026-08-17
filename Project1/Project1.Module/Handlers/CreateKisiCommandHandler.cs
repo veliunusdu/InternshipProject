@@ -1,7 +1,7 @@
 using MediatR;
 using DevExpress.ExpressApp;
 using Project1.Core.Commands;
-using Project1.Module.BusinessObjects.Customers;
+using Project1.Module.Models.Customers;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

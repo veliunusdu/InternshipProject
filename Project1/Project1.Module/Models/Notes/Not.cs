@@ -5,12 +5,12 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
-using Project1.Module.BusinessObjects.Customers;
+using Project1.Module.Models.Customers;
 using Project1.Module.BusinessObjects.Enums;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.Editors;
 
-namespace Project1.Module.BusinessObjects.Notes
+namespace Project1.Module.Models.Notes
 {
     [DefaultClassOptions]
     [DefaultProperty(nameof(Baslik))]
