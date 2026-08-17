@@ -6,8 +6,8 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>ExpressApp.ico</ApplicationIcon>
-    <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.0.*</AssemblyVersion>
+    <Deterministic>true</Deterministic>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -29,21 +29,19 @@
     <EmbeddedResource Include="Images\ExpressAppLogo.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DevExpress.ExpressApp" Version="26.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="26.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Validation.Win" Version="26.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Win" Version="26.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Win.Design" Version="26.1.*" />
-    <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="26.1.*" />
-    <PackageReference Include="DevExpress.Persistent.Base" Version="26.1.*" />
-    <PackageReference Include="DevExpress.RichEdit.Export" Version="26.1.*" />
-    <PackageReference Include="DevExpress.Win.Design" Version="26.1.*" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.10.0">
-      <ExcludeAssets>contentFiles</ExcludeAssets>
-    </PackageReference>
-    
+    <PackageReference Include="DevExpress.ExpressApp" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.Validation.Win" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.Win" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.Win.Design" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="26.1.4" />
+    <PackageReference Include="DevExpress.Persistent.Base" Version="26.1.4" />
+    <PackageReference Include="DevExpress.RichEdit.Export" Version="26.1.4" />
+    <PackageReference Include="DevExpress.Win.Design" Version="26.1.4" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />
+    <ProjectReference Include="..\Project1.DTOs\Project1.DTOs.csproj" />
     <ProjectReference Include="..\Project1.Module\Project1.Module.csproj" />
   </ItemGroup>
 </Project>

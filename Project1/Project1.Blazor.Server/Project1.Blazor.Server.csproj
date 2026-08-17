@@ -2,8 +2,8 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <Deterministic>false</Deterministic>
-    <AssemblyVersion>1.0.*</AssemblyVersion>
+    <Deterministic>true</Deterministic>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -16,6 +16,12 @@
     <Content Include="Model.xafml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DevExpress.Drawing.Skia" Version="26.1.4" />
@@ -25,11 +31,10 @@
     <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="26.1.4" />
     <PackageReference Include="MediatR" Version="14.2.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.10.0">
-      <ExcludeAssets>contentFiles</ExcludeAssets>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />
+    <ProjectReference Include="..\Project1.DTOs\Project1.DTOs.csproj" />
     <ProjectReference Include="..\Project1.Module\Project1.Module.csproj" />
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@
     <FileVersion>1.0.0.0</FileVersion>
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Controllers\Entities\**" />
@@ -35,14 +36,7 @@
     <PackageReference Include="DevExpress.Xpo" Version="26.1.4" />
     <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.10.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.10.0">
-      <ExcludeAssets>contentFiles</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.18" NoWarn="NU1510" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.4" NoWarn="NU1510" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />

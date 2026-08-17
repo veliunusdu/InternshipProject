@@ -53,7 +53,7 @@ namespace Project1.Module.Services.Implementations
                 using var message = CreateMailMessage(request);
                 using var client = CreateSmtpClient();
 
-                await client.SendMailAsync(message);
+                await client.SendMailAsync(message).ConfigureAwait(false);
                 Tracing.Tracer.LogText($"[Email Success Async] Mail sent to {request.ToEmail} successfully.");
                 return new EmailResult(true, null);
             }
@@ -108,7 +108,8 @@ namespace Project1.Module.Services.Implementations
                 UseDefaultCredentials = false,
                 Credentials = new NetworkCredential(_settings.SenderEmail, cleanPassword),
                 EnableSsl = _settings.EnableSsl,
-                DeliveryMethod = SmtpDeliveryMethod.Network
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Timeout = 10000
             };
         }
 

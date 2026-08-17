@@ -117,8 +117,8 @@ namespace Project1.Blazor.Server
             {
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
+                app.UseHttpsRedirection();
             }
-            app.UseHttpsRedirection();
             app.UseRequestLocalization();
             app.UseStaticFiles();
             app.UseRouting();

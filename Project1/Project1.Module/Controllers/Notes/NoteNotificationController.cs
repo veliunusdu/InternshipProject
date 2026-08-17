@@ -112,7 +112,7 @@ namespace Project1.Module.Controllers.Notes
                         CustomerName: note.Musteri?.Ad ?? string.Empty
                     );
 
-                    var result = emailService.SendNoteNotificationEmailAsync(request).GetAwaiter().GetResult();
+                    var result = Task.Run(async () => await emailService.SendNoteNotificationEmailAsync(request).ConfigureAwait(false)).GetAwaiter().GetResult();
 
                     if (result.Success)
                     {
