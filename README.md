@@ -9,39 +9,35 @@ DevExpress eXpressApp Framework (XAF) tabanlı, modern **Blazor Server (Web UI)*
 
 ---
 
-## 🏗️ Proje Mimarisi ve Klasör Yapısı
+## 🏗️ Çözüm (Solution) ve Proje Yapısı
 
-Proje, resmi **DevExpress XAF Standartlarına** ve **Temiz Mimari (Clean Architecture)** ilkelerine göre modüler olarak yapılandırılmıştır:
+Tüm projeler ana dizindeki **`InternshipProject.sln`** çözüm dosyası altında mantıksal Çözüm Klasörleri (Solution Folders) ile organize edilmiştir:
 
 ```text
-Project1/
-├── Project1.Module/                     # 🧠 Çekirdek Modül (Core & Domain)
-│   ├── BusinessObjects/                 # 📦 DevExpress XAF Entity Nesneleri
-│   │   ├── Notes/                       # Not.cs (Müşteri & Kişi Bağlantılı)
-│   │   ├── Customers/                   # Musteri.cs & Kisi.cs
-│   │   ├── Security/                    # ApplicationUser.cs & UserEmailPermission.cs
-│   │   └── Enums/                       # NotDerecesi.cs (Normal, Önemli, Acil)
-│   │
-│   ├── Controllers/                     # ⚙️ DevExpress XAF Denetleyicileri
-│   │   ├── Notes/
-│   │   │   ├── NoteNotificationController.cs # (Asenkron e-posta bildirimi)
-│   │   │   └── NotePopupController.cs        # (Müşteri detayından "Not Ekle" popup'ı)
-│   │   └── Navigation/
-│   │       └── MenuSecurityController.cs     # (Admin harici menü kısıtlaması)
-│   │
-│   ├── Services/                        # 🔌 İş Mantığı & Servis Katmanı
-│   │   ├── Interfaces/                  # IEmailService.cs & ISystemStatusService.cs
-│   │   └── Implementations/             # EmailService.cs & SystemStatusService.cs
-│   │
-│   └── DatabaseUpdate/                  # 🛠️ Veritabanı Updater & Seed verileri
+InternshipProject.sln (Root Solution)
+├── 📁 1. Project1 (DevExpress XAF & Core Architecture)
+│   ├── 📁 Core & Domain
+│   │   ├── Project1.Core              # Temel domain mantığı
+│   │   ├── Project1.DTOs              # Veri transfer nesneleri & API modelleri
+│   │   └── Project1.Module            # DevExpress XAF İş Nesneleri, Denetleyiciler, Servisler
+│   ├── 📁 UI & Presentation
+│   │   ├── Project1.Blazor.Server     # XAF Blazor Server Web UI
+│   │   └── Project1.Win               # XAF WinForms Masaüstü UI
+│   └── 📁 Tests
+│       └── Project1.Module.Tests      # xUnit & Moq birim testleri
 │
-├── Project1.Blazor.Server/              # 🌐 Blazor Server Web Kullanıcı Arayüzü
-│   ├── Pages/                           # Dashboard & AdminDashboard sayfaları
-│   ├── Controllers/                     # REST API Endpoint'leri (/api/systemstatus)
-│   └── Startup.cs                       # DI Container kayıtları
-│
-└── Project1.Win/                        # 🖥️ WinForms Masaüstü Kullanıcı Arayüzü
+└── 📁 2. Project2 (Blazor Web UI)
+    └── Project2                       # Standalone Blazor Web Arayüzü
 ```
+
+---
+
+## 💻 Visual Studio'da Çözüm (Solution) Olarak Açma
+
+Visual Studio'da projeyi klasör görünümü yerine standart Çözüm/Proje ağacıyla açmak için:
+
+1. **Doğrudan Solution Açma:** Visual Studio açılış ekranında **"Open a project or solution"** seçeneğini seçin ve ana dizindeki `InternshipProject.sln` dosyasını açın (veya dosya yöneticisinden `InternshipProject.sln` dosyasına çift tıklayın).
+2. **Klasör Görünümünden Çözüme Geçiş:** Eğer proje klasör olarak açılmışsa, **Solution Explorer (Çözüm Gezgini)** penceresinin üst araç çubuğundaki **"Switch Views" (Görünümleri Değiştir)** butonuna tıklayıp `InternshipProject.sln` seçeneğini işaretleyin.
 
 ---
 
@@ -72,18 +68,28 @@ git clone https://github.com/veliunusdu/InternshipProject.git
 cd InternshipProject
 ```
 
-### 2. Projeyi Derleyin
+### 2. Tüm Çözümü Derleyin
 ```bash
-dotnet build Project1/Project1.sln
+dotnet build InternshipProject.sln
 ```
 
-### 3. Blazor Server Web Uygulamasını Çalıştırın
+### 3. Testleri Çalıştırın
+```bash
+dotnet test InternshipProject.sln
+```
+
+### 4. Blazor Server Web Uygulamasını Çalıştırın
 ```bash
 dotnet run --project Project1/Project1.Blazor.Server/Project1.Blazor.Server.csproj
 ```
 Uygulama varsayılan olarak `https://localhost:44318` adresinde açılacaktır.
 
-### 4. E-posta Yapılandırması (Opsiyonel)
+### 5. Project2 Blazor Web Uygulamasını Çalıştırın
+```bash
+dotnet run --project Project2/Project2.csproj
+```
+
+### 6. E-posta Yapılandırması (Opsiyonel)
 `appsettings.json` veya ortam değişkenleri (Environment Variables) üzerinden SMTP bilgilerinizi tanımlayabilirsiniz:
 ```json
 "Email": {
