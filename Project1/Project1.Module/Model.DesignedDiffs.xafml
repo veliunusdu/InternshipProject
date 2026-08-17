@@ -12,6 +12,9 @@
     <DetailView Id="ApplicationUser_DetailView" Remove="True" />
     <ListView Id="Musteri_Notlar_ListView" DetailViewId="Not_DetailView" />
     <DetailView Id="Not_DetailView">
+      <Items>
+        <PropertyEditor Id="CreatedDate" Removed="True" />
+      </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100" Direction="Vertical">
           <LayoutGroup Id="SimpleEditors" RelativeSize="100" Direction="Vertical">
@@ -26,7 +29,15 @@
         </LayoutGroup>
       </Layout>
     </DetailView>
+    <DetailView Id="Musteri_DetailView">
+      <Items>
+        <PropertyEditor Id="CreatedDate" Removed="True" />
+      </Items>
+    </DetailView>
     <DetailView Id="Kisi_DetailView">
+      <Items>
+        <PropertyEditor Id="CreatedDate" Removed="True" />
+      </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100" Direction="Vertical">
           <LayoutGroup Id="SimpleEditors" RelativeSize="100" Direction="Vertical">
