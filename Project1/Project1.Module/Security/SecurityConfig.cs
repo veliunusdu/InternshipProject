@@ -69,7 +69,7 @@ namespace Project1.Module.Security
             role.SetTypePermission<PermissionPolicyUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
 
             role.AddNavigationPermission(
-                "Application/NavigationItems/Items/Default/Items/Dashboard_View",
+                "Application/NavigationItems/Items/Default/Items/AdminDashboard_View",
                 SecurityPermissionState.Allow);
             role.AddNavigationPermission(
                 "Application/NavigationItems/Items/Default/Items/Musteri_ListView",
@@ -110,7 +110,7 @@ namespace Project1.Module.Security
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.Delete, SecurityPermissionState.Deny);
 
             role.AddNavigationPermission(
-                "Application/NavigationItems/Items/Default/Items/Dashboard_View",
+                "Application/NavigationItems/Items/Default/Items/UserDashboard_View",
                 SecurityPermissionState.Allow);
             role.AddNavigationPermission(
                 "Application/NavigationItems/Items/Default/Items/Musteri_ListView",
