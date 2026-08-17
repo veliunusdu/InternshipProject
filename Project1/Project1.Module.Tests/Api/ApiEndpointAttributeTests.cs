@@ -40,7 +40,7 @@ namespace Project1.Module.Tests.Api
         [Fact]
         public void SystemStatusApiController_ShouldHaveAllowAnonymousAndEnableCorsAttributes()
         {
-            string content = FindControllerFile("SystemStatusControllers.cs");
+            string content = FindControllerFile("SystemStatusApiController.cs");
             content.Should().Contain("[AllowAnonymous]");
             content.Should().Contain("[EnableCors(\"AllowAll\")]");
             content.Should().Contain("[Route(\"api/systemstatus\")]");
