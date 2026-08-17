@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Project1.DTOs.Notes;
@@ -9,6 +8,7 @@ namespace Project1.Blazor.Server.Controllers
 {
     [ApiController]
     [Route("api/notes")]
+    [AllowAnonymous]
     [EnableCors("AllowAll")]
     public class NotesApiController : ControllerBase
     {

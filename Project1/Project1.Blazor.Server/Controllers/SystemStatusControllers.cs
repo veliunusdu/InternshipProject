@@ -1,11 +1,11 @@
+using System;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Project1.Core.Services.Interfaces;
-using System;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Project1.Blazor.Server.Controllers
 {
@@ -14,6 +14,7 @@ namespace Project1.Blazor.Server.Controllers
     /// </summary>
     [ApiController]
     [Route("api/systemstatus")]
+    [AllowAnonymous]
     [EnableCors("AllowAll")]
     public class SystemStatusApiController : ControllerBase
     {
