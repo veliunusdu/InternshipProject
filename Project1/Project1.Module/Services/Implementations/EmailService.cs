@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
-using DevExpress.Persistent.Base;
 using Microsoft.Extensions.Logging;
 using Project1.Core.Services.Interfaces;
 
@@ -13,10 +12,12 @@ namespace Project1.Module.Services.Implementations
     public class EmailService : IEmailService
     {
         private readonly EmailSettings _settings;
+        private readonly ILogger<EmailService>? _logger;
 
-        public EmailService(EmailSettings settings)
+        public EmailService(EmailSettings settings, ILogger<EmailService>? logger = null)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _logger = logger;
 
             if (string.IsNullOrWhiteSpace(_settings.SenderEmail))
             {
@@ -45,29 +46,33 @@ namespace Project1.Module.Services.Implementations
                 string? configurationError = ValidateConfiguration();
                 if (configurationError != null)
                 {
+                    _logger?.LogWarning("E-posta yapılandırması geçersiz: {Error}", configurationError);
                     return new EmailResult(false, configurationError);
                 }
 
                 if (string.IsNullOrWhiteSpace(request.ToEmail))
                 {
+                    _logger?.LogWarning("E-posta adresi belirtilmemiş.");
                     return new EmailResult(false, "E-posta adresi belirtilmemiş.");
                 }
+
+                _logger?.LogInformation("Not bildirim e-postası gönderiliyor. Alıcı: {ToEmail}, Başlık: {Title}", request.ToEmail, request.Title);
 
                 using var message = CreateMailMessage(request);
                 using var client = CreateSmtpClient();
 
                 await client.SendMailAsync(message, cancellationToken).ConfigureAwait(false);
-                Tracing.Tracer.LogText($"[Email Success Async] Mail sent to {request.ToEmail} successfully.");
+                _logger?.LogInformation("Not bildirim e-postası başarıyla gönderildi. Alıcı: {ToEmail}", request.ToEmail);
                 return new EmailResult(true, null);
             }
             catch (OperationCanceledException)
             {
-                Tracing.Tracer.LogText($"[Email Cancelled Async] Mail sending was cancelled for {request.ToEmail}.");
+                _logger?.LogWarning("E-posta gönderim işlemi iptal edildi. Alıcı: {ToEmail}", request.ToEmail);
                 return new EmailResult(false, "E-posta gönderim işlemi iptal edildi.");
             }
             catch (Exception exception)
             {
-                Tracing.Tracer.LogError($"[Email Error Async] Mail gönderilemedi ({request.ToEmail}): {exception}");
+                _logger?.LogError(exception, "E-posta gönderilemedi ({ToEmail})", request.ToEmail);
                 return new EmailResult(false, exception.Message);
             }
         }
