@@ -2,12 +2,8 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <Deterministic>true</Deterministic>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
-    <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Controllers\Entities\**" />
