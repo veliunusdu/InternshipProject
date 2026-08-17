@@ -44,7 +44,8 @@ namespace Project1.Module.Services.Implementations
                 n.Derece.ToString(),
                 n.Musteri != null ? n.Musteri.Ad : string.Empty,
                 n.Kisi != null ? (n.Kisi.Ad + " " + n.Kisi.Soyad).Trim() : string.Empty,
-                n.IsEmailSent
+                n.IsEmailSent,
+                n.CreatedDate
             );
         }
 

@@ -5,6 +5,8 @@
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>Project1-Blazor-Server-20260811</UserSecretsId>
+    <NoWarn>$(NoWarn);DX1000</NoWarn>
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Model.xafml" />
@@ -31,6 +33,7 @@
     <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="26.1.4" />
     <PackageReference Include="DevExpress.Xpo" Version="26.1.4" />
     <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />

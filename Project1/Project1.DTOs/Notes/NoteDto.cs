@@ -9,7 +9,8 @@ namespace Project1.DTOs.Notes
         string Derece,
         string Musteri,
         string Kisi,
-        bool IsEmailSent
+        bool IsEmailSent,
+        DateTime CreatedDate = default
     );
 
     public record CreateNoteRequestDto(

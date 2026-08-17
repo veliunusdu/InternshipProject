@@ -4,6 +4,7 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <Configurations>Debug;Release;EasyTest</Configurations>
     <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>$(NoWarn);DX1000</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Controllers\Entities\**" />

@@ -31,6 +31,15 @@ namespace Project1.Module.BusinessObjects.Notes
             CreatedDate = DateTime.Now;
         }
 
+        protected override void OnSaving()
+        {
+            base.OnSaving();
+            if (CreatedDate == default)
+            {
+                CreatedDate = DateTime.Now;
+            }
+        }
+
         private string _baslik;
         [XafDisplayName("Not Başlığı")]
         [RuleRequiredField("RuleRequired_Not_Baslik", DefaultContexts.Save, "Not başlığı boş bırakılamaz.")]
@@ -131,39 +140,12 @@ namespace Project1.Module.BusinessObjects.Notes
         private DateTime _createdDate;
         [XafDisplayName("Oluşturma Tarihi")]
         [VisibleInListView(true)]
-        [VisibleInDetailView(true)]
+        [VisibleInDetailView(false)]
+        [ReadOnly(true)]
         public DateTime CreatedDate
         {
             get => _createdDate;
             set => SetPropertyValue(nameof(CreatedDate), ref _createdDate, value);
-        }
-
-        private string _referenceNo;
-        [XafDisplayName("Referans No")]
-        [VisibleInListView(true)]
-        [VisibleInDetailView(true)]
-        public string ReferenceNo
-        {
-            get => _referenceNo;
-            set => SetPropertyValue(nameof(ReferenceNo), ref _referenceNo, value);
-        }
-
-        private string _referenceBaseObjectType;
-        [XafDisplayName("Referans Nesne Tipi")]
-        [VisibleInDetailView(true)]
-        public string ReferenceBaseObjectType
-        {
-            get => _referenceBaseObjectType;
-            set => SetPropertyValue(nameof(ReferenceBaseObjectType), ref _referenceBaseObjectType, value);
-        }
-
-        private Guid? _referenceBaseObjectId;
-        [XafDisplayName("Referans Nesne ID")]
-        [VisibleInDetailView(true)]
-        public Guid? ReferenceBaseObjectId
-        {
-            get => _referenceBaseObjectId;
-            set => SetPropertyValue(nameof(ReferenceBaseObjectId), ref _referenceBaseObjectId, value);
         }
     }
 }

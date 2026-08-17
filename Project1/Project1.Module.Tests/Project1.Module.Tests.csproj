@@ -5,14 +5,27 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);DX1000</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="DevExpress.ExpressApp" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.ConditionalAppearance" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.Validation" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="26.1.4" />
     <PackageReference Include="DevExpress.Persistent.Base" Version="26.1.4" />
+    <PackageReference Include="DevExpress.Persistent.BaseImpl.Xpo" Version="26.1.4" />
     <PackageReference Include="DevExpress.Xpo" Version="26.1.4" />
     <PackageReference Include="FluentAssertions" Version="7.2.0" />
-    <PackageReference Include="MediatR" Version="14.2.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.9.2" />

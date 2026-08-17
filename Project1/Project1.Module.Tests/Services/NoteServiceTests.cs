@@ -64,6 +64,7 @@ namespace Project1.Module.Tests.Services
             result.Icerik.Should().Be("Not içeriği detayları");
             result.Musteri.Should().Be("Test Şirketi");
             result.Kisi.Should().Be("Ali Veli");
+            result.CreatedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(5));
         }
 
         [Fact]
@@ -92,6 +93,7 @@ namespace Project1.Module.Tests.Services
             result.Baslik.Should().Be("Genel Not");
             result.Musteri.Should().BeEmpty();
             result.Kisi.Should().BeEmpty();
+            result.CreatedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(5));
         }
     }
 }
