@@ -1,4 +1,7 @@
+#nullable enable
+
 using System;
+using System.ComponentModel;
 using DevExpress.ExpressApp.DC;
 using Project1.Module.BusinessObjects.Customers;
 
@@ -13,6 +16,7 @@ namespace Project1.Module.BusinessObjects.NonPersistent
         public string Telefon { get; set; } = string.Empty;
 
         // Gizli tutulacak veya arka planda atanacak alanlar
+        [Browsable(false)]
         public Musteri? Musteri { get; set; }
     }
 }

@@ -1,4 +1,7 @@
+#nullable enable
+
 using System;
+using System.ComponentModel;
 using DevExpress.ExpressApp.DC;
 using Project1.Module.BusinessObjects.Enums;
 using Project1.Module.BusinessObjects.Customers;
@@ -13,7 +16,9 @@ namespace Project1.Module.BusinessObjects.NonPersistent
         public NotDerecesi Derece { get; set; } = NotDerecesi.Normal;
 
         // Gizli tutulacak veya arka planda atanacak alanlar
+        [Browsable(false)]
         public Musteri? Musteri { get; set; }
+        [Browsable(false)]
         public Kisi? Kisi { get; set; }
     }
 }

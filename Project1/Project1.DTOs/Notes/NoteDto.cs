@@ -1,14 +1,14 @@
 using System;
 
-namespace Project1.Core.DTOs
+namespace Project1.DTOs.Notes
 {
     public record NoteDto(
         Guid Oid,
         string Baslik,
         string Icerik,
         string Derece,
-        string MusteriUnvan,
-        string KisiAdSoyad,
+        string Musteri,
+        string Kisi,
         bool IsEmailSent
     );
 

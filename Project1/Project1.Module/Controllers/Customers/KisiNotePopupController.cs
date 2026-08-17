@@ -38,15 +38,21 @@ namespace Project1.Module.Controllers.Customers
             if (View.CurrentObject is Kisi seciliKisi)
             {
                 parameters.Kisi = objectSpace.GetObject(seciliKisi);
-                parameters.Musteri = objectSpace.GetObject(seciliKisi.Musteri);
+                if (seciliKisi.Musteri != null)
+                {
+                    parameters.Musteri = objectSpace.GetObject(seciliKisi.Musteri);
+                }
             }
 
             e.View = Application.CreateDetailView(objectSpace, parameters);
         }
 
-        private void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
+        private async void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            var parameters = (CreateNoteParameters)e.PopupWindowView.CurrentObject;
+            if (e.PopupWindowView?.CurrentObject is not CreateNoteParameters parameters)
+            {
+                return;
+            }
 
             var command = new CreateNoteCommand(
                 parameters.Baslik,
@@ -56,7 +62,7 @@ namespace Project1.Module.Controllers.Customers
                 parameters.Kisi?.Oid);
 
             var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
-            mediator.Send(command).Wait();
+            await mediator.Send(command);
 
             View.ObjectSpace.Refresh();
         }

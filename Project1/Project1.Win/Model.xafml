@@ -1,4 +1,9 @@
 ﻿<Application Logo="Logo" Title="Project1 CRM">
+    <ActionDesign>
+        <Actions>
+            <Action Id="MyDetails" Active="False" />
+        </Actions>
+    </ActionDesign>
     <Options UIType="TabbedMDI" FormStyle="Ribbon" />
     <NavigationItems NavigationStyle="Accordion" DefaultChildItemsDisplayStyle="List"/>
 </Application>

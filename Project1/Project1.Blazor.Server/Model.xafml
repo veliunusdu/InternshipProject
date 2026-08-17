@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Application StartupNavigationItem="Dashboard_View">
+  <ActionDesign>
+    <Actions>
+      <Action Id="MyDetails" Active="False" />
+    </Actions>
+  </ActionDesign>
   <Options UIType="TabbedMDI"
          FormStyle="Ribbon"
          RestoreTabbedMdiLayout="True"

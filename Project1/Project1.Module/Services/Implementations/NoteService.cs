@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Security;
 using Project1.Module.BusinessObjects.Notes;
-using Project1.Core.DTOs;
+using Project1.DTOs.Notes;
 using Project1.Core.Services.Interfaces;
 
 namespace Project1.Module.Services.Implementations

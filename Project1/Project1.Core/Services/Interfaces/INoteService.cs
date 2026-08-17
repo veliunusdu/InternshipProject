@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Project1.Core.DTOs;
+using Project1.DTOs.Notes;
 
 namespace Project1.Core.Services.Interfaces
 {

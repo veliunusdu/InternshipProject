@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Project1.Core.DTOs;
+using Project1.DTOs.Notes;
 using Project1.Core.Services.Interfaces;
 
 namespace Project1.Blazor.Server.Controllers

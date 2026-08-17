@@ -101,7 +101,7 @@ namespace Project1.Module.Controllers.Customers
             e.View = Application.CreateDetailView(popupObjectSpace, newObject);
         }
 
-        private void PopupEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
+        private async void PopupEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
             var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
 
@@ -113,7 +113,7 @@ namespace Project1.Module.Controllers.Customers
                     kisiParams.Email,
                     kisiParams.Telefon,
                     kisiParams.Musteri?.Oid);
-                mediator.Send(command).Wait();
+                await mediator.Send(command);
             }
             else if (e.PopupWindowView.CurrentObject is CreateNoteParameters noteParams)
             {
@@ -123,7 +123,7 @@ namespace Project1.Module.Controllers.Customers
                     (int)noteParams.Derece, 
                     noteParams.Musteri?.Oid, 
                     noteParams.Kisi?.Oid);
-                mediator.Send(command).Wait();
+                await mediator.Send(command);
             }
 
             View.ObjectSpace.Refresh();

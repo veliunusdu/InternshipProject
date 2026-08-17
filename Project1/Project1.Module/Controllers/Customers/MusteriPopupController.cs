@@ -56,9 +56,12 @@ namespace Project1.Module.Controllers.Customers
             e.View = Application.CreateDetailView(objectSpace, parameters);
         }
 
-        private void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
+        private async void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            var parameters = (CreateNoteParameters)e.PopupWindowView.CurrentObject;
+            if (e.PopupWindowView?.CurrentObject is not CreateNoteParameters parameters)
+            {
+                return;
+            }
             
             var command = new CreateNoteCommand(
                 parameters.Baslik, 
@@ -68,7 +71,7 @@ namespace Project1.Module.Controllers.Customers
                 parameters.Kisi?.Oid);
 
             var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
-            mediator.Send(command).Wait();
+            await mediator.Send(command);
 
             View.ObjectSpace.Refresh();
         }
@@ -86,9 +89,12 @@ namespace Project1.Module.Controllers.Customers
             e.View = Application.CreateDetailView(objectSpace, parameters);
         }
 
-        private void KisiEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
+        private async void KisiEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            var parameters = (CreateKisiParameters)e.PopupWindowView.CurrentObject;
+            if (e.PopupWindowView?.CurrentObject is not CreateKisiParameters parameters)
+            {
+                return;
+            }
 
             var command = new CreateKisiCommand(
                 parameters.Ad, 
@@ -98,7 +104,7 @@ namespace Project1.Module.Controllers.Customers
                 parameters.Musteri?.Oid);
 
             var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
-            mediator.Send(command).Wait();
+            await mediator.Send(command);
 
             View.ObjectSpace.Refresh();
         }
