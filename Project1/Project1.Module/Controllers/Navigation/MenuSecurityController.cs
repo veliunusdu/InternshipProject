@@ -9,8 +9,8 @@ using Project1.Module.Security;
 namespace Project1.Module.Controllers.Navigation
 {
     /// <summary>
-    /// Müşteri ve genel navigasyon/güvenlik menülerini yöneten denetleyici.
-    /// Standart kullanıcılar için menüdeki teknik güvenlik öğelerini (Roller, Kullanıcılar) gizler.
+    /// Standart kullanıcılar için menüdeki teknik güvenlik öğelerini ve yönetici panelini gizler.
+    /// Admin kullanıcılar için standart kullanıcı panelini menüden ayıklar.
     /// </summary>
     public sealed class MenuSecurityController : WindowController
     {
@@ -35,24 +35,33 @@ namespace Project1.Module.Controllers.Navigation
             if (sender is ShowNavigationItemController navigationController)
             {
                 bool isAdmin = string.Equals(Application?.Security?.UserName, SecurityConstants.AdministratorUserName, StringComparison.OrdinalIgnoreCase);
-                if (!isAdmin)
-                {
-                    ChoiceActionItem defaultGroup = navigationController.ShowNavigationItemAction.Items.FirstOrDefault(i => i.Id == "Default");
-                    if (defaultGroup != null)
-                    {
-                        ChoiceActionItem roleItem = defaultGroup.Items.FirstOrDefault(i => i.Id == "Role");
-                        if (roleItem != null)
-                        {
-                            defaultGroup.Items.Remove(roleItem);
-                        }
+                ChoiceActionItem defaultGroup = navigationController.ShowNavigationItemAction.Items.FirstOrDefault(i => i.Id == "Default");
 
-                        ChoiceActionItem userItem = defaultGroup.Items.FirstOrDefault(i => i.Id == "User");
-                        if (userItem != null)
-                        {
-                            defaultGroup.Items.Remove(userItem);
-                        }
+                if (defaultGroup != null)
+                {
+                    if (!isAdmin)
+                    {
+                        // Standart kullanıcı: Yönetici paneli, Yönetim grubu ve yetki sayfalarını gizle
+                        RemoveItem(defaultGroup, "AdminDashboard_View");
+                        RemoveItem(defaultGroup, "Yonetim");
+                        RemoveItem(defaultGroup, "Role");
+                        RemoveItem(defaultGroup, "User");
+                    }
+                    else
+                    {
+                        // Admin kullanıcı: Kullanıcı panelini menüden kaldır (Yönetici Paneli kullanılır)
+                        RemoveItem(defaultGroup, "UserDashboard_View");
                     }
                 }
+            }
+        }
+
+        private static void RemoveItem(ChoiceActionItem group, string itemId)
+        {
+            ChoiceActionItem item = group.Items.FirstOrDefault(i => i.Id == itemId);
+            if (item != null)
+            {
+                group.Items.Remove(item);
             }
         }
     }
