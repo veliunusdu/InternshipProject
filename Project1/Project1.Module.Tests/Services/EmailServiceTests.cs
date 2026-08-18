@@ -203,5 +203,18 @@ namespace Project1.Module.Tests.Services
                     Moq.It.IsAny<Func<Moq.It.IsAnyType, Exception?, string>>()),
                 Moq.Times.AtLeastOnce);
         }
+
+        [Fact]
+        public void EmailSettings_ShouldHaveDefaultBaseUrl_AsHttpsLocalhost5001()
+        {
+            // Arrange & Act
+            var settings = new EmailSettings();
+
+            // Assert
+            settings.BaseUrl.Should().Be("https://localhost:5001");
+            settings.SmtpHost.Should().Be("smtp.gmail.com");
+            settings.SmtpPort.Should().Be(587);
+            settings.EnableSsl.Should().BeTrue();
+        }
     }
 }

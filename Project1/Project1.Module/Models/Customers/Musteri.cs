@@ -1,16 +1,20 @@
 using System;
 using System.ComponentModel;
+using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using Project1.Module.Models.Notes;
+using Project1.Module.Models.Audit;
 
 namespace Project1.Module.Models.Customers
 {
     [DefaultClassOptions]
     [DefaultProperty(nameof(Ad))]
+    [DeferredDeletion(true)]
     [ImageName("BO_Customer")]
     [XafDisplayName("Müşteri")]
     public class Musteri : BaseObject
@@ -32,6 +36,50 @@ namespace Project1.Module.Models.Customers
             {
                 CreatedDate = DateTime.Now;
             }
+
+            if (!Session.IsObjectsLoading && !IsDeleted)
+            {
+                string user = SecuritySystem.CurrentUserName ?? "Sistem";
+                if (Session.IsNewObject(this))
+                {
+                    new AuditLog(Session)
+                    {
+                        Tarih = DateTime.Now,
+                        Kullanici = user,
+                        IslemTuru = "Oluşturuldu",
+                        VarlikTipi = "Müşteri",
+                        VarlikId = Oid,
+                        Aciklama = $"'{Ad}' adlı müşteri kaydı oluşturuldu."
+                    };
+                }
+                else
+                {
+                    new AuditLog(Session)
+                    {
+                        Tarih = DateTime.Now,
+                        Kullanici = user,
+                        IslemTuru = "Güncellendi",
+                        VarlikTipi = "Müşteri",
+                        VarlikId = Oid,
+                        Aciklama = $"'{Ad}' adlı müşteri kaydı güncellendi."
+                    };
+                }
+            }
+        }
+
+        protected override void OnDeleting()
+        {
+            base.OnDeleting();
+            string user = SecuritySystem.CurrentUserName ?? "Sistem";
+            new AuditLog(Session)
+            {
+                Tarih = DateTime.Now,
+                Kullanici = user,
+                IslemTuru = "Silindi (Soft Delete)",
+                VarlikTipi = "Müşteri",
+                VarlikId = Oid,
+                Aciklama = $"'{Ad}' adlı müşteri silindi."
+            };
         }
 
         private string _ad;

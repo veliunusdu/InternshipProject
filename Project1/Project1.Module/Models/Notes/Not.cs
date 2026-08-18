@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
@@ -7,6 +8,7 @@ using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Enums;
+using Project1.Module.Models.Audit;
 using Project1.Module.BusinessObjects.Enums;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.Editors;
@@ -16,7 +18,7 @@ namespace Project1.Module.Models.Notes
 {
     [DefaultClassOptions]
     [DefaultProperty(nameof(Baslik))]
-    [DeferredDeletion(false)]
+    [DeferredDeletion(true)]
     [ImageName("Crm_Not")]
     [XafDisplayName("Not")]
     [Appearance("HideMusteriInPopup", TargetItems = "Musteri", Criteria = "[IsMusteriHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
@@ -40,6 +42,50 @@ namespace Project1.Module.Models.Notes
             {
                 CreatedDate = DateTime.Now;
             }
+
+            if (!Session.IsObjectsLoading && !IsDeleted)
+            {
+                string user = SecuritySystem.CurrentUserName ?? "Sistem";
+                if (Session.IsNewObject(this))
+                {
+                    new AuditLog(Session)
+                    {
+                        Tarih = DateTime.Now,
+                        Kullanici = user,
+                        IslemTuru = "Oluşturuldu",
+                        VarlikTipi = "Not",
+                        VarlikId = Oid,
+                        Aciklama = $"'{Baslik}' başlıklı yeni not oluşturuldu. (Müşteri: {Musteri?.Ad ?? "-"})"
+                    };
+                }
+                else
+                {
+                    new AuditLog(Session)
+                    {
+                        Tarih = DateTime.Now,
+                        Kullanici = user,
+                        IslemTuru = "Güncellendi",
+                        VarlikTipi = "Not",
+                        VarlikId = Oid,
+                        Aciklama = $"'{Baslik}' başlıklı not güncellendi."
+                    };
+                }
+            }
+        }
+
+        protected override void OnDeleting()
+        {
+            base.OnDeleting();
+            string user = SecuritySystem.CurrentUserName ?? "Sistem";
+            new AuditLog(Session)
+            {
+                Tarih = DateTime.Now,
+                Kullanici = user,
+                IslemTuru = "Silindi (Soft Delete)",
+                VarlikTipi = "Not",
+                VarlikId = Oid,
+                Aciklama = $"'{Baslik}' başlıklı not silindi."
+            };
         }
 
         private string _baslik;

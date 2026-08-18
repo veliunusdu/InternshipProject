@@ -9,6 +9,7 @@ using DevExpress.Persistent.Base;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
 using Project1.Module.Models.Enums;
+using Project1.Module.Models.Audit;
 using Project1.Module.BusinessObjects.Security;
 using Project1.Module.Security;
 using Project1.Core.Services.Interfaces;
@@ -124,11 +125,28 @@ namespace Project1.Module.Controllers.Notes
                         note.MailHataMesaji = null;
                         note.IsEmailSent = true;
                         _showToastNotification = true;
+
+                        var auditLog = ObjectSpace.CreateObject<AuditLog>();
+                        auditLog.Tarih = DateTime.Now;
+                        auditLog.Kullanici = SecuritySystem.CurrentUserName ?? "Sistem";
+                        auditLog.IslemTuru = "E-posta İletildi";
+                        auditLog.VarlikTipi = "Not";
+                        auditLog.VarlikId = note.Oid;
+                        auditLog.Aciklama = $"'{note.Baslik}' başlıklı not bildirimi {recipient.Email} ({recipient.AdSoyad}) adresine iletildi.";
                     }
                     else
                     {
                         note.MailDurumu = MailDurumu.Basarisiz;
                         note.MailHataMesaji = result.ErrorMessage;
+
+                        var auditLog = ObjectSpace.CreateObject<AuditLog>();
+                        auditLog.Tarih = DateTime.Now;
+                        auditLog.Kullanici = SecuritySystem.CurrentUserName ?? "Sistem";
+                        auditLog.IslemTuru = "E-posta Hatası";
+                        auditLog.VarlikTipi = "Not";
+                        auditLog.VarlikId = note.Oid;
+                        auditLog.Aciklama = $"E-posta gönderimi başarısız ({recipient.Email}): {result.ErrorMessage}";
+
                         Application?.ShowViewStrategy?.ShowMessage(new MessageOptions
                         {
                             Message = $"E-posta gönderilemedi ({recipient.Email}): {result.ErrorMessage}",

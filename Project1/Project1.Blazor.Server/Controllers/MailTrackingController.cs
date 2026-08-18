@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Project1.Module.Models.Enums;
 using Project1.Module.Models.Notes;
+using Project1.Module.Models.Audit;
 
 namespace Project1.Blazor.Server.Controllers
 {
@@ -64,6 +65,15 @@ namespace Project1.Blazor.Server.Controllers
                 {
                     note.MailDurumu = MailDurumu.Iletildi;
                     note.MailIletilmeTarihi = DateTime.Now;
+
+                    var auditLog = objectSpace.CreateObject<AuditLog>();
+                    auditLog.Tarih = DateTime.Now;
+                    auditLog.Kullanici = "Posta Dağıtım Sunucusu (Webhook)";
+                    auditLog.IslemTuru = "E-posta İletildi";
+                    auditLog.VarlikTipi = "Not";
+                    auditLog.VarlikId = note.Oid;
+                    auditLog.Aciklama = $"'{note.Baslik}' başlıklı notun e-posta teslimatı teyit edildi.";
+
                     objectSpace.CommitChanges();
                     _logger?.LogInformation("Not bildirimi iletildi olarak işaretlendi. NoteId: {NoteId}", noteId);
                 }
@@ -97,6 +107,15 @@ namespace Project1.Blazor.Server.Controllers
                         note.MailIletilmeTarihi = DateTime.Now;
                     }
                     note.MailOkunmaTarihi = DateTime.Now;
+
+                    var auditLog = objectSpace.CreateObject<AuditLog>();
+                    auditLog.Tarih = DateTime.Now;
+                    auditLog.Kullanici = "Alıcı (E-posta İstemcisi)";
+                    auditLog.IslemTuru = "E-posta Okundu";
+                    auditLog.VarlikTipi = "Not";
+                    auditLog.VarlikId = note.Oid;
+                    auditLog.Aciklama = $"'{note.Baslik}' başlıklı not bildirim e-postası alıcı tarafından açıldı/okundu.";
+
                     objectSpace.CommitChanges();
                     _logger?.LogInformation("Not bildirimi okundu olarak işaretlendi. NoteId: {NoteId}", noteId);
                 }

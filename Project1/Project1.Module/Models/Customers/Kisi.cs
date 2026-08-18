@@ -1,11 +1,14 @@
 using System;
 using System.ComponentModel;
+using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
+using DevExpress.ExpressApp.Model;
 using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using Project1.Module.Models.Notes;
+using Project1.Module.Models.Audit;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.Editors;
 
@@ -13,6 +16,7 @@ namespace Project1.Module.Models.Customers
 {
     [DefaultClassOptions]
     [DefaultProperty(nameof(AdSoyad))]
+    [DeferredDeletion(true)]
     [ImageName("BO_Person")]
     [XafDisplayName("Kişi")]
     [Appearance("HideMusteriInKisiPopup", TargetItems = "Musteri", Criteria = "[IsMusteriHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
@@ -35,6 +39,50 @@ namespace Project1.Module.Models.Customers
             {
                 CreatedDate = DateTime.Now;
             }
+
+            if (!Session.IsObjectsLoading && !IsDeleted)
+            {
+                string user = SecuritySystem.CurrentUserName ?? "Sistem";
+                if (Session.IsNewObject(this))
+                {
+                    new AuditLog(Session)
+                    {
+                        Tarih = DateTime.Now,
+                        Kullanici = user,
+                        IslemTuru = "Oluşturuldu",
+                        VarlikTipi = "Kişi",
+                        VarlikId = Oid,
+                        Aciklama = $"'{Ad} {Soyad}' adlı kişi kaydı oluşturuldu. (Müşteri: {Musteri?.Ad ?? "-"})"
+                    };
+                }
+                else
+                {
+                    new AuditLog(Session)
+                    {
+                        Tarih = DateTime.Now,
+                        Kullanici = user,
+                        IslemTuru = "Güncellendi",
+                        VarlikTipi = "Kişi",
+                        VarlikId = Oid,
+                        Aciklama = $"'{Ad} {Soyad}' adlı kişi kaydı güncellendi."
+                    };
+                }
+            }
+        }
+
+        protected override void OnDeleting()
+        {
+            base.OnDeleting();
+            string user = SecuritySystem.CurrentUserName ?? "Sistem";
+            new AuditLog(Session)
+            {
+                Tarih = DateTime.Now,
+                Kullanici = user,
+                IslemTuru = "Silindi (Soft Delete)",
+                VarlikTipi = "Kişi",
+                VarlikId = Oid,
+                Aciklama = $"'{Ad} {Soyad}' adlı kişi silindi."
+            };
         }
 
         private string _ad;
