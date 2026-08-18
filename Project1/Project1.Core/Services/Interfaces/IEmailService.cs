@@ -8,6 +8,7 @@ namespace Project1.Core.Services.Interfaces
     /// E-posta bildirim isteği için parametre nesnesi.
     /// </summary>
     public record SendNoteNotificationRequest(
+        Guid NoteId,
         string ToEmail,
         string RecipientName,
         string Title,

@@ -14,6 +14,11 @@
     <DetailView Id="Not_DetailView">
       <Items>
         <PropertyEditor Id="CreatedDate" Removed="True" />
+        <PropertyEditor Id="MailDurumu" Removed="True" />
+        <PropertyEditor Id="MailGonderilmeTarihi" Removed="True" />
+        <PropertyEditor Id="MailIletilmeTarihi" Removed="True" />
+        <PropertyEditor Id="MailOkunmaTarihi" Removed="True" />
+        <PropertyEditor Id="MailHataMesaji" Removed="True" />
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100" Direction="Vertical">

@@ -10,7 +10,11 @@ namespace Project1.DTOs.Notes
         string Musteri,
         string Kisi,
         bool IsEmailSent,
-        DateTime CreatedDate = default
+        DateTime CreatedDate = default,
+        string MailDurumu = "Gonderilmedi",
+        DateTime? MailGonderilmeTarihi = null,
+        DateTime? MailIletilmeTarihi = null,
+        DateTime? MailOkunmaTarihi = null
     );
 
     public record CreateNoteRequestDto(

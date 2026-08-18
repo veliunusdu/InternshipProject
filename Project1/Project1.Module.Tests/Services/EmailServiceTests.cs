@@ -24,6 +24,7 @@ namespace Project1.Module.Tests.Services
             };
             var emailService = new EmailService(invalidSettings);
             var request = new SendNoteNotificationRequest(
+                NoteId: Guid.NewGuid(),
                 ToEmail: "recipient@example.com",
                 RecipientName: "Ahmet Yılmaz",
                 Title: "Test Notu",
@@ -53,6 +54,7 @@ namespace Project1.Module.Tests.Services
             };
             var emailService = new EmailService(settings);
             var request = new SendNoteNotificationRequest(
+                NoteId: Guid.NewGuid(),
                 ToEmail: "", // Boş e-posta adresi
                 RecipientName: "Ahmet Yılmaz",
                 Title: "Test Notu",
@@ -103,6 +105,7 @@ namespace Project1.Module.Tests.Services
             };
             var emailService = new EmailService(settings);
             var request = new SendNoteNotificationRequest(
+                NoteId: Guid.NewGuid(),
                 ToEmail: "recipient@example.com",
                 RecipientName: "Ahmet Yılmaz",
                 Title: "Test Notu",
@@ -136,6 +139,7 @@ namespace Project1.Module.Tests.Services
             var mockLogger = new Moq.Mock<Microsoft.Extensions.Logging.ILogger<EmailService>>();
             var emailService = new EmailService(settings, mockLogger.Object);
             var request = new SendNoteNotificationRequest(
+                NoteId: Guid.NewGuid(),
                 ToEmail: "recipient@example.com",
                 RecipientName: "Ahmet Yılmaz",
                 Title: "Test Notu",
@@ -176,6 +180,7 @@ namespace Project1.Module.Tests.Services
             var mockLogger = new Moq.Mock<Microsoft.Extensions.Logging.ILogger<EmailService>>();
             var emailService = new EmailService(settings, mockLogger.Object);
             var request = new SendNoteNotificationRequest(
+                NoteId: Guid.NewGuid(),
                 ToEmail: "recipient@example.com",
                 RecipientName: "Ahmet Yılmaz",
                 Title: "Test Notu",

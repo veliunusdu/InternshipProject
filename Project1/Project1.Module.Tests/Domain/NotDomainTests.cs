@@ -87,5 +87,20 @@ namespace Project1.Module.Tests.Domain
             // Act & Assert
             not.EmailGonderilebilir.Should().BeTrue();
         }
+
+        [Fact]
+        public void Not_ShouldHaveInitialMailDurumuAsGonderilmedi()
+        {
+            // Arrange & Act
+            using var session = CreateInMemorySession();
+            var not = new Not(session);
+
+            // Assert
+            not.MailDurumu.Should().Be(Project1.Module.Models.Enums.MailDurumu.Gonderilmedi);
+            not.MailGonderilmeTarihi.Should().BeNull();
+            not.MailIletilmeTarihi.Should().BeNull();
+            not.MailOkunmaTarihi.Should().BeNull();
+            not.MailHataMesaji.Should().BeNull();
+        }
     }
 }

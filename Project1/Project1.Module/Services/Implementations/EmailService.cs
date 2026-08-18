@@ -84,6 +84,7 @@ namespace Project1.Module.Services.Implementations
             string safeBaslik = WebUtility.HtmlEncode(request.Title);
             string safeIcerik = WebUtility.HtmlEncode(request.Content);
             string safeDerece = WebUtility.HtmlEncode(request.Severity);
+            string trackingUrl = $"{_settings.BaseUrl.TrimEnd('/')}/api/mail-tracking/read/{request.NoteId}";
 
             var message = new MailMessage
             {
@@ -100,12 +101,14 @@ namespace Project1.Module.Services.Implementations
                                 <tr><td style='padding: 8px 0; color: #7f8c8d; width: 120px;'><strong>Müşteri:</strong></td><td style='padding: 8px 0; color: #2c3e50;'>{safeMusteriName}</td></tr>
                                 <tr><td style='padding: 8px 0; color: #7f8c8d;'><strong>Not Başlığı:</strong></td><td style='padding: 8px 0; color: #2c3e50;'><strong>{safeBaslik}</strong></td></tr>
                                 <tr><td style='padding: 8px 0; color: #7f8c8d;'><strong>Önem Derecesi:</strong></td><td style='padding: 8px 0; color: #e74c3c;'><strong>{safeDerece}</strong></td></tr>
+                                <tr><td style='padding: 8px 0; color: #7f8c8d;'><strong>Tarih / Saat:</strong></td><td style='padding: 8px 0; color: #2c3e50;'>{DateTime.Now:dd.MM.yyyy HH:mm}</td></tr>
                             </table>
                             <div style='margin-top: 20px; padding: 16px; background-color: #ebf5fb; border-left: 4px solid #3498db; border-radius: 4px;'>
                                 <strong style='color: #2980b9;'>Not İçeriği:</strong>
                                 <p style='margin: 8px 0 0 0; color: #2c3e50; white-space: pre-wrap;'>{safeIcerik}</p>
                             </div>
                             <p style='font-size: 12px; color: #95a5a6; text-align: center;'>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
+                            <img src='{trackingUrl}' width='1' height='1' style='display:none !important; width:1px; height:1px; border:0;' alt='' />
                         </div>
                     </div>"
             };
@@ -156,5 +159,6 @@ namespace Project1.Module.Services.Implementations
         public string SenderName { get; set; } = "Project1 Sistem Bildirimi";
         public string SenderEmail { get; set; } = string.Empty;
         public string SenderPassword { get; set; } = string.Empty;
+        public string BaseUrl { get; set; } = "https://localhost:5001";
     }
 }

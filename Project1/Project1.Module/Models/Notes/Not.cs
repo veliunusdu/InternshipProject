@@ -6,9 +6,11 @@ using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using Project1.Module.Models.Customers;
+using Project1.Module.Models.Enums;
 using Project1.Module.BusinessObjects.Enums;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.Editors;
+using DevExpress.ExpressApp.Model;
 
 namespace Project1.Module.Models.Notes
 {
@@ -118,6 +120,67 @@ namespace Project1.Module.Models.Notes
             }
         }
 
+        private MailDurumu _mailDurumu = MailDurumu.Gonderilmedi;
+        [XafDisplayName("E-posta Durumu")]
+        [VisibleInListView(true)]
+        [VisibleInDetailView(false)]
+        [ReadOnly(true)]
+        public MailDurumu MailDurumu
+        {
+            get => _mailDurumu;
+            set => SetPropertyValue(nameof(MailDurumu), ref _mailDurumu, value);
+        }
+
+        private DateTime? _mailGonderilmeTarihi;
+        [XafDisplayName("E-posta Gönderilme Tarihi")]
+        [ModelDefault("DisplayFormat", "{0:dd.MM.yyyy HH:mm}")]
+        [ModelDefault("EditMask", "dd.MM.yyyy HH:mm")]
+        [VisibleInListView(true)]
+        [VisibleInDetailView(false)]
+        [ReadOnly(true)]
+        public DateTime? MailGonderilmeTarihi
+        {
+            get => _mailGonderilmeTarihi;
+            set => SetPropertyValue(nameof(MailGonderilmeTarihi), ref _mailGonderilmeTarihi, value);
+        }
+
+        private DateTime? _mailIletilmeTarihi;
+        [XafDisplayName("E-posta İletilme Tarihi")]
+        [ModelDefault("DisplayFormat", "{0:dd.MM.yyyy HH:mm}")]
+        [ModelDefault("EditMask", "dd.MM.yyyy HH:mm")]
+        [VisibleInListView(true)]
+        [VisibleInDetailView(false)]
+        [ReadOnly(true)]
+        public DateTime? MailIletilmeTarihi
+        {
+            get => _mailIletilmeTarihi;
+            set => SetPropertyValue(nameof(MailIletilmeTarihi), ref _mailIletilmeTarihi, value);
+        }
+
+        private DateTime? _mailOkunmaTarihi;
+        [XafDisplayName("E-posta Okunma Tarihi")]
+        [ModelDefault("DisplayFormat", "{0:dd.MM.yyyy HH:mm}")]
+        [ModelDefault("EditMask", "dd.MM.yyyy HH:mm")]
+        [VisibleInListView(true)]
+        [VisibleInDetailView(false)]
+        [ReadOnly(true)]
+        public DateTime? MailOkunmaTarihi
+        {
+            get => _mailOkunmaTarihi;
+            set => SetPropertyValue(nameof(MailOkunmaTarihi), ref _mailOkunmaTarihi, value);
+        }
+
+        private string _mailHataMesaji;
+        [XafDisplayName("E-posta Hata Mesajı")]
+        [VisibleInListView(false)]
+        [VisibleInDetailView(false)]
+        [ReadOnly(true)]
+        public string MailHataMesaji
+        {
+            get => _mailHataMesaji;
+            set => SetPropertyValue(nameof(MailHataMesaji), ref _mailHataMesaji, value);
+        }
+
         private bool _isEmailSent;
         [Browsable(false)]
         public bool IsEmailSent
@@ -139,6 +202,8 @@ namespace Project1.Module.Models.Notes
 
         private DateTime _createdDate;
         [XafDisplayName("Oluşturma Tarihi")]
+        [ModelDefault("DisplayFormat", "{0:dd.MM.yyyy HH:mm}")]
+        [ModelDefault("EditMask", "dd.MM.yyyy HH:mm")]
         [VisibleInListView(true)]
         [VisibleInDetailView(false)]
         [ReadOnly(true)]

@@ -8,6 +8,7 @@ using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.Base;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
+using Project1.Module.Models.Enums;
 using Project1.Module.BusinessObjects.Security;
 using Project1.Module.Security;
 using Project1.Core.Services.Interfaces;
@@ -104,6 +105,7 @@ namespace Project1.Module.Controllers.Notes
                 if (emailService != null)
                 {
                     var request = new SendNoteNotificationRequest(
+                        NoteId: note.Oid,
                         ToEmail: recipient.Email,
                         RecipientName: recipient.AdSoyad,
                         Title: note.Baslik,
@@ -116,11 +118,17 @@ namespace Project1.Module.Controllers.Notes
 
                     if (result.Success)
                     {
+                        note.MailDurumu = MailDurumu.Iletildi;
+                        note.MailGonderilmeTarihi = DateTime.Now;
+                        note.MailIletilmeTarihi = DateTime.Now;
+                        note.MailHataMesaji = null;
                         note.IsEmailSent = true;
                         _showToastNotification = true;
                     }
                     else
                     {
+                        note.MailDurumu = MailDurumu.Basarisiz;
+                        note.MailHataMesaji = result.ErrorMessage;
                         Application?.ShowViewStrategy?.ShowMessage(new MessageOptions
                         {
                             Message = $"E-posta gönderilemedi ({recipient.Email}): {result.ErrorMessage}",
