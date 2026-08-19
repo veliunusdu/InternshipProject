@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project1.Core", "Project1.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project1.DTOs", "Project1.DTOs\Project1.DTOs.csproj", "{0ABF27B5-AED1-4FCA-84D5-BC0F36A38BC3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project1.Mapping", "Project1.Mapping\Project1.Mapping.csproj", "{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -140,6 +142,24 @@ Global
 		{0ABF27B5-AED1-4FCA-84D5-BC0F36A38BC3}.Release|x64.Build.0 = Release|Any CPU
 		{0ABF27B5-AED1-4FCA-84D5-BC0F36A38BC3}.Release|x86.ActiveCfg = Release|Any CPU
 		{0ABF27B5-AED1-4FCA-84D5-BC0F36A38BC3}.Release|x86.Build.0 = Release|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Debug|x64.Build.0 = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Debug|x86.Build.0 = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.EasyTest|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.EasyTest|Any CPU.Build.0 = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.EasyTest|x64.ActiveCfg = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.EasyTest|x64.Build.0 = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.EasyTest|x86.ActiveCfg = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.EasyTest|x86.Build.0 = Debug|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Release|x64.ActiveCfg = Release|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Release|x64.Build.0 = Release|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Release|x86.ActiveCfg = Release|Any CPU
+		{0FACA25D-397A-4B38-BA1A-FEAA18FCF971}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

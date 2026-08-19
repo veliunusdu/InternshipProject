@@ -15,6 +15,7 @@ using Project1.Core.Services.Interfaces;
 using Project1.Module.Handlers;
 using MediatR;
 using Project1.Blazor.Server.Hubs;
+using Project1.Mapping;
 
 namespace Project1.Blazor.Server
 {
@@ -41,6 +42,7 @@ namespace Project1.Blazor.Server
             services.AddSingleton<ISystemStatusService, SystemStatusService>();
             services.AddScoped<INonSecuredObjectSpaceFactory, CustomNonSecuredObjectSpaceFactory>();
             services.AddScoped<INoteService, NoteService>();
+            services.AddCrmMappingServices();
             
             // MediatR Configuration
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateNoteCommandHandler).Assembly));

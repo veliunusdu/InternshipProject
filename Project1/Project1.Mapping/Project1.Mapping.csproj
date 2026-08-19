@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Configurations>Debug;Release;EasyTest</Configurations>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);DX1000</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Project1.DTOs\Project1.DTOs.csproj" />
+    <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />
+    <ProjectReference Include="..\Project1.Module\Project1.Module.csproj" />
+  </ItemGroup>
+
+</Project>
