@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Project1.Blazor.Server.Controllers;
+using Project1.Core.Services.Interfaces;
 using Project1.Module.BusinessObjects.Enums;
 using Project1.Module.Models.Audit;
 using Project1.Module.Models.Enums;
@@ -45,7 +46,8 @@ namespace Project1.Module.Tests.Api
         private MailTrackingController CreateControllerWithContext(
             IObjectSpace objectSpace,
             out DefaultHttpContext httpContext,
-            Mock<ILogger<MailTrackingController>>? loggerMock = null)
+            Mock<ILogger<MailTrackingController>>? loggerMock = null,
+            Mock<ICrmNotificationService>? notificationMock = null)
         {
             var factoryMock = new Mock<IObjectSpaceFactory>();
             factoryMock
@@ -53,7 +55,7 @@ namespace Project1.Module.Tests.Api
                 .Returns(objectSpace);
 
             loggerMock ??= new Mock<ILogger<MailTrackingController>>();
-            var controller = new MailTrackingController(factoryMock.Object, null, loggerMock.Object);
+            var controller = new MailTrackingController(factoryMock.Object, null, loggerMock.Object, notificationMock?.Object);
 
             httpContext = new DefaultHttpContext();
             controller.ControllerContext = new ControllerContext
@@ -196,6 +198,33 @@ namespace Project1.Module.Tests.Api
                     It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Mail tracking pikseli işlenirken hata oluştu")),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public void TrackRead_ShouldPublishLiveNotification_WhenNoteIsRead()
+        {
+            // Arrange
+            var (objectSpace, uow) = CreateRealObjectSpace();
+            var not = new Not(uow)
+            {
+                Baslik = "Canlı Bildirim Test Notu",
+                Icerik = "İçerik",
+                Derece = NotDerecesi.Onemli,
+                MailDurumu = MailDurumu.Iletildi
+            };
+            uow.CommitChanges();
+
+            var notificationMock = new Mock<ICrmNotificationService>();
+            var controller = CreateControllerWithContext(objectSpace, out _, null, notificationMock);
+
+            // Act
+            var result = controller.TrackRead(not.Oid);
+
+            // Assert
+            result.Should().BeOfType<FileContentResult>();
+            notificationMock.Verify(
+                n => n.PublishNoteRead(It.Is<NoteReadNotificationEvent>(e => e.NoteId == not.Oid && e.Title == "Canlı Bildirim Test Notu")),
                 Times.Once);
         }
     }

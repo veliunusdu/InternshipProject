@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Project1.DTOs.Notes
@@ -15,7 +16,9 @@ namespace Project1.DTOs.Notes
         string MailDurumu = "Gonderilmedi",
         DateTime? MailGonderilmeTarihi = null,
         DateTime? MailIletilmeTarihi = null,
-        DateTime? MailOkunmaTarihi = null
+        DateTime? MailOkunmaTarihi = null,
+        bool IsSharedWithProject2 = false,
+        List<NoteAttachmentDto>? Ekler = null
     );
 
     public record CreateNoteRequestDto(
@@ -26,6 +29,7 @@ namespace Project1.DTOs.Notes
         [property: Range(0, 2, ErrorMessage = "Not derecesi geçerli bir değer olmalıdır.")]
         int Derece,
         Guid? MusteriOid = null,
-        Guid? KisiOid = null
+        Guid? KisiOid = null,
+        bool Project2IlePaylas = false
     );
 }

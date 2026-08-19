@@ -20,9 +20,16 @@ namespace Project1.Blazor.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetNotes()
+        public async Task<IActionResult> GetNotes([FromQuery] bool? onlyShared = null)
         {
-            var notes = await _noteService.GetNotesAsync();
+            var notes = await _noteService.GetNotesAsync(onlyShared);
+            return Ok(notes);
+        }
+
+        [HttpGet("shared")]
+        public async Task<IActionResult> GetSharedNotes()
+        {
+            var notes = await _noteService.GetNotesAsync(onlyShared: true);
             return Ok(notes);
         }
 

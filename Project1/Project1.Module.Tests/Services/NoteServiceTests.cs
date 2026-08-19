@@ -95,5 +95,63 @@ namespace Project1.Module.Tests.Services
             result.Kisi.Should().BeEmpty();
             result.CreatedDate.Should().BeCloseTo(DateTime.Now, TimeSpan.FromSeconds(5));
         }
+
+        [Fact]
+        public async Task GetNotesAsync_ShouldFilterByOnlyShared_WhenRequested()
+        {
+            // Arrange
+            var dataStore = new InMemoryDataStore(AutoCreateOption.DatabaseAndSchema);
+            var dataLayer = new SimpleDataLayer(dataStore);
+            var typesInfoSource = XpoTypesInfoHelper.GetXpoTypeInfoSource();
+            var typesInfo = XpoTypesInfoHelper.GetTypesInfo();
+            typesInfo.RegisterEntity(typeof(Not));
+            typesInfo.RegisterEntity(typeof(NotEk));
+            typesInfo.RegisterEntity(typeof(Musteri));
+            typesInfo.RegisterEntity(typeof(Kisi));
+
+            using (var uow = new UnitOfWork(dataLayer))
+            {
+                var n1 = new Not(uow) { Baslik = "Paylaşılan Not", Icerik = "A", Project2IlePaylas = true };
+                var n2 = new Not(uow) { Baslik = "Gizli Not", Icerik = "B", Project2IlePaylas = false };
+                n1.Save();
+                n2.Save();
+                uow.CommitChanges();
+            }
+
+            var mockFactory = new Mock<IObjectSpaceFactory>();
+            mockFactory
+                .Setup(f => f.CreateObjectSpace(It.IsAny<Type>()))
+                .Returns(() => new XPObjectSpace(typesInfo, typesInfoSource, () => new UnitOfWork(dataLayer)));
+
+            var noteService = new NoteService(mockFactory.Object);
+
+            // Act
+            var sharedNotes = (await noteService.GetNotesAsync(onlyShared: true)).ToList();
+            var allNotes = (await noteService.GetNotesAsync()).ToList();
+
+            // Assert
+            sharedNotes.Should().HaveCount(1);
+            sharedNotes[0].Baslik.Should().Be("Paylaşılan Not");
+            sharedNotes[0].IsSharedWithProject2.Should().BeTrue();
+
+            allNotes.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public async Task GetAttachmentFileAsync_ShouldReturnNull_WhenAttachmentDoesNotExist()
+        {
+            // Arrange
+            var (objectSpace, _) = CreateInMemoryObjectSpace();
+            var mockFactory = new Mock<IObjectSpaceFactory>();
+            mockFactory.Setup(f => f.CreateObjectSpace(It.IsAny<Type>())).Returns(objectSpace);
+
+            var noteService = new NoteService(mockFactory.Object);
+
+            // Act
+            var file = await noteService.GetAttachmentFileAsync(Guid.NewGuid());
+
+            // Assert
+            file.Should().BeNull();
+        }
     }
 }

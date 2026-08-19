@@ -26,7 +26,7 @@ namespace Project2.ViewModels
             ErrorMessage = null;
             try
             {
-                var result = await _http.GetFromJsonAsync<List<NoteDto>>("api/notes");
+                var result = await _http.GetFromJsonAsync<List<NoteDto>>("api/notes?onlyShared=true");
                 Notes = result ?? new List<NoteDto>();
             }
             catch (Exception ex)

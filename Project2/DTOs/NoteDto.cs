@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Project2.DTOs
 {
@@ -7,8 +8,19 @@ namespace Project2.DTOs
         string Baslik,
         string Icerik,
         string Derece,
-        string MusteriUnvan,
-        string KisiAdSoyad,
-        bool IsEmailSent
-    );
+        string Musteri,
+        string Kisi,
+        bool IsEmailSent,
+        DateTime CreatedDate = default,
+        string MailDurumu = "Gonderilmedi",
+        DateTime? MailGonderilmeTarihi = null,
+        DateTime? MailIletilmeTarihi = null,
+        DateTime? MailOkunmaTarihi = null,
+        bool IsSharedWithProject2 = false,
+        List<NoteAttachmentDto>? Ekler = null
+    )
+    {
+        public string MusteriUnvan => Musteri;
+        public string KisiAdSoyad => Kisi;
+    }
 }

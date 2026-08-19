@@ -45,7 +45,7 @@ namespace Project1.Module.Models.Notes
 
             if (!Session.IsObjectsLoading && !IsDeleted)
             {
-                string user = SecuritySystem.CurrentUserName ?? "Sistem";
+                string user = GetCurrentUserName();
                 if (Session.IsNewObject(this))
                 {
                     new AuditLog(Session)
@@ -76,7 +76,7 @@ namespace Project1.Module.Models.Notes
         protected override void OnDeleting()
         {
             base.OnDeleting();
-            string user = SecuritySystem.CurrentUserName ?? "Sistem";
+            string user = GetCurrentUserName();
             new AuditLog(Session)
             {
                 Tarih = DateTime.Now,
@@ -86,6 +86,18 @@ namespace Project1.Module.Models.Notes
                 VarlikId = Oid,
                 Aciklama = $"'{Baslik}' başlıklı not silindi."
             };
+        }
+
+        private static string GetCurrentUserName()
+        {
+            try
+            {
+                return SecuritySystem.CurrentUserName ?? "Sistem";
+            }
+            catch
+            {
+                return "Sistem";
+            }
         }
 
         private string _baslik;
@@ -245,6 +257,20 @@ namespace Project1.Module.Models.Notes
         [Browsable(false)]
         [NonPersistent]
         public bool IsKisiHidden { get; set; }
+
+        private bool _project2IlePaylas;
+        [XafDisplayName("Project2 ile Paylaş")]
+        [VisibleInListView(true)]
+        [VisibleInDetailView(true)]
+        public bool Project2IlePaylas
+        {
+            get => _project2IlePaylas;
+            set => SetPropertyValue(nameof(Project2IlePaylas), ref _project2IlePaylas, value);
+        }
+
+        [Association("Not-Ekler"), DevExpress.Xpo.Aggregated]
+        [XafDisplayName("Ekler")]
+        public XPCollection<NotEk> Ekler => GetCollection<NotEk>(nameof(Ekler));
 
         private DateTime _createdDate;
         [XafDisplayName("Oluşturma Tarihi")]

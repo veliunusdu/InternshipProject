@@ -37,6 +37,19 @@ namespace Project1.Module.Services.Implementations
 
         private NoteDto MapToDto(Not n)
         {
+            var eklerDto = n.Ekler?
+                .Select(e => new NoteAttachmentDto(
+                    e.Oid,
+                    e.DosyaAdi,
+                    e.ContentType,
+                    e.BoyutBytes,
+                    e.YuklemeTarihi,
+                    $"/api/attachments/{e.Oid}/download",
+                    e.IsImage,
+                    e.IsPdf
+                ))
+                .ToList() ?? new List<NoteAttachmentDto>();
+
             return new NoteDto(
                 n.Oid,
                 n.Baslik ?? string.Empty,
@@ -49,14 +62,22 @@ namespace Project1.Module.Services.Implementations
                 n.MailDurumu.ToString(),
                 n.MailGonderilmeTarihi,
                 n.MailIletilmeTarihi,
-                n.MailOkunmaTarihi
+                n.MailOkunmaTarihi,
+                n.Project2IlePaylas,
+                eklerDto
             );
         }
 
-        public Task<IEnumerable<NoteDto>> GetNotesAsync(CancellationToken cancellationToken = default)
+        public Task<IEnumerable<NoteDto>> GetNotesAsync(bool? onlyShared = null, CancellationToken cancellationToken = default)
         {
             using IObjectSpace objectSpace = CreateObjectSpace();
-            var notes = objectSpace.GetObjectsQuery<Not>()
+            var query = objectSpace.GetObjectsQuery<Not>();
+            if (onlyShared.HasValue && onlyShared.Value)
+            {
+                query = query.Where(n => n.Project2IlePaylas);
+            }
+
+            var notes = query
                 .AsEnumerable()
                 .Select(n => MapToDto(n))
                 .ToList();
@@ -82,6 +103,7 @@ namespace Project1.Module.Services.Implementations
             not.Baslik = request.Baslik;
             not.Icerik = request.Icerik;
             not.Derece = (BusinessObjects.Enums.NotDerecesi)request.Derece;
+            not.Project2IlePaylas = request.Project2IlePaylas;
 
             if (request.MusteriOid.HasValue && request.MusteriOid.Value != Guid.Empty)
             {
@@ -96,6 +118,22 @@ namespace Project1.Module.Services.Implementations
             objectSpace.CommitChanges();
 
             return Task.FromResult(MapToDto(not));
+        }
+
+        public Task<(byte[] Bytes, string FileName, string ContentType)?> GetAttachmentFileAsync(Guid attachmentId, CancellationToken cancellationToken = default)
+        {
+            using IObjectSpace objectSpace = CreateObjectSpace();
+            var ek = objectSpace.GetObjectByKey<NotEk>(attachmentId);
+            if (ek?.Dosya?.Content == null || ek.Dosya.Content.Length == 0)
+            {
+                return Task.FromResult<(byte[] Bytes, string FileName, string ContentType)?>(null);
+            }
+
+            return Task.FromResult<(byte[] Bytes, string FileName, string ContentType)?>((
+                ek.Dosya.Content,
+                ek.DosyaAdi,
+                ek.ContentType
+            ));
         }
     }
 }

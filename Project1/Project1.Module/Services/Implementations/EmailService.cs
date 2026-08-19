@@ -84,7 +84,7 @@ namespace Project1.Module.Services.Implementations
             string safeBaslik = WebUtility.HtmlEncode(request.Title);
             string safeIcerik = WebUtility.HtmlEncode(request.Content);
             string safeDerece = WebUtility.HtmlEncode(request.Severity);
-            string trackingUrl = $"{_settings.BaseUrl.TrimEnd('/')}/api/mail-tracking/read/{request.NoteId}";
+            string trackingUrl = $"{_settings.BaseUrl.TrimEnd('/')}/api/mail-tracking/read/{request.NoteId}?ngrok-skip-browser-warning=true";
 
             var message = new MailMessage
             {
@@ -108,7 +108,7 @@ namespace Project1.Module.Services.Implementations
                                 <p style='margin: 8px 0 0 0; color: #2c3e50; white-space: pre-wrap;'>{safeIcerik}</p>
                             </div>
                             <p style='font-size: 12px; color: #95a5a6; text-align: center;'>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
-                            <img src='{trackingUrl}' width='1' height='1' style='display:none !important; width:1px; height:1px; border:0;' alt='' />
+                            <img src='{trackingUrl}' alt='' width='1' height='1' border='0' style='display:block; width:1px; height:1px; max-width:1px; max-height:1px; opacity:0.01; border:0; outline:none; text-decoration:none;' />
                         </div>
                     </div>"
             };

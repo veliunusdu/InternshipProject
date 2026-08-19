@@ -1,6 +1,8 @@
+using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.Services;
+using DevExpress.ExpressApp.Core;
 using DevExpress.ExpressApp.Security;
 using DevExpress.ExpressApp.Xpo;
 using DevExpress.Persistent.Base;
@@ -29,8 +31,10 @@ namespace Project1.Blazor.Server
             EmailSettings emailSettings = Configuration.GetSection("Email").Get<EmailSettings>() ?? new EmailSettings();
             services.AddSingleton(emailSettings);
             services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton<ICrmNotificationService, CrmNotificationService>();
 
             services.AddSingleton<ISystemStatusService, SystemStatusService>();
+            services.AddScoped<INonSecuredObjectSpaceFactory, CustomNonSecuredObjectSpaceFactory>();
             services.AddScoped<INoteService, NoteService>();
             
             // MediatR Configuration
@@ -133,6 +137,26 @@ namespace Project1.Blazor.Server
                 endpoints.MapFallbackToPage("/_Host");
                 endpoints.MapControllers();
             });
+        }
+    }
+
+    public class CustomNonSecuredObjectSpaceFactory : INonSecuredObjectSpaceFactory
+    {
+        private readonly IObjectSpaceProviderService _providerService;
+
+        public CustomNonSecuredObjectSpaceFactory(IObjectSpaceProviderService providerService)
+        {
+            _providerService = providerService;
+        }
+
+        public IObjectSpace CreateNonSecuredObjectSpace(Type objectType)
+        {
+            var provider = _providerService.GetObjectSpaceProvider(objectType);
+            if (provider == null)
+            {
+                throw new InvalidOperationException($"No ObjectSpaceProvider found for type {objectType}.");
+            }
+            return provider.CreateUpdatingObjectSpace(true);
         }
     }
 }

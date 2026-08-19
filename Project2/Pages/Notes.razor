@@ -1,12 +1,15 @@
 @page "/notes"
 @inject Project2.ViewModels.NoteListViewModel ViewModel
 
-<PageTitle>Not Listesi - Project2</PageTitle>
+<PageTitle>Paylaşılan Notlar - Project2</PageTitle>
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>Müşteri Notları (MVVM & DTO)</h3>
-        <button class="btn btn-primary" @onclick="ViewModel.LoadNotesAsync" disabled="@ViewModel.IsLoading">
+        <div>
+            <h3 class="mb-1">📋 Paylaşılan Müşteri Notları</h3>
+            <p class="text-muted mb-0">Project1 üzerinden Project2 ile paylaşılmış notlar ve ekli dosyalar (PDF, Görseller).</p>
+        </div>
+        <button class="btn btn-primary shadow-sm" @onclick="ViewModel.LoadNotesAsync" disabled="@ViewModel.IsLoading">
             @if (ViewModel.IsLoading)
             {
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -19,42 +22,109 @@
         </button>
     </div>
 
-    <p class="text-muted">Bu sayfa Project1 REST API'den DTO nesneleri çekip ViewModel ile bağlamaktadır (MVVM Pattern).</p>
-
     @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
     {
-        <div class="alert alert-danger" role="alert">
-            @ViewModel.ErrorMessage
+        <div class="alert alert-danger shadow-sm" role="alert">
+            <strong>⚠️ Hata:</strong> @ViewModel.ErrorMessage
         </div>
     }
 
     @if (ViewModel.Notes.Count == 0 && !ViewModel.IsLoading)
     {
-        <div class="alert alert-info shadow-sm">Henüz kayıtlı bir not bulunamadı.</div>
+        <div class="alert alert-info shadow-sm p-4 text-center">
+            <h5 class="mb-2">Henüz Project2 ile paylaşılmış bir not bulunamadı.</h5>
+            <p class="mb-0 text-muted">Project1 CRM panelinden bir notu düzenleyip <strong>"Project2 ile Paylaş"</strong> seçeneğini işaretleyerek burada görüntüleyebilirsiniz.</p>
+        </div>
     }
     else if (ViewModel.Notes.Count > 0)
     {
         <div class="table-responsive shadow-sm rounded">
-            <table class="table table-striped table-hover align-middle mb-0">
+            <table class="table table-striped table-hover align-middle mb-0 bg-white">
                 <thead class="table-dark">
                     <tr>
-                        <th>Başlık</th>
-                        <th>İçerik</th>
-                        <th>Derece</th>
-                        <th>Müşteri</th>
-                        <th>İlgili Kişi</th>
-                        <th>E-posta Bildirimi</th>
+                        <th style="width: 18%;">Başlık</th>
+                        <th style="width: 25%;">İçerik</th>
+                        <th style="width: 10%;">Derece</th>
+                        <th style="width: 15%;">Müşteri / Kişi</th>
+                        <th style="width: 22%;">Ekler (PDF / Görsel)</th>
+                        <th style="width: 10%;">E-posta</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var note in ViewModel.Notes)
                     {
                         <tr>
-                            <td><strong>@note.Baslik</strong></td>
-                            <td>@note.Icerik</td>
-                            <td><span class="badge bg-secondary">@note.Derece</span></td>
-                            <td>@note.MusteriUnvan</td>
-                            <td>@note.KisiAdSoyad</td>
+                            <td>
+                                <strong>@note.Baslik</strong>
+                                @if (note.CreatedDate != default)
+                                {
+                                    <div class="text-muted small">@note.CreatedDate.ToString("dd.MM.yyyy HH:mm")</div>
+                                }
+                            </td>
+                            <td>
+                                <div style="white-space: pre-wrap; max-height: 100px; overflow-y: auto;">@note.Icerik</div>
+                            </td>
+                            <td>
+                                @if (note.Derece == "Acil" || note.Derece == "2")
+                                {
+                                    <span class="badge bg-danger">Acil</span>
+                                }
+                                else if (note.Derece == "Onemli" || note.Derece == "1")
+                                {
+                                    <span class="badge bg-warning text-dark">Önemli</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Normal</span>
+                                }
+                            </td>
+                            <td>
+                                <div><strong>@(string.IsNullOrEmpty(note.MusteriUnvan) ? "-" : note.MusteriUnvan)</strong></div>
+                                <div class="text-muted small">@(string.IsNullOrEmpty(note.KisiAdSoyad) ? "" : note.KisiAdSoyad)</div>
+                            </td>
+                            <td>
+                                @if (note.Ekler == null || note.Ekler.Count == 0)
+                                {
+                                    <span class="text-muted small"><em>Ek yok</em></span>
+                                }
+                                else
+                                {
+                                    <div class="d-flex flex-column gap-1">
+                                        @foreach (var ek in note.Ekler)
+                                        {
+                                            var downloadUrl = GetFullDownloadUrl(ek.DownloadUrl);
+                                            if (ek.IsImage)
+                                            {
+                                                <div class="d-inline-flex align-items-center gap-1">
+                                                    <button type="button" class="btn btn-sm btn-outline-info text-dark d-inline-flex align-items-center gap-1 py-0 px-2"
+                                                            @onclick="() => OpenImageModal(downloadUrl, ek.DosyaAdi)"
+                                                            title="Görseli Büyüt">
+                                                        <span>🖼️</span>
+                                                        <span class="text-truncate" style="max-width: 140px;">@ek.DosyaAdi</span>
+                                                        <span class="badge bg-light text-muted">@FormatBytes(ek.BoyutBytes)</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                            else if (ek.IsPdf)
+                                            {
+                                                <a href="@downloadUrl" target="_blank" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 py-0 px-2 text-decoration-none" title="PDF Aç / İndir">
+                                                    <span>📄</span>
+                                                    <span class="text-truncate" style="max-width: 140px;">@ek.DosyaAdi</span>
+                                                    <span class="badge bg-light text-muted">@FormatBytes(ek.BoyutBytes)</span>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="@downloadUrl" target="_blank" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-0 px-2 text-decoration-none" title="Dosyayı İndir">
+                                                    <span>📎</span>
+                                                    <span class="text-truncate" style="max-width: 140px;">@ek.DosyaAdi</span>
+                                                    <span class="badge bg-light text-muted">@FormatBytes(ek.BoyutBytes)</span>
+                                                </a>
+                                            }
+                                        }
+                                    </div>
+                                }
+                            </td>
                             <td>
                                 @if (note.IsEmailSent)
                                 {
@@ -62,7 +132,7 @@
                                 }
                                 else
                                 {
-                                    <span class="badge bg-warning text-dark">Bekliyor</span>
+                                    <span class="badge bg-light text-dark border">Bekliyor</span>
                                 }
                             </td>
                         </tr>
@@ -73,9 +143,63 @@
     }
 </div>
 
+@* Görsel Önizleme Popup Modalı *@
+@if (!string.IsNullOrEmpty(_selectedImageUrl))
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);" @onclick="CloseImageModal">
+        <div class="modal-dialog modal-lg modal-dialog-centered" @onclick:stopPropagation>
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-dark text-white py-2">
+                    <h5 class="modal-title fs-6">🖼️ @_selectedImageTitle</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseImageModal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body text-center p-3 bg-light">
+                    <img src="@_selectedImageUrl" alt="@_selectedImageTitle" class="img-fluid rounded shadow-sm" style="max-height: 70vh; object-fit: contain;" />
+                </div>
+                <div class="modal-footer py-2">
+                    <a href="@_selectedImageUrl" target="_blank" download="@_selectedImageTitle" class="btn btn-sm btn-primary">
+                        💾 Orijinalini İndir
+                    </a>
+                    <button type="button" class="btn btn-sm btn-secondary" @onclick="CloseImageModal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
+    private string? _selectedImageUrl;
+    private string? _selectedImageTitle;
+
     protected override async Task OnInitializedAsync()
     {
         await ViewModel.LoadNotesAsync();
+    }
+
+    private void OpenImageModal(string url, string title)
+    {
+        _selectedImageUrl = url;
+        _selectedImageTitle = title;
+    }
+
+    private void CloseImageModal()
+    {
+        _selectedImageUrl = null;
+        _selectedImageTitle = null;
+    }
+
+    private string GetFullDownloadUrl(string relativeUrl)
+    {
+        if (string.IsNullOrWhiteSpace(relativeUrl)) return string.Empty;
+        if (relativeUrl.StartsWith("http://") || relativeUrl.StartsWith("https://")) return relativeUrl;
+        return "https://localhost:5001" + (relativeUrl.StartsWith("/") ? "" : "/") + relativeUrl;
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        if (bytes <= 0) return "0 B";
+        if (bytes < 1024) return $"{bytes} B";
+        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F1} KB";
+        return $"{bytes / (1024.0 * 1024.0):F1} MB";
     }
 }

@@ -44,31 +44,17 @@ namespace Project1.Module.Controllers.Notes
             _showToastNotification = false;
             _emailPermissionDenied = false;
 
-            bool canSendEmail = true;
-            object currentUserId = Application?.Security?.UserId;
-            if (currentUserId != null && ObjectSpace.GetObjectByKey<ApplicationUser>(currentUserId) is ApplicationUser currentUser)
-            {
-                if (string.Equals(currentUser.UserName, SecurityConstants.AdministratorUserName, StringComparison.OrdinalIgnoreCase))
-                {
-                    canSendEmail = true;
-                }
-                else
-                {
-                    canSendEmail = currentUser.CanSendEmailOnNoteCreation;
-                }
-            }
-
-            if (!canSendEmail)
-            {
-                return;
-            }
-
             var pendingNotes = ObjectSpace.ModifiedObjects
                 .OfType<Not>()
                 .Where(n => !n.IsEmailSent)
                 .ToList();
 
-            if (pendingNotes.Count > 0 && !CanCurrentUserSendEmail())
+            if (pendingNotes.Count == 0)
+            {
+                return;
+            }
+
+            if (!CanCurrentUserSendEmail())
             {
                 _emailPermissionDenied = true;
                 return;
@@ -117,6 +103,8 @@ namespace Project1.Module.Controllers.Notes
 
                     var result = Task.Run(async () => await emailService.SendNoteNotificationEmailAsync(request).ConfigureAwait(false)).GetAwaiter().GetResult();
 
+                    string currentUserName = Application?.Security?.UserName ?? "Sistem";
+
                     if (result.Success)
                     {
                         note.MailDurumu = MailDurumu.Iletildi;
@@ -128,7 +116,7 @@ namespace Project1.Module.Controllers.Notes
 
                         var auditLog = ObjectSpace.CreateObject<AuditLog>();
                         auditLog.Tarih = DateTime.Now;
-                        auditLog.Kullanici = SecuritySystem.CurrentUserName ?? "Sistem";
+                        auditLog.Kullanici = currentUserName;
                         auditLog.IslemTuru = "E-posta İletildi";
                         auditLog.VarlikTipi = "Not";
                         auditLog.VarlikId = note.Oid;
@@ -141,7 +129,7 @@ namespace Project1.Module.Controllers.Notes
 
                         var auditLog = ObjectSpace.CreateObject<AuditLog>();
                         auditLog.Tarih = DateTime.Now;
-                        auditLog.Kullanici = SecuritySystem.CurrentUserName ?? "Sistem";
+                        auditLog.Kullanici = currentUserName;
                         auditLog.IslemTuru = "E-posta Hatası";
                         auditLog.VarlikTipi = "Not";
                         auditLog.VarlikId = note.Oid;

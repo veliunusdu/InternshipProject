@@ -4,6 +4,7 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
+using Project1.Module.Models.Audit;
 using Project1.Module.BusinessObjects.Security;
 
 namespace Project1.Module.Security
@@ -64,6 +65,7 @@ namespace Project1.Module.Security
             role.SetTypePermission<Musteri>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
             role.SetTypePermission<Kisi>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
             role.SetTypePermission<Not>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            role.SetTypePermission<AuditLog>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
 
             role.SetTypePermission<PermissionPolicyUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
@@ -103,6 +105,7 @@ namespace Project1.Module.Security
             GrantWorkAccess<Musteri>(role);
             GrantWorkAccess<Kisi>(role);
             GrantWorkAccess<Not>(role);
+            GrantWorkAccess<AuditLog>(role);
 
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.Create, SecurityPermissionState.Deny);

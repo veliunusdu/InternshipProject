@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Project1.Module.Models.Enums;
 using Project1.Module.Models.Notes;
 using Project1.Module.Models.Audit;
+using Project1.Core.Services.Interfaces;
 
 namespace Project1.Blazor.Server.Controllers
 {
@@ -22,6 +23,7 @@ namespace Project1.Blazor.Server.Controllers
         private readonly IObjectSpaceFactory _objectSpaceFactory;
         private readonly INonSecuredObjectSpaceFactory? _nonSecuredObjectSpaceFactory;
         private readonly ILogger<MailTrackingController>? _logger;
+        private readonly ICrmNotificationService? _notificationService;
 
         // 1x1 şeffaf GIF byte dizisi
         private static readonly byte[] TransparentGifBytes = new byte[] {
@@ -36,11 +38,13 @@ namespace Project1.Blazor.Server.Controllers
         public MailTrackingController(
             IObjectSpaceFactory objectSpaceFactory,
             INonSecuredObjectSpaceFactory? nonSecuredObjectSpaceFactory = null,
-            ILogger<MailTrackingController>? logger = null)
+            ILogger<MailTrackingController>? logger = null,
+            ICrmNotificationService? notificationService = null)
         {
             _objectSpaceFactory = objectSpaceFactory ?? throw new ArgumentNullException(nameof(objectSpaceFactory));
             _nonSecuredObjectSpaceFactory = nonSecuredObjectSpaceFactory;
             _logger = logger;
+            _notificationService = notificationService;
         }
 
         private IObjectSpace CreateObjectSpace()
@@ -118,6 +122,15 @@ namespace Project1.Blazor.Server.Controllers
 
                     objectSpace.CommitChanges();
                     _logger?.LogInformation("Not bildirimi okundu olarak işaretlendi. NoteId: {NoteId}", noteId);
+
+                    _notificationService?.PublishNoteRead(new NoteReadNotificationEvent(
+                        note.Oid,
+                        "Okundu",
+                        note.MailOkunmaTarihi ?? DateTime.Now,
+                        note.Baslik ?? "-",
+                        note.Musteri?.Ad ?? "-",
+                        note.Kisi?.AdSoyad ?? "-"
+                    ));
                 }
             }
             catch (Exception ex)

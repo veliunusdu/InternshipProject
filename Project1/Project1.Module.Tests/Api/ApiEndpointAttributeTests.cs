@@ -46,5 +46,15 @@ namespace Project1.Module.Tests.Api
             content.Should().Contain("[Route(\"api/systemstatus\")]");
             content.Should().Contain("[ApiController]");
         }
+
+        [Fact]
+        public void AttachmentsApiController_ShouldHaveAllowAnonymousAndEnableCorsAttributes()
+        {
+            string content = FindControllerFile("AttachmentsApiController.cs");
+            content.Should().Contain("[AllowAnonymous]");
+            content.Should().Contain("[EnableCors(\"AllowAll\")]");
+            content.Should().Contain("[Route(\"api/attachments\")]");
+            content.Should().Contain("[ApiController]");
+        }
     }
 }

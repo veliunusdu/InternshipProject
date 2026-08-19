@@ -44,6 +44,54 @@ namespace Project1.Module.Tests.DTOs
             Validate(request).Should().Contain(result => result.MemberNames.Contains(nameof(CreateNoteRequestDto.Derece)));
         }
 
+        [Fact]
+        public void NoteAttachmentDto_ShouldCorrectlyInstantiateAndHoldValues()
+        {
+            var id = Guid.NewGuid();
+            var now = DateTime.Now;
+            var dto = new NoteAttachmentDto(
+                Oid: id,
+                DosyaAdi: "rapor.pdf",
+                ContentType: "application/pdf",
+                BoyutBytes: 1024,
+                YuklemeTarihi: now,
+                DownloadUrl: "/api/attachments/" + id + "/download",
+                IsImage: false,
+                IsPdf: true
+            );
+
+            dto.Oid.Should().Be(id);
+            dto.DosyaAdi.Should().Be("rapor.pdf");
+            dto.ContentType.Should().Be("application/pdf");
+            dto.BoyutBytes.Should().Be(1024);
+            dto.IsPdf.Should().BeTrue();
+            dto.IsImage.Should().BeFalse();
+        }
+
+        [Fact]
+        public void NoteDto_ShouldSupportEklerAndSharedFlag()
+        {
+            var id = Guid.NewGuid();
+            var attId = Guid.NewGuid();
+            var att = new NoteAttachmentDto(attId, "resim.png", "image/png", 2048, DateTime.Now, "/api/attachments/" + attId + "/download", true, false);
+            var note = new NoteDto(
+                Oid: id,
+                Baslik: "Not Başlığı",
+                Icerik: "İçerik",
+                Derece: "Orta",
+                Musteri: "Müşteri A",
+                Kisi: "Kişi B",
+                IsEmailSent: false,
+                IsSharedWithProject2: true,
+                Ekler: new List<NoteAttachmentDto> { att }
+            );
+
+            note.IsSharedWithProject2.Should().BeTrue();
+            note.Ekler.Should().HaveCount(1);
+            note.Ekler![0].DosyaAdi.Should().Be("resim.png");
+            note.Ekler[0].IsImage.Should().BeTrue();
+        }
+
         private static IReadOnlyCollection<ValidationResult> Validate(object instance)
         {
             var results = new List<ValidationResult>();

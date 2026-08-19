@@ -39,7 +39,7 @@ namespace Project1.Module.Models.Customers
 
             if (!Session.IsObjectsLoading && !IsDeleted)
             {
-                string user = SecuritySystem.CurrentUserName ?? "Sistem";
+                string user = GetCurrentUserName();
                 if (Session.IsNewObject(this))
                 {
                     new AuditLog(Session)
@@ -70,7 +70,7 @@ namespace Project1.Module.Models.Customers
         protected override void OnDeleting()
         {
             base.OnDeleting();
-            string user = SecuritySystem.CurrentUserName ?? "Sistem";
+            string user = GetCurrentUserName();
             new AuditLog(Session)
             {
                 Tarih = DateTime.Now,
@@ -80,6 +80,18 @@ namespace Project1.Module.Models.Customers
                 VarlikId = Oid,
                 Aciklama = $"'{Ad}' adlı müşteri silindi."
             };
+        }
+
+        private static string GetCurrentUserName()
+        {
+            try
+            {
+                return SecuritySystem.CurrentUserName ?? "Sistem";
+            }
+            catch
+            {
+                return "Sistem";
+            }
         }
 
         private string _ad;
