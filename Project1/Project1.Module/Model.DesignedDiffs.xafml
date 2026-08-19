@@ -19,6 +19,8 @@
         <PropertyEditor Id="MailIletilmeTarihi" Removed="True" />
         <PropertyEditor Id="MailOkunmaTarihi" Removed="True" />
         <PropertyEditor Id="MailHataMesaji" Removed="True" />
+        <PropertyEditor Id="Dosya.FileName" Removed="True" />
+        <PropertyEditor Id="Dosya.Size" Removed="True" />
       </Items>
       <Layout>
         <LayoutGroup Id="Main" RelativeSize="100" Direction="Vertical">

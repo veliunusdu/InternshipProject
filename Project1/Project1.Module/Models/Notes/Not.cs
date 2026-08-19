@@ -270,8 +270,9 @@ namespace Project1.Module.Models.Notes
 
         private FileData _dosya;
         [DevExpress.Xpo.Aggregated]
+        [ExpandObjectMembers(ExpandObjectMembers.Never)]
         [FileTypeFilter("PDF ve Görseller", "*.pdf;*.png;*.jpg;*.jpeg;*.gif;*.webp;*.bmp")]
-        [XafDisplayName("Dosya Eki (PDF / Görsel)")]
+        [XafDisplayName("Dosya")]
         public FileData Dosya
         {
             get => _dosya;
