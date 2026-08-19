@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Project1.DTOs.Notes
 {
@@ -18,8 +19,11 @@ namespace Project1.DTOs.Notes
     );
 
     public record CreateNoteRequestDto(
+        [property: Required(ErrorMessage = "Not başlığı zorunludur.")]
         string Baslik,
+        [property: Required(ErrorMessage = "Not içeriği zorunludur.")]
         string Icerik,
+        [property: Range(0, 2, ErrorMessage = "Not derecesi geçerli bir değer olmalıdır.")]
         int Derece,
         Guid? MusteriOid = null,
         Guid? KisiOid = null
