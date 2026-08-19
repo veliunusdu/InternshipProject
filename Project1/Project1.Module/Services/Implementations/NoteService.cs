@@ -37,18 +37,20 @@ namespace Project1.Module.Services.Implementations
 
         private NoteDto MapToDto(Not n)
         {
-            var eklerDto = n.Ekler?
-                .Select(e => new NoteAttachmentDto(
-                    e.Oid,
-                    e.DosyaAdi,
-                    e.ContentType,
-                    e.BoyutBytes,
-                    e.YuklemeTarihi,
-                    $"/api/attachments/{e.Oid}/download",
-                    e.IsImage,
-                    e.IsPdf
-                ))
-                .ToList() ?? new List<NoteAttachmentDto>();
+            NoteAttachmentDto? ekDto = null;
+            if (n.Dosya != null && !string.IsNullOrEmpty(n.Dosya.FileName))
+            {
+                ekDto = new NoteAttachmentDto(
+                    n.Oid,
+                    n.DosyaAdi,
+                    n.ContentType,
+                    n.BoyutBytes,
+                    n.CreatedDate,
+                    $"/api/attachments/{n.Oid}/download",
+                    n.IsImage,
+                    n.IsPdf
+                );
+            }
 
             return new NoteDto(
                 n.Oid,
@@ -64,7 +66,7 @@ namespace Project1.Module.Services.Implementations
                 n.MailIletilmeTarihi,
                 n.MailOkunmaTarihi,
                 n.Project2IlePaylas,
-                eklerDto
+                ekDto
             );
         }
 
@@ -123,16 +125,16 @@ namespace Project1.Module.Services.Implementations
         public Task<(byte[] Bytes, string FileName, string ContentType)?> GetAttachmentFileAsync(Guid attachmentId, CancellationToken cancellationToken = default)
         {
             using IObjectSpace objectSpace = CreateObjectSpace();
-            var ek = objectSpace.GetObjectByKey<NotEk>(attachmentId);
-            if (ek?.Dosya?.Content == null || ek.Dosya.Content.Length == 0)
+            var not = objectSpace.GetObjectByKey<Not>(attachmentId);
+            if (not?.Dosya?.Content == null || not.Dosya.Content.Length == 0)
             {
                 return Task.FromResult<(byte[] Bytes, string FileName, string ContentType)?>(null);
             }
 
             return Task.FromResult<(byte[] Bytes, string FileName, string ContentType)?>((
-                ek.Dosya.Content,
-                ek.DosyaAdi,
-                ek.ContentType
+                not.Dosya.Content,
+                not.DosyaAdi,
+                not.ContentType
             ));
         }
     }

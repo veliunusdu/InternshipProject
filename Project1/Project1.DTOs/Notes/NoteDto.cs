@@ -18,7 +18,7 @@ namespace Project1.DTOs.Notes
         DateTime? MailIletilmeTarihi = null,
         DateTime? MailOkunmaTarihi = null,
         bool IsSharedWithProject2 = false,
-        List<NoteAttachmentDto>? Ekler = null
+        NoteAttachmentDto? Ek = null
     );
 
     public record CreateNoteRequestDto(

@@ -65,7 +65,7 @@ namespace Project1.Module.Controllers.Customers
 
         private void PopupEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
         {
-            Type paramType = View.ObjectTypeInfo.Type == typeof(Kisi) ? typeof(CreateKisiParameters) : typeof(CreateNoteParameters);
+            Type paramType = View.ObjectTypeInfo.Type == typeof(Kisi) ? typeof(CreateKisiParameters) : typeof(Not);
             IObjectSpace popupObjectSpace = Application.CreateObjectSpace(paramType);
             object newObject = popupObjectSpace.CreateObject(paramType);
 
@@ -80,21 +80,24 @@ namespace Project1.Module.Controllers.Customers
                     kisiParams.Musteri = popupObjectSpace.GetObject(musteri);
                 }
             }
-            else if (newObject is CreateNoteParameters noteParams)
+            else if (newObject is Not yeniNot)
             {
-                noteParams.Derece = NotDerecesi.Normal;
+                yeniNot.Derece = NotDerecesi.Normal;
                 
                 if (masterObject is Musteri musteri)
                 {
-                    noteParams.Musteri = popupObjectSpace.GetObject(musteri);
+                    yeniNot.Musteri = popupObjectSpace.GetObject(musteri);
+                    yeniNot.IsMusteriHidden = true;
                 }
                 else if (masterObject is Kisi kisi)
                 {
-                    noteParams.Kisi = popupObjectSpace.GetObject(kisi);
+                    yeniNot.Kisi = popupObjectSpace.GetObject(kisi);
                     if (kisi.Musteri != null)
                     {
-                        noteParams.Musteri = popupObjectSpace.GetObject(kisi.Musteri);
+                        yeniNot.Musteri = popupObjectSpace.GetObject(kisi.Musteri);
                     }
+                    yeniNot.IsKisiHidden = true;
+                    yeniNot.IsMusteriHidden = true;
                 }
             }
 
@@ -103,10 +106,9 @@ namespace Project1.Module.Controllers.Customers
 
         private async void PopupEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
-
             if (e.PopupWindowView.CurrentObject is CreateKisiParameters kisiParams)
             {
+                var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
                 var command = new CreateKisiCommand(
                     kisiParams.Ad, 
                     kisiParams.Soyad, 
@@ -115,15 +117,9 @@ namespace Project1.Module.Controllers.Customers
                     kisiParams.Musteri?.Oid);
                 await mediator.Send(command);
             }
-            else if (e.PopupWindowView.CurrentObject is CreateNoteParameters noteParams)
+            else if (e.PopupWindowView.CurrentObject is Not)
             {
-                var command = new CreateNoteCommand(
-                    noteParams.Baslik, 
-                    noteParams.Icerik, 
-                    (int)noteParams.Derece, 
-                    noteParams.Musteri?.Oid, 
-                    noteParams.Kisi?.Oid);
-                await mediator.Send(command);
+                e.PopupWindowView.ObjectSpace.CommitChanges();
             }
 
             View.ObjectSpace.Refresh();

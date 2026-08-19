@@ -1,4 +1,7 @@
 #nullable enable
+using System;
+using System.IO;
+using DevExpress.Persistent.BaseImpl;
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using FluentAssertions;
@@ -101,6 +104,41 @@ namespace Project1.Module.Tests.Domain
             not.MailIletilmeTarihi.Should().BeNull();
             not.MailOkunmaTarihi.Should().BeNull();
             not.MailHataMesaji.Should().BeNull();
+        }
+
+        [Fact]
+        public void Not_ShouldComputeContentTypeAndFlags_ForPdfAndImages()
+        {
+            Not.GetContentType("dokuman.pdf").Should().Be("application/pdf");
+            Not.GetContentType("resim.png").Should().Be("image/png");
+            Not.GetContentType("foto.jpg").Should().Be("image/jpeg");
+            Not.GetContentType("foto.jpeg").Should().Be("image/jpeg");
+            Not.GetContentType("animasyon.gif").Should().Be("image/gif");
+            Not.GetContentType("vektor.svg").Should().Be("image/svg+xml");
+            Not.GetContentType("diger.xyz").Should().Be("application/octet-stream");
+        }
+
+        [Fact]
+        public void Not_ShouldSetDosyaProperty_AndExtractProperties()
+        {
+            using var session = CreateInMemorySession();
+            var not = new Not(session)
+            {
+                Baslik = "Dosyalı Not",
+                Icerik = "İçerik",
+                Project2IlePaylas = true
+            };
+
+            var fileData = new FileData(session);
+            fileData.LoadFromStream("sample.pdf", new MemoryStream(new byte[] { 1, 2, 3 }));
+            not.Dosya = fileData;
+            not.Save();
+
+            not.DosyaAdi.Should().Be("sample.pdf");
+            not.BoyutBytes.Should().Be(3);
+            not.IsPdf.Should().BeTrue();
+            not.IsImage.Should().BeFalse();
+            not.Project2IlePaylas.Should().BeTrue();
         }
     }
 }

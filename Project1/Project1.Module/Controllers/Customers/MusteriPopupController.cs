@@ -3,6 +3,7 @@ using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
 using Project1.Module.Models.Customers;
+using Project1.Module.Models.Notes;
 using Project1.Module.BusinessObjects.Enums;
 using Project1.Module.BusinessObjects.NonPersistent;
 using Project1.Core.Commands;
@@ -43,37 +44,26 @@ namespace Project1.Module.Controllers.Customers
 
         private void NotEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)
         {
-            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(CreateNoteParameters));
-            CreateNoteParameters parameters = objectSpace.CreateObject<CreateNoteParameters>();
-            parameters.Derece = NotDerecesi.Normal;
+            IObjectSpace objectSpace = Application.CreateObjectSpace(typeof(Not));
+            Not yeniNot = objectSpace.CreateObject<Not>();
+            yeniNot.Derece = NotDerecesi.Normal;
 
             if (View.CurrentObject is Musteri seciliMusteri)
             {
-                // We keep a reference to pass the ID later
-                parameters.Musteri = objectSpace.GetObject(seciliMusteri);
+                yeniNot.Musteri = objectSpace.GetObject(seciliMusteri);
+                yeniNot.IsMusteriHidden = true;
             }
 
-            e.View = Application.CreateDetailView(objectSpace, parameters);
+            e.View = Application.CreateDetailView(objectSpace, yeniNot);
         }
 
-        private async void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
+        private void NotEkleAction_Execute(object sender, PopupWindowShowActionExecuteEventArgs e)
         {
-            if (e.PopupWindowView?.CurrentObject is not CreateNoteParameters parameters)
+            if (e.PopupWindowView?.CurrentObject is Not)
             {
-                return;
+                e.PopupWindowView.ObjectSpace.CommitChanges();
+                View.ObjectSpace.Refresh();
             }
-            
-            var command = new CreateNoteCommand(
-                parameters.Baslik, 
-                parameters.Icerik, 
-                (int)parameters.Derece, 
-                parameters.Musteri?.Oid, 
-                parameters.Kisi?.Oid);
-
-            var mediator = Application.ServiceProvider.GetRequiredService<IMediator>();
-            await mediator.Send(command);
-
-            View.ObjectSpace.Refresh();
         }
 
         private void KisiEkleAction_CustomizePopupWindowParams(object sender, CustomizePopupWindowParamsEventArgs e)

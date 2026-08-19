@@ -35,5 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />
+    <ProjectReference Include="..\Project1.DTOs\Project1.DTOs.csproj" />
   </ItemGroup>
 </Project>

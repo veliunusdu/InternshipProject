@@ -46,7 +46,7 @@
                         <th style="width: 25%;">İçerik</th>
                         <th style="width: 10%;">Derece</th>
                         <th style="width: 15%;">Müşteri / Kişi</th>
-                        <th style="width: 22%;">Ekler (PDF / Görsel)</th>
+                        <th style="width: 22%;">Ek (PDF / Görsel)</th>
                         <th style="width: 10%;">E-posta</th>
                     </tr>
                 </thead>
@@ -83,46 +83,42 @@
                                 <div class="text-muted small">@(string.IsNullOrEmpty(note.KisiAdSoyad) ? "" : note.KisiAdSoyad)</div>
                             </td>
                             <td>
-                                @if (note.Ekler == null || note.Ekler.Count == 0)
+                                @if (note.Ek == null || string.IsNullOrWhiteSpace(note.Ek.DownloadUrl))
                                 {
                                     <span class="text-muted small"><em>Ek yok</em></span>
                                 }
                                 else
                                 {
-                                    <div class="d-flex flex-column gap-1">
-                                        @foreach (var ek in note.Ekler)
-                                        {
-                                            var downloadUrl = GetFullDownloadUrl(ek.DownloadUrl);
-                                            if (ek.IsImage)
-                                            {
-                                                <div class="d-inline-flex align-items-center gap-1">
-                                                    <button type="button" class="btn btn-sm btn-outline-info text-dark d-inline-flex align-items-center gap-1 py-0 px-2"
-                                                            @onclick="() => OpenImageModal(downloadUrl, ek.DosyaAdi)"
-                                                            title="Görseli Büyüt">
-                                                        <span>🖼️</span>
-                                                        <span class="text-truncate" style="max-width: 140px;">@ek.DosyaAdi</span>
-                                                        <span class="badge bg-light text-muted">@FormatBytes(ek.BoyutBytes)</span>
-                                                    </button>
-                                                </div>
-                                            }
-                                            else if (ek.IsPdf)
-                                            {
-                                                <a href="@downloadUrl" target="_blank" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 py-0 px-2 text-decoration-none" title="PDF Aç / İndir">
-                                                    <span>📄</span>
-                                                    <span class="text-truncate" style="max-width: 140px;">@ek.DosyaAdi</span>
-                                                    <span class="badge bg-light text-muted">@FormatBytes(ek.BoyutBytes)</span>
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <a href="@downloadUrl" target="_blank" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-0 px-2 text-decoration-none" title="Dosyayı İndir">
-                                                    <span>📎</span>
-                                                    <span class="text-truncate" style="max-width: 140px;">@ek.DosyaAdi</span>
-                                                    <span class="badge bg-light text-muted">@FormatBytes(ek.BoyutBytes)</span>
-                                                </a>
-                                            }
-                                        }
-                                    </div>
+                                    var ek = note.Ek;
+                                    var downloadUrl = GetFullDownloadUrl(ek.DownloadUrl);
+                                    if (ek.IsImage)
+                                    {
+                                        <div class="d-inline-flex align-items-center gap-1">
+                                            <button type="button" class="btn btn-sm btn-outline-info text-dark d-inline-flex align-items-center gap-1 py-1 px-2 shadow-sm"
+                                                    @onclick="() => OpenImageModal(downloadUrl, ek.DosyaAdi)"
+                                                    title="Görseli Büyüt">
+                                                <span>🖼️</span>
+                                                <span class="text-truncate" style="max-width: 140px;">@ek.DosyaAdi</span>
+                                                <span class="badge bg-light text-muted">@FormatBytes(ek.BoyutBytes)</span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (ek.IsPdf)
+                                    {
+                                        <a href="@downloadUrl" target="_blank" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 py-1 px-2 text-decoration-none shadow-sm" title="PDF Aç / İndir">
+                                            <span>📄</span>
+                                            <span class="text-truncate" style="max-width: 140px;">@ek.DosyaAdi</span>
+                                            <span class="badge bg-light text-muted">@FormatBytes(ek.BoyutBytes)</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="@downloadUrl" target="_blank" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 py-1 px-2 text-decoration-none shadow-sm" title="Dosyayı İndir">
+                                            <span>📎</span>
+                                            <span class="text-truncate" style="max-width: 140px;">@ek.DosyaAdi</span>
+                                            <span class="badge bg-light text-muted">@FormatBytes(ek.BoyutBytes)</span>
+                                        </a>
+                                    }
                                 }
                             </td>
                             <td>

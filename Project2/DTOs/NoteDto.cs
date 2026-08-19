@@ -17,7 +17,7 @@ namespace Project2.DTOs
         DateTime? MailIletilmeTarihi = null,
         DateTime? MailOkunmaTarihi = null,
         bool IsSharedWithProject2 = false,
-        List<NoteAttachmentDto>? Ekler = null
+        NoteAttachmentDto? Ek = null
     )
     {
         public string MusteriUnvan => Musteri;

@@ -69,7 +69,7 @@ namespace Project1.Module.Tests.DTOs
         }
 
         [Fact]
-        public void NoteDto_ShouldSupportEklerAndSharedFlag()
+        public void NoteDto_ShouldSupportEkAndSharedFlag()
         {
             var id = Guid.NewGuid();
             var attId = Guid.NewGuid();
@@ -83,13 +83,50 @@ namespace Project1.Module.Tests.DTOs
                 Kisi: "Kişi B",
                 IsEmailSent: false,
                 IsSharedWithProject2: true,
-                Ekler: new List<NoteAttachmentDto> { att }
+                Ek: att
             );
 
             note.IsSharedWithProject2.Should().BeTrue();
-            note.Ekler.Should().HaveCount(1);
-            note.Ekler![0].DosyaAdi.Should().Be("resim.png");
-            note.Ekler[0].IsImage.Should().BeTrue();
+            note.Ek.Should().NotBeNull();
+            note.Ek!.DosyaAdi.Should().Be("resim.png");
+            note.Ek.IsImage.Should().BeTrue();
+        }
+
+        [Fact]
+        public void NoteDto_ShouldHoldSingleAttachmentDto()
+        {
+            var ek = new NoteAttachmentDto(
+                Guid.NewGuid(),
+                "belge.pdf",
+                "application/pdf",
+                1024,
+                DateTime.Now,
+                "/api/attachments/123/download",
+                false,
+                true
+            );
+
+            var noteDto = new NoteDto(
+                Guid.NewGuid(),
+                "Başlık",
+                "İçerik",
+                "Normal",
+                "Müşteri A",
+                "Kişi B",
+                false,
+                DateTime.Now,
+                "Gonderilmedi",
+                null,
+                null,
+                null,
+                true,
+                ek
+            );
+
+            noteDto.Ek.Should().NotBeNull();
+            noteDto.Ek!.DosyaAdi.Should().Be("belge.pdf");
+            noteDto.Ek.IsPdf.Should().BeTrue();
+            noteDto.IsSharedWithProject2.Should().BeTrue();
         }
 
         private static IReadOnlyCollection<ValidationResult> Validate(object instance)

@@ -29,6 +29,8 @@
               <LayoutItem Id="Baslik" Index="2" />
               <LayoutItem Id="Icerik" Index="3" />
               <LayoutItem Id="Derece" Index="4" />
+              <LayoutItem Id="Dosya" Index="5" />
+              <LayoutItem Id="Project2IlePaylas" Index="6" />
             </LayoutGroup>
           </LayoutGroup>
         </LayoutGroup>

@@ -268,9 +268,49 @@ namespace Project1.Module.Models.Notes
             set => SetPropertyValue(nameof(Project2IlePaylas), ref _project2IlePaylas, value);
         }
 
-        [Association("Not-Ekler"), DevExpress.Xpo.Aggregated]
-        [XafDisplayName("Ekler")]
-        public XPCollection<NotEk> Ekler => GetCollection<NotEk>(nameof(Ekler));
+        private FileData _dosya;
+        [DevExpress.Xpo.Aggregated]
+        [FileTypeFilter("PDF ve Görseller", "*.pdf;*.png;*.jpg;*.jpeg;*.gif;*.webp;*.bmp")]
+        [XafDisplayName("Dosya Eki (PDF / Görsel)")]
+        public FileData Dosya
+        {
+            get => _dosya;
+            set => SetPropertyValue(nameof(Dosya), ref _dosya, value);
+        }
+
+        [XafDisplayName("Dosya Adı")]
+        [VisibleInDetailView(false)]
+        [VisibleInListView(true)]
+        public string DosyaAdi => Dosya?.FileName ?? string.Empty;
+
+        [Browsable(false)]
+        public long BoyutBytes => Dosya?.Size ?? 0;
+
+        [Browsable(false)]
+        public string ContentType => GetContentType(Dosya?.FileName);
+
+        [Browsable(false)]
+        public bool IsImage => ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+
+        [Browsable(false)]
+        public bool IsPdf => ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase);
+
+        public static string GetContentType(string? fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName)) return "application/octet-stream";
+            string ext = System.IO.Path.GetExtension(fileName).ToLowerInvariant();
+            return ext switch
+            {
+                ".pdf" => "application/pdf",
+                ".png" => "image/png",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                ".bmp" => "image/bmp",
+                ".svg" => "image/svg+xml",
+                _ => "application/octet-stream"
+            };
+        }
 
         private DateTime _createdDate;
         [XafDisplayName("Oluşturma Tarihi")]

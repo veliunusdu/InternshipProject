@@ -1,9 +1,12 @@
 #nullable enable
 using System;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Xpo;
+using DevExpress.Persistent.BaseImpl;
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using FluentAssertions;
@@ -105,7 +108,6 @@ namespace Project1.Module.Tests.Services
             var typesInfoSource = XpoTypesInfoHelper.GetXpoTypeInfoSource();
             var typesInfo = XpoTypesInfoHelper.GetTypesInfo();
             typesInfo.RegisterEntity(typeof(Not));
-            typesInfo.RegisterEntity(typeof(NotEk));
             typesInfo.RegisterEntity(typeof(Musteri));
             typesInfo.RegisterEntity(typeof(Kisi));
 
@@ -135,6 +137,97 @@ namespace Project1.Module.Tests.Services
             sharedNotes[0].IsSharedWithProject2.Should().BeTrue();
 
             allNotes.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public async Task GetNotesAsync_ShouldIncludeAttachmentInfo_WhenNoteHasDosya()
+        {
+            var dataStore = new InMemoryDataStore(AutoCreateOption.DatabaseAndSchema);
+            var dataLayer = new SimpleDataLayer(dataStore);
+            var typesInfoSource = XpoTypesInfoHelper.GetXpoTypeInfoSource();
+            var typesInfo = XpoTypesInfoHelper.GetTypesInfo();
+            typesInfo.RegisterEntity(typeof(Not));
+            typesInfo.RegisterEntity(typeof(Musteri));
+            typesInfo.RegisterEntity(typeof(Kisi));
+
+            Guid noteId;
+            using (var uow = new UnitOfWork(dataLayer))
+            {
+                var fileData = new FileData(uow);
+                fileData.LoadFromStream("rapor.pdf", new MemoryStream(new byte[] { 10, 20, 30 }));
+
+                var n = new Not(uow)
+                {
+                    Baslik = "Rapor Notu",
+                    Icerik = "Ekli dosya testi",
+                    Project2IlePaylas = true,
+                    Dosya = fileData
+                };
+                n.Save();
+                uow.CommitChanges();
+                noteId = n.Oid;
+            }
+
+            var mockFactory = new Mock<IObjectSpaceFactory>();
+            mockFactory
+                .Setup(f => f.CreateObjectSpace(It.IsAny<Type>()))
+                .Returns(() => new XPObjectSpace(typesInfo, typesInfoSource, () => new UnitOfWork(dataLayer)));
+
+            var noteService = new NoteService(mockFactory.Object);
+
+            var notes = (await noteService.GetNotesAsync(onlyShared: true)).ToList();
+
+            notes.Should().HaveCount(1);
+            var noteEk = notes[0].Ek;
+            noteEk.Should().NotBeNull();
+            noteEk!.DosyaAdi.Should().Be("rapor.pdf");
+            noteEk.DownloadUrl.Should().Be($"/api/attachments/{noteId}/download");
+            noteEk.IsPdf.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task GetAttachmentFileAsync_ShouldReturnFileBytes_WhenNoteHasDosya()
+        {
+            var dataStore = new InMemoryDataStore(AutoCreateOption.DatabaseAndSchema);
+            var dataLayer = new SimpleDataLayer(dataStore);
+            var typesInfoSource = XpoTypesInfoHelper.GetXpoTypeInfoSource();
+            var typesInfo = XpoTypesInfoHelper.GetTypesInfo();
+            typesInfo.RegisterEntity(typeof(Not));
+            typesInfo.RegisterEntity(typeof(Musteri));
+            typesInfo.RegisterEntity(typeof(Kisi));
+
+            Guid noteId;
+            var expectedBytes = new byte[] { 1, 2, 3, 4, 5 };
+            using (var uow = new UnitOfWork(dataLayer))
+            {
+                var fileData = new FileData(uow);
+                fileData.LoadFromStream("resim.png", new MemoryStream(expectedBytes));
+
+                var n = new Not(uow)
+                {
+                    Baslik = "Resimli Not",
+                    Icerik = "Görsel testi",
+                    Dosya = fileData
+                };
+                n.Save();
+                uow.CommitChanges();
+                noteId = n.Oid;
+            }
+
+            var mockFactory = new Mock<IObjectSpaceFactory>();
+            mockFactory
+                .Setup(f => f.CreateObjectSpace(It.IsAny<Type>()))
+                .Returns(() => new XPObjectSpace(typesInfo, typesInfoSource, () => new UnitOfWork(dataLayer)));
+
+            var noteService = new NoteService(mockFactory.Object);
+
+            var file = await noteService.GetAttachmentFileAsync(noteId);
+
+            file.Should().NotBeNull();
+            var (bytes, fileName, contentType) = file!.Value;
+            fileName.Should().Be("resim.png");
+            contentType.Should().Be("image/png");
+            bytes.Should().BeEquivalentTo(expectedBytes);
         }
 
         [Fact]
