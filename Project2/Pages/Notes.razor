@@ -188,7 +188,7 @@
     {
         if (string.IsNullOrWhiteSpace(relativeUrl)) return string.Empty;
         if (relativeUrl.StartsWith("http://") || relativeUrl.StartsWith("https://")) return relativeUrl;
-        return "https://localhost:5001" + (relativeUrl.StartsWith("/") ? "" : "/") + relativeUrl;
+        return "http://localhost:5000" + (relativeUrl.StartsWith("/") ? "" : "/") + relativeUrl;
     }
 
     private static string FormatBytes(long bytes)

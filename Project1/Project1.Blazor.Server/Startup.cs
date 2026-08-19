@@ -14,6 +14,7 @@ using Project1.Module.Services.Implementations;
 using Project1.Core.Services.Interfaces;
 using Project1.Module.Handlers;
 using MediatR;
+using Project1.Blazor.Server.Hubs;
 
 namespace Project1.Blazor.Server
 {
@@ -28,9 +29,13 @@ namespace Project1.Blazor.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            EmailSettings emailSettings = Configuration.GetSection("Email").Get<EmailSettings>() ?? new EmailSettings();
-            services.AddSingleton(emailSettings);
-            services.AddSingleton<IEmailService, EmailService>();
+            services.AddScoped<IEmailService>(sp =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                var settings = config.GetSection("Email").Get<EmailSettings>() ?? new EmailSettings();
+                var logger = sp.GetService<ILogger<EmailService>>();
+                return new EmailService(settings, logger);
+            });
             services.AddSingleton<ICrmNotificationService, CrmNotificationService>();
 
             services.AddSingleton<ISystemStatusService, SystemStatusService>();
@@ -135,6 +140,7 @@ namespace Project1.Blazor.Server
             {
                 endpoints.MapXafEndpoints();
                 endpoints.MapBlazorHub();
+                endpoints.MapHub<CrmNotificationHub>("/hubs/crm-notifications");
                 endpoints.MapFallbackToPage("/_Host");
                 endpoints.MapControllers();
             });

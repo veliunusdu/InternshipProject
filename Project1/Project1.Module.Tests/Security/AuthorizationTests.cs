@@ -3,6 +3,7 @@ using System.Linq;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Xpo;
 using DevExpress.ExpressApp.Security;
+using DevExpress.Persistent.BaseImpl;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
@@ -25,6 +26,7 @@ namespace Project1.Module.Tests.Security
             typesInfo.RegisterEntity(typeof(Musteri));
             typesInfo.RegisterEntity(typeof(Kisi));
             typesInfo.RegisterEntity(typeof(Not));
+            typesInfo.RegisterEntity(typeof(FileData));
             typesInfo.RegisterEntity(typeof(AuditLog));
             typesInfo.RegisterEntity(typeof(UserEmailPermission));
             typesInfo.RegisterEntity(typeof(PermissionPolicyUser));
@@ -72,13 +74,14 @@ namespace Project1.Module.Tests.Security
             AdminRoleConfigurator.Configure(adminRole);
 
             // Assert
-            adminRole.TypePermissions.Should().HaveCount(6);
+            adminRole.TypePermissions.Should().HaveCount(7);
             var typeNames = adminRole.TypePermissions
                 .Select(p => p.TargetType?.Name ?? p.ToString())
                 .ToList();
             typeNames.Should().Contain(nameof(Musteri));
             typeNames.Should().Contain(nameof(Kisi));
             typeNames.Should().Contain(nameof(Not));
+            typeNames.Should().Contain(nameof(FileData));
             typeNames.Should().Contain(nameof(AuditLog));
             typeNames.Should().Contain(nameof(UserEmailPermission));
             typeNames.Should().Contain(nameof(PermissionPolicyUser));
@@ -125,8 +128,10 @@ namespace Project1.Module.Tests.Security
             typeNames.Should().Contain(nameof(Musteri));
             typeNames.Should().Contain(nameof(Kisi));
             typeNames.Should().Contain(nameof(Not));
+            typeNames.Should().Contain(nameof(FileData));
             typeNames.Should().Contain(nameof(AuditLog));
             typeNames.Should().Contain(nameof(UserEmailPermission));
+            standardRole.TypePermissions.Should().HaveCount(6);
         }
     }
 }

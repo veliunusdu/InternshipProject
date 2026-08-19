@@ -95,33 +95,38 @@ namespace Project1.Blazor.Server.Controllers
         }
 
         [HttpGet("read/{noteId:guid}")]
+        [HttpHead("read/{noteId:guid}")]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-        public IActionResult TrackRead(Guid noteId)
+        public IActionResult TrackRead(Guid noteId, [FromQuery] bool redirect = false)
         {
             try
             {
                 using IObjectSpace objectSpace = CreateObjectSpace();
                 var note = objectSpace.GetObjectByKey<Not>(noteId);
 
-                if (note != null && note.MailDurumu != MailDurumu.Okundu)
+                if (note != null)
                 {
-                    note.MailDurumu = MailDurumu.Okundu;
-                    if (!note.MailIletilmeTarihi.HasValue)
+                    bool wasNotReadYet = note.MailDurumu != MailDurumu.Okundu;
+                    if (wasNotReadYet)
                     {
-                        note.MailIletilmeTarihi = DateTime.Now;
+                        note.MailDurumu = MailDurumu.Okundu;
+                        if (!note.MailIletilmeTarihi.HasValue)
+                        {
+                            note.MailIletilmeTarihi = DateTime.Now;
+                        }
+                        note.MailOkunmaTarihi = DateTime.Now;
+
+                        var auditLog = objectSpace.CreateObject<AuditLog>();
+                        auditLog.Tarih = DateTime.Now;
+                        auditLog.Kullanici = "Alıcı (E-posta İstemcisi)";
+                        auditLog.IslemTuru = "E-posta Okundu";
+                        auditLog.VarlikTipi = "Not";
+                        auditLog.VarlikId = note.Oid;
+                        auditLog.Aciklama = $"'{note.Baslik}' başlıklı not bildirim e-postası alıcı tarafından açıldı/okundu.";
+
+                        objectSpace.CommitChanges();
+                        _logger?.LogInformation("Not bildirimi okundu olarak işaretlendi. NoteId: {NoteId}", noteId);
                     }
-                    note.MailOkunmaTarihi = DateTime.Now;
-
-                    var auditLog = objectSpace.CreateObject<AuditLog>();
-                    auditLog.Tarih = DateTime.Now;
-                    auditLog.Kullanici = "Alıcı (E-posta İstemcisi)";
-                    auditLog.IslemTuru = "E-posta Okundu";
-                    auditLog.VarlikTipi = "Not";
-                    auditLog.VarlikId = note.Oid;
-                    auditLog.Aciklama = $"'{note.Baslik}' başlıklı not bildirim e-postası alıcı tarafından açıldı/okundu.";
-
-                    objectSpace.CommitChanges();
-                    _logger?.LogInformation("Not bildirimi okundu olarak işaretlendi. NoteId: {NoteId}", noteId);
 
                     _notificationService?.PublishNoteRead(new NoteReadNotificationEvent(
                         note.Oid,
@@ -138,9 +143,14 @@ namespace Project1.Blazor.Server.Controllers
                 _logger?.LogWarning(ex, "Mail tracking pikseli işlenirken hata oluştu. NoteId: {NoteId}", noteId);
             }
 
-            Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+            Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
             Response.Headers.Append("Pragma", "no-cache");
             Response.Headers.Append("Expires", "0");
+
+            if (redirect)
+            {
+                return Redirect("/#Not_ListView");
+            }
 
             return File(TransparentGifBytes, "image/gif");
         }

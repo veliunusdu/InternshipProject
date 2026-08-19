@@ -66,6 +66,38 @@
                 }).observe(app, { attributes: true, attributeFilter: ['class'] });
             }
         })();
+
+        window.initWebPushNotifications = function () {
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        };
+
+        window.showWebPushNotification = function (title, body) {
+            if ("Notification" in window) {
+                if (Notification.permission === "granted") {
+                    try {
+                        new Notification(title, {
+                            body: body,
+                            icon: "images/SplashScreen.svg",
+                            badge: "images/SplashScreen.svg",
+                            tag: "mail-read-" + Date.now()
+                        });
+                    } catch (e) {
+                        console.warn("Web Push fırlatılamadı:", e);
+                    }
+                } else if (Notification.permission === "default") {
+                    Notification.requestPermission().then(function (permission) {
+                        if (permission === "granted") {
+                            new Notification(title, {
+                                body: body,
+                                icon: "images/SplashScreen.svg"
+                            });
+                        }
+                    });
+                }
+            }
+        };
     </script>
     <script src="_framework/blazor.server.js"></script>
 </body>

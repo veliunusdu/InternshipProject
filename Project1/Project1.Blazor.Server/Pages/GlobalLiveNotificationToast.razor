@@ -3,27 +3,28 @@
 @using System.Threading.Tasks
 @using Project1.Core.Services.Interfaces
 @inject ICrmNotificationService NotificationService
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 99999;">
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 999999; pointer-events: none;">
     @foreach (var toast in _activeToasts)
     {
-        <div class="toast show shadow-lg border-0 mb-2" 
-             style="background: #ffffff; border-left: 5px solid #28a745 !important; border-radius: 8px; min-width: 320px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);" 
+        <div class="toast show shadow-lg border-0 mb-3 animate__animated animate__fadeInRight" 
+             style="pointer-events: auto; background: #ffffff; border-left: 6px solid #28a745 !important; border-radius: 10px; min-width: 340px; box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;" 
              role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header bg-white border-bottom-0 pb-0 d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="fs-5">✉️</span>
-                    <strong class="text-success">E-Posta Okundu!</strong>
+                    <span class="fs-5" style="filter: drop-shadow(0 2px 4px rgba(40,167,69,0.3));">✉️</span>
+                    <strong class="text-success fs-6">E-Posta Okundu!</strong>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <small class="text-muted">@toast.ReadDate.ToString("HH:mm:ss")</small>
+                    <small class="text-muted fw-bold font-monospace">@toast.ReadDate.ToString("HH:mm:ss")</small>
                     <button type="button" class="btn-close" aria-label="Close" @onclick="() => RemoveToast(toast)"></button>
                 </div>
             </div>
-            <div class="toast-body text-dark pt-1 pb-2">
-                <div><strong>@toast.ContactName</strong> (@toast.CustomerName)</div>
-                <div class="text-muted small mt-1">
+            <div class="toast-body text-dark pt-1 pb-3 px-3">
+                <div class="fw-bold text-dark fs-6">@toast.ContactName <span class="text-muted fw-normal fs-7">(@toast.CustomerName)</span></div>
+                <div class="text-secondary small mt-1">
                     <em>"@toast.Title"</em> başlıklı not bildirim e-postasını az önce açtı/okudu.
                 </div>
             </div>
@@ -39,15 +40,43 @@
         NotificationService.OnNoteRead += HandleNoteRead;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("initWebPushNotifications");
+            }
+            catch
+            {
+                // Tarayıcı JS izolasyonu veya SSR durumlarını yoksay
+            }
+        }
+    }
+
     private void HandleNoteRead(NoteReadNotificationEvent evt)
     {
-        InvokeAsync(() =>
+        InvokeAsync(async () =>
         {
             _activeToasts.Add(evt);
             StateHasChanged();
 
-            // 7 saniye sonra otomatik kaybol
-            _ = Task.Delay(7000).ContinueWith(_ =>
+            try
+            {
+                await JSRuntime.InvokeVoidAsync(
+                    "showWebPushNotification",
+                    "✉️ E-Posta Okundu!",
+                    $"{evt.ContactName} ({evt.CustomerName}) '{evt.Title}' başlıklı notu okudu."
+                );
+            }
+            catch
+            {
+                // Web Push hata logu gerekirse
+            }
+
+            // 8 saniye sonra otomatik kaybol
+            _ = Task.Delay(8000).ContinueWith(_ =>
             {
                 InvokeAsync(() =>
                 {
@@ -69,3 +98,4 @@
         NotificationService.OnNoteRead -= HandleNoteRead;
     }
 }
+

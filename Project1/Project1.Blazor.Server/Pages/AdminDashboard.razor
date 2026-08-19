@@ -21,19 +21,19 @@
 
     <div class="row g-3 mb-4">
         <div class="col-6 col-xl">
-            <a href="/#Musteri_ListView" class="text-decoration-none"><div class="card border p-3 rounded-3 bg-white shadow-xs h-100 modern-card"><small class="text-muted">Müşteriler</small><h3 class="fw-bold text-dark mb-0 mt-2">@musteriSayisi</h3></div></a>
+            <StatCard Title="Müşteriler" Value="@musteriSayisi.ToString()" Subtitle="Kayıtlı Müşteriler" Icon="🏢" NavigationUrl="/#Musteri_ListView" />
         </div>
         <div class="col-6 col-xl">
-            <a href="/#Kisi_ListView" class="text-decoration-none"><div class="card border p-3 rounded-3 bg-white shadow-xs h-100 modern-card"><small class="text-muted">Kişiler</small><h3 class="fw-bold text-dark mb-0 mt-2">@kisiSayisi</h3></div></a>
+            <StatCard Title="Kişiler" Value="@kisiSayisi.ToString()" Subtitle="Kayıtlı Kişiler" Icon="👥" NavigationUrl="/#Kisi_ListView" />
         </div>
         <div class="col-6 col-xl">
-            <a href="/#Not_ListView" class="text-decoration-none"><div class="card border p-3 rounded-3 bg-white shadow-xs h-100 modern-card"><small class="text-muted">Notlar</small><h3 class="fw-bold text-dark mb-0 mt-2">@notSayisi</h3></div></a>
+            <StatCard Title="Notlar" Value="@notSayisi.ToString()" Subtitle="Tüm Notlar" Icon="📝" NavigationUrl="/#Not_ListView" />
         </div>
         <div class="col-6 col-xl">
-            <div class="card border p-3 rounded-3 bg-white shadow-xs h-100"><small class="text-muted">Kullanıcılar</small><h3 class="fw-bold text-dark mb-0 mt-2">@kullaniciSayisi</h3></div>
+            <StatCard Title="Kullanıcılar" Value="@kullaniciSayisi.ToString()" Subtitle="Sistem Kullanıcıları" Icon="👤" NavigationUrl="/#ApplicationUser_ListView" />
         </div>
         <div class="col-6 col-xl">
-            <a href="/#UserEmailPermission_ListView" class="text-decoration-none"><div class="card border p-3 rounded-3 bg-white shadow-xs h-100 modern-card"><small class="text-muted">E-posta Yetkileri</small><h3 class="fw-bold text-dark mb-0 mt-2">@emailYetkiSayisi</h3></div></a>
+            <StatCard Title="E-posta Yetkileri" Value="@emailYetkiSayisi.ToString()" Subtitle="Aktif Kısıtlar" Icon="✉️" NavigationUrl="/#UserEmailPermission_ListView" />
         </div>
     </div>
 

@@ -107,8 +107,11 @@ namespace Project1.Module.Services.Implementations
                                 <strong style='color: #2980b9;'>Not İçeriği:</strong>
                                 <p style='margin: 8px 0 0 0; color: #2c3e50; white-space: pre-wrap;'>{safeIcerik}</p>
                             </div>
+                            <div style='text-align: center; margin: 24px 0 10px 0;'>
+                                <a href='{trackingUrl}&redirect=true' target='_blank' style='background-color: #3498db; color: #ffffff; padding: 10px 22px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;'>📋 Notu Sistemde İncele</a>
+                            </div>
                             <p style='font-size: 12px; color: #95a5a6; text-align: center;'>Bu e-posta otomatik olarak gönderilmiştir. Lütfen yanıtlamayınız.</p>
-                            <img src='{trackingUrl}' alt='' width='1' height='1' border='0' style='display:block; width:1px; height:1px; max-width:1px; max-height:1px; opacity:0.01; border:0; outline:none; text-decoration:none;' />
+                            <img src='{trackingUrl}' alt='' width='1' height='1' border='0' style='width:1px; height:1px; display:block;' />
                         </div>
                     </div>"
             };

@@ -1,0 +1,31 @@
+﻿#nullable enable
+@* Components/Common/StatCard.razor *@
+<a href="@NavigationUrl" class="text-decoration-none d-block h-100">
+    <div class="card border p-4 rounded-3 bg-white shadow-xs h-100 modern-card @ExtraClass">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-uppercase text-secondary fw-semibold fs-7 font-monospace">@Title</span>
+            <div class="icon-circle bg-light text-primary fs-5 p-2 rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                @Icon
+            </div>
+        </div>
+        <h2 class="fw-bold text-dark mb-1">@Value</h2>
+        <small class="text-muted">@Subtitle</small>
+        @if (!string.IsNullOrEmpty(BadgeText))
+        {
+            <div class="mt-2">
+                <span class="badge @BadgeClass px-2 py-1 fs-8 rounded-pill">@BadgeText</span>
+            </div>
+        }
+    </div>
+</a>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Value { get; set; } = "0";
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public string Icon { get; set; } = "📊";
+    [Parameter] public string NavigationUrl { get; set; } = "#";
+    [Parameter] public string? BadgeText { get; set; }
+    [Parameter] public string BadgeClass { get; set; } = "bg-light text-secondary border";
+    [Parameter] public string ExtraClass { get; set; } = string.Empty;
+}
