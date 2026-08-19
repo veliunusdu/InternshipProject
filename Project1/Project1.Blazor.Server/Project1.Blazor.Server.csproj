@@ -27,6 +27,7 @@
     <PackageReference Include="DevExpress.ExpressApp.Blazor" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.CodeAnalysis" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.Validation.Blazor" Version="26.1.4" />
+    <PackageReference Include="DevExpress.ExpressApp.FileAttachment.Blazor" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.Xpo" Version="26.1.4" />
     <PackageReference Include="DevExpress.Persistent.Base" Version="26.1.4" />

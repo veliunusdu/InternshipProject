@@ -78,6 +78,7 @@ namespace Project1.Blazor.Server
                     {
                         options.AllowValidationDetailsAccess = false;
                     })
+                    .AddFileAttachments()
                     .Add<Project1.Module.Project1Module>()
                     .Add<Project1BlazorModule>();
 
