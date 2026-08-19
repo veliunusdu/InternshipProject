@@ -55,7 +55,8 @@ namespace Project1.Module.Tests.Services
                 Icerik: "Not içeriği detayları",
                 Derece: 1,
                 MusteriOid: musteri.Oid,
-                KisiOid: kisi.Oid
+                KisiOid: kisi.Oid,
+                Project2IlePaylas: false
             );
 
             // Act
@@ -85,7 +86,8 @@ namespace Project1.Module.Tests.Services
                 Icerik: "Herhangi bir müşteriye bağlı değil",
                 Derece: 0,
                 MusteriOid: null,
-                KisiOid: null
+                KisiOid: null,
+                Project2IlePaylas: false
             );
 
             // Act

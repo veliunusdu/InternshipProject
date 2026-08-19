@@ -8,6 +8,7 @@ namespace Project1.Module.Tests.DTOs
 {
     public class DtoValidationTests
     {
+
         [Fact]
         public void CreateMusteriRequestDto_ShouldRejectAnEmptyName()
         {
@@ -31,7 +32,7 @@ namespace Project1.Module.Tests.DTOs
         [Fact]
         public void CreateNoteRequestDto_ShouldRejectAnEmptyTitle()
         {
-            var request = new CreateNoteRequestDto("", "İçerik", 0, Guid.Empty, Guid.Empty);
+            var request = new CreateNoteRequestDto("", "İçerik", 0, Guid.Empty, Guid.Empty, false);
 
             Validate(request).Should().Contain(result => result.MemberNames.Contains(nameof(CreateNoteRequestDto.Baslik)));
         }
@@ -39,7 +40,7 @@ namespace Project1.Module.Tests.DTOs
         [Fact]
         public void CreateNoteRequestDto_ShouldRejectAnUnsupportedSeverity()
         {
-            var request = new CreateNoteRequestDto("Başlık", "İçerik", 42, Guid.Empty, Guid.Empty);
+            var request = new CreateNoteRequestDto("Başlık", "İçerik", 42, Guid.Empty, Guid.Empty, false);
 
             Validate(request).Should().Contain(result => result.MemberNames.Contains(nameof(CreateNoteRequestDto.Derece)));
         }
@@ -75,15 +76,20 @@ namespace Project1.Module.Tests.DTOs
             var attId = Guid.NewGuid();
             var att = new NoteAttachmentDto(attId, "resim.png", "image/png", 2048, DateTime.Now, "/api/attachments/" + attId + "/download", true, false);
             var note = new NoteDto(
-                Oid: id,
-                Baslik: "Not Başlığı",
-                Icerik: "İçerik",
-                Derece: "Orta",
-                Musteri: "Müşteri A",
-                Kisi: "Kişi B",
-                IsEmailSent: false,
-                IsSharedWithProject2: true,
-                Ek: att
+                id,
+                "Not Başlığı",
+                "İçerik",
+                "Orta",
+                "Müşteri A",
+                "Kişi B",
+                false,
+                DateTime.Now,
+                "Gonderilmedi",
+                null,
+                null,
+                null,
+                true,
+                att
             );
 
             note.IsSharedWithProject2.Should().BeTrue();

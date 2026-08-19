@@ -11,13 +11,13 @@ namespace Project2.DTOs
         string Musteri,
         string Kisi,
         bool IsEmailSent,
-        DateTime CreatedDate = default,
-        string MailDurumu = "Gonderilmedi",
-        DateTime? MailGonderilmeTarihi = null,
-        DateTime? MailIletilmeTarihi = null,
-        DateTime? MailOkunmaTarihi = null,
-        bool IsSharedWithProject2 = false,
-        NoteAttachmentDto? Ek = null
+        DateTime CreatedDate,
+        string MailDurumu,
+        DateTime? MailGonderilmeTarihi,
+        DateTime? MailIletilmeTarihi,
+        DateTime? MailOkunmaTarihi,
+        bool IsSharedWithProject2,
+        NoteAttachmentDto? Ek
     )
     {
         public string MusteriUnvan => Musteri;
