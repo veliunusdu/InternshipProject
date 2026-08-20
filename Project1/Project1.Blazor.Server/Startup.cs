@@ -48,6 +48,7 @@ namespace Project1.Blazor.Server
             services.AddSingleton<ISystemStatusService, SystemStatusService>();
             services.AddScoped<INonSecuredObjectSpaceFactory, CustomNonSecuredObjectSpaceFactory>();
             services.AddScoped<INoteService, NoteService>();
+            services.AddScoped<IMailTrackingService, MailTrackingService>();
             services.AddSingleton<IMapper<Not, NoteDto>, NoteMapper>();
             services.AddSingleton<IMapper<Musteri, MusteriDto>, MusteriMapper>();
             services.AddSingleton<IMapper<Kisi, KisiDto>, KisiMapper>();

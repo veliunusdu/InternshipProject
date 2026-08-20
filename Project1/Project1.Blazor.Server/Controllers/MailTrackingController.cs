@@ -1,15 +1,11 @@
 #nullable enable
 using System;
-using DevExpress.ExpressApp;
-using DevExpress.ExpressApp.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Project1.Core.Enums;
-using Project1.Module.Models.Notes;
-using Project1.Module.Models.Audit;
 using Project1.Core.Services.Interfaces;
 
 namespace Project1.Blazor.Server.Controllers
@@ -20,10 +16,7 @@ namespace Project1.Blazor.Server.Controllers
     [EnableCors("AllowAll")]
     public class MailTrackingController : ControllerBase
     {
-        private readonly IObjectSpaceFactory _objectSpaceFactory;
-        private readonly INonSecuredObjectSpaceFactory? _nonSecuredObjectSpaceFactory;
-        private readonly ILogger<MailTrackingController>? _logger;
-        private readonly ICrmNotificationService? _notificationService;
+        private readonly IMailTrackingService _mailTrackingService;
 
         // 1x1 şeffaf GIF byte dizisi
         private static readonly byte[] TransparentGifBytes = new byte[] {
@@ -35,57 +28,16 @@ namespace Project1.Blazor.Server.Controllers
             0x01, 0x00, 0x3B
         };
 
-        public MailTrackingController(
-            IObjectSpaceFactory objectSpaceFactory,
-            INonSecuredObjectSpaceFactory? nonSecuredObjectSpaceFactory = null,
-            ILogger<MailTrackingController>? logger = null,
-            ICrmNotificationService? notificationService = null)
+        public MailTrackingController(IMailTrackingService mailTrackingService)
         {
-            _objectSpaceFactory = objectSpaceFactory ?? throw new ArgumentNullException(nameof(objectSpaceFactory));
-            _nonSecuredObjectSpaceFactory = nonSecuredObjectSpaceFactory;
-            _logger = logger;
-            _notificationService = notificationService;
-        }
-
-        private IObjectSpace CreateObjectSpace()
-        {
-            if (_nonSecuredObjectSpaceFactory != null)
-            {
-                return _nonSecuredObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Not));
-            }
-            return _objectSpaceFactory.CreateObjectSpace(typeof(Not));
+            _mailTrackingService = mailTrackingService ?? throw new ArgumentNullException(nameof(mailTrackingService));
         }
 
         [HttpGet("delivered/{noteId:guid}")]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-        public IActionResult TrackDelivered(Guid noteId)
+        public async Task<IActionResult> TrackDelivered(Guid noteId, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                using IObjectSpace objectSpace = CreateObjectSpace();
-                var note = objectSpace.GetObjectByKey<Not>(noteId);
-
-                if (note != null && note.MailDurumu != MailDurumu.Okundu && note.MailDurumu != MailDurumu.Iletildi)
-                {
-                    note.MailDurumu = MailDurumu.Iletildi;
-                    note.MailIletilmeTarihi = DateTime.Now;
-
-                    var auditLog = objectSpace.CreateObject<AuditLog>();
-                    auditLog.Tarih = DateTime.Now;
-                    auditLog.Kullanici = "Posta Dağıtım Sunucusu (Webhook)";
-                    auditLog.IslemTuru = "E-posta İletildi";
-                    auditLog.VarlikTipi = "Not";
-                    auditLog.VarlikId = note.Oid;
-                    auditLog.Aciklama = $"'{note.Baslik}' başlıklı notun e-posta teslimatı teyit edildi.";
-
-                    objectSpace.CommitChanges();
-                    _logger?.LogInformation("Not bildirimi iletildi olarak işaretlendi. NoteId: {NoteId}", noteId);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogWarning(ex, "Mail delivered işlenirken hata oluştu. NoteId: {NoteId}", noteId);
-            }
+            await _mailTrackingService.ProcessDeliveredAsync(noteId, cancellationToken).ConfigureAwait(false);
 
             Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
             Response.Headers.Append("Pragma", "no-cache");
@@ -97,51 +49,9 @@ namespace Project1.Blazor.Server.Controllers
         [HttpGet("read/{noteId:guid}")]
         [HttpHead("read/{noteId:guid}")]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-        public IActionResult TrackRead(Guid noteId, [FromQuery] bool redirect = false)
+        public async Task<IActionResult> TrackRead(Guid noteId, [FromQuery] bool redirect = false, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                using IObjectSpace objectSpace = CreateObjectSpace();
-                var note = objectSpace.GetObjectByKey<Not>(noteId);
-
-                if (note != null)
-                {
-                    bool wasNotReadYet = note.MailDurumu != MailDurumu.Okundu;
-                    if (wasNotReadYet)
-                    {
-                        note.MailDurumu = MailDurumu.Okundu;
-                        if (!note.MailIletilmeTarihi.HasValue)
-                        {
-                            note.MailIletilmeTarihi = DateTime.Now;
-                        }
-                        note.MailOkunmaTarihi = DateTime.Now;
-
-                        var auditLog = objectSpace.CreateObject<AuditLog>();
-                        auditLog.Tarih = DateTime.Now;
-                        auditLog.Kullanici = "Alıcı (E-posta İstemcisi)";
-                        auditLog.IslemTuru = "E-posta Okundu";
-                        auditLog.VarlikTipi = "Not";
-                        auditLog.VarlikId = note.Oid;
-                        auditLog.Aciklama = $"'{note.Baslik}' başlıklı not bildirim e-postası alıcı tarafından açıldı/okundu.";
-
-                        objectSpace.CommitChanges();
-                        _logger?.LogInformation("Not bildirimi okundu olarak işaretlendi. NoteId: {NoteId}", noteId);
-                    }
-
-                    _notificationService?.PublishNoteRead(new NoteReadNotificationEvent(
-                        note.Oid,
-                        "Okundu",
-                        note.MailOkunmaTarihi ?? DateTime.Now,
-                        note.Baslik ?? "-",
-                        note.Musteri?.Ad ?? "-",
-                        note.Kisi?.AdSoyad ?? "-"
-                    ));
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogWarning(ex, "Mail tracking pikseli işlenirken hata oluştu. NoteId: {NoteId}", noteId);
-            }
+            await _mailTrackingService.ProcessReadAsync(noteId, cancellationToken).ConfigureAwait(false);
 
             Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
             Response.Headers.Append("Pragma", "no-cache");
