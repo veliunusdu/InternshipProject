@@ -11,7 +11,9 @@ using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using FluentAssertions;
 using Moq;
+using Project1.Core.Mapping;
 using Project1.DTOs.Notes;
+using Project1.Mapping.Notes;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
 using Project1.Module.Services.Implementations;
@@ -36,6 +38,37 @@ namespace Project1.Module.Tests.Services
         }
 
         [Fact]
+        public async Task GetNoteByIdAsync_ShouldUseInjectedMapper()
+        {
+            var (objectSpace, unitOfWork) = CreateInMemoryObjectSpace();
+            var note = new Not(unitOfWork)
+            {
+                Baslik = "Kaynak not",
+                Icerik = "İçerik"
+            };
+            note.Save();
+            unitOfWork.CommitChanges();
+
+            var objectSpaceFactory = new Mock<IObjectSpaceFactory>();
+            objectSpaceFactory
+                .Setup(factory => factory.CreateObjectSpace(It.IsAny<Type>()))
+                .Returns(objectSpace);
+
+            var expected = new NoteDto { Baslik = "Mapper sonucu" };
+            var mapper = new Mock<IMapper<Not, NoteDto>>();
+            mapper
+                .Setup(currentMapper => currentMapper.Map(It.IsAny<Not>()))
+                .Returns(expected);
+
+            var service = new NoteService(objectSpaceFactory.Object, mapper.Object);
+
+            var result = await service.GetNoteByIdAsync(note.Oid);
+
+            result.Should().BeSameAs(expected);
+            mapper.Verify(currentMapper => currentMapper.Map(It.IsAny<Not>()), Times.Once);
+        }
+
+        [Fact]
         public async Task CreateNoteAsync_ShouldLinkMusteriAndKisi_WhenValidIdsProvided()
         {
             // Arrange
@@ -49,7 +82,7 @@ namespace Project1.Module.Tests.Services
             var mockFactory = new Mock<IObjectSpaceFactory>();
             mockFactory.Setup(f => f.CreateObjectSpace(It.IsAny<Type>())).Returns(objectSpace);
 
-            var noteService = new NoteService(mockFactory.Object);
+            var noteService = new NoteService(mockFactory.Object, new NoteMapper());
             var request = new CreateNoteRequestDto(
                 Baslik: "Önemli Not",
                 Icerik: "Not içeriği detayları",
@@ -80,7 +113,7 @@ namespace Project1.Module.Tests.Services
             var mockFactory = new Mock<IObjectSpaceFactory>();
             mockFactory.Setup(f => f.CreateObjectSpace(It.IsAny<Type>())).Returns(objectSpace);
 
-            var noteService = new NoteService(mockFactory.Object);
+            var noteService = new NoteService(mockFactory.Object, new NoteMapper());
             var request = new CreateNoteRequestDto(
                 Baslik: "Genel Not",
                 Icerik: "Herhangi bir müşteriye bağlı değil",
@@ -127,7 +160,7 @@ namespace Project1.Module.Tests.Services
                 .Setup(f => f.CreateObjectSpace(It.IsAny<Type>()))
                 .Returns(() => new XPObjectSpace(typesInfo, typesInfoSource, () => new UnitOfWork(dataLayer)));
 
-            var noteService = new NoteService(mockFactory.Object);
+            var noteService = new NoteService(mockFactory.Object, new NoteMapper());
 
             // Act
             var sharedNotes = (await noteService.GetNotesAsync(onlyShared: true)).ToList();
@@ -175,7 +208,7 @@ namespace Project1.Module.Tests.Services
                 .Setup(f => f.CreateObjectSpace(It.IsAny<Type>()))
                 .Returns(() => new XPObjectSpace(typesInfo, typesInfoSource, () => new UnitOfWork(dataLayer)));
 
-            var noteService = new NoteService(mockFactory.Object);
+            var noteService = new NoteService(mockFactory.Object, new NoteMapper());
 
             var notes = (await noteService.GetNotesAsync(onlyShared: true)).ToList();
 
@@ -221,7 +254,7 @@ namespace Project1.Module.Tests.Services
                 .Setup(f => f.CreateObjectSpace(It.IsAny<Type>()))
                 .Returns(() => new XPObjectSpace(typesInfo, typesInfoSource, () => new UnitOfWork(dataLayer)));
 
-            var noteService = new NoteService(mockFactory.Object);
+            var noteService = new NoteService(mockFactory.Object, new NoteMapper());
 
             var file = await noteService.GetAttachmentFileAsync(noteId);
 
@@ -240,7 +273,7 @@ namespace Project1.Module.Tests.Services
             var mockFactory = new Mock<IObjectSpaceFactory>();
             mockFactory.Setup(f => f.CreateObjectSpace(It.IsAny<Type>())).Returns(objectSpace);
 
-            var noteService = new NoteService(mockFactory.Object);
+            var noteService = new NoteService(mockFactory.Object, new NoteMapper());
 
             // Act
             var file = await noteService.GetAttachmentFileAsync(Guid.NewGuid());

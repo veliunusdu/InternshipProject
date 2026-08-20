@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Security;
+using Project1.Core.Mapping;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
 using Project1.DTOs.Notes;
@@ -16,13 +17,16 @@ namespace Project1.Module.Services.Implementations
     public class NoteService : INoteService
     {
         private readonly IObjectSpaceFactory _objectSpaceFactory;
+        private readonly IMapper<Not, NoteDto> _noteMapper;
         private readonly INonSecuredObjectSpaceFactory? _nonSecuredObjectSpaceFactory;
 
         public NoteService(
             IObjectSpaceFactory objectSpaceFactory,
+            IMapper<Not, NoteDto> noteMapper,
             INonSecuredObjectSpaceFactory? nonSecuredObjectSpaceFactory = null)
         {
             _objectSpaceFactory = objectSpaceFactory ?? throw new ArgumentNullException(nameof(objectSpaceFactory));
+            _noteMapper = noteMapper ?? throw new ArgumentNullException(nameof(noteMapper));
             _nonSecuredObjectSpaceFactory = nonSecuredObjectSpaceFactory;
         }
 
@@ -33,41 +37,6 @@ namespace Project1.Module.Services.Implementations
                 return _nonSecuredObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Not));
             }
             return _objectSpaceFactory.CreateObjectSpace(typeof(Not));
-        }
-
-        private NoteDto MapToDto(Not n)
-        {
-            NoteAttachmentDto? ekDto = null;
-            if (n.Dosya != null && !string.IsNullOrEmpty(n.Dosya.FileName))
-            {
-                ekDto = new NoteAttachmentDto(
-                    n.Oid,
-                    n.DosyaAdi,
-                    n.ContentType,
-                    n.BoyutBytes,
-                    n.CreatedDate,
-                    $"/api/attachments/{n.Oid}/download",
-                    n.IsImage,
-                    n.IsPdf
-                );
-            }
-
-            return new NoteDto(
-                n.Oid,
-                n.Baslik ?? string.Empty,
-                n.Icerik ?? string.Empty,
-                n.Derece.ToString(),
-                n.Musteri != null ? n.Musteri.Ad : string.Empty,
-                n.Kisi != null ? (n.Kisi.Ad + " " + n.Kisi.Soyad).Trim() : string.Empty,
-                n.IsEmailSent,
-                n.CreatedDate,
-                n.MailDurumu.ToString(),
-                n.MailGonderilmeTarihi,
-                n.MailIletilmeTarihi,
-                n.MailOkunmaTarihi,
-                n.Project2IlePaylas,
-                ekDto
-            );
         }
 
         public Task<IEnumerable<NoteDto>> GetNotesAsync(bool? onlyShared = null, CancellationToken cancellationToken = default)
@@ -81,7 +50,7 @@ namespace Project1.Module.Services.Implementations
 
             var notes = query
                 .AsEnumerable()
-                .Select(n => MapToDto(n))
+                .Select(_noteMapper.Map)
                 .ToList();
 
             return Task.FromResult<IEnumerable<NoteDto>>(notes);
@@ -93,7 +62,7 @@ namespace Project1.Module.Services.Implementations
             var n = objectSpace.GetObjectByKey<Not>(id);
             if (n == null) return Task.FromResult<NoteDto?>(null);
 
-            return Task.FromResult<NoteDto?>(MapToDto(n));
+            return Task.FromResult<NoteDto?>(_noteMapper.Map(n));
         }
 
         public Task<NoteDto> CreateNoteAsync(CreateNoteRequestDto request, CancellationToken cancellationToken = default)
@@ -119,7 +88,7 @@ namespace Project1.Module.Services.Implementations
 
             objectSpace.CommitChanges();
 
-            return Task.FromResult(MapToDto(not));
+            return Task.FromResult(_noteMapper.Map(not));
         }
 
         public Task<(byte[] Bytes, string FileName, string ContentType)?> GetAttachmentFileAsync(Guid attachmentId, CancellationToken cancellationToken = default)
