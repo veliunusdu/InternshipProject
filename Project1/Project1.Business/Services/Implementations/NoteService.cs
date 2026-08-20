@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Security;
 using Project1.Core.Mapping;
-using Project1.Module.Models.Customers;
-using Project1.Module.Models.Notes;
-using Project1.DTOs.Notes;
 using Project1.Core.Services.Interfaces;
+using Project1.DTOs.Notes;
+using Project1.Module.Models.Customers;
+using Project1.Module.BusinessObjects.Enums;
+using Project1.Module.Models.Notes;
 
-namespace Project1.Module.Services.Implementations
+namespace Project1.Business.Services.Implementations
 {
     public class NoteService : INoteService
     {
@@ -36,13 +37,15 @@ namespace Project1.Module.Services.Implementations
             {
                 return _nonSecuredObjectSpaceFactory.CreateNonSecuredObjectSpace(typeof(Not));
             }
+
             return _objectSpaceFactory.CreateObjectSpace(typeof(Not));
         }
 
         public Task<IEnumerable<NoteDto>> GetNotesAsync(bool? onlyShared = null, CancellationToken cancellationToken = default)
         {
             using IObjectSpace objectSpace = CreateObjectSpace();
-            var query = objectSpace.GetObjectsQuery<Not>();
+            IQueryable<Not> query = objectSpace.GetObjectsQuery<Not>();
+
             if (onlyShared.HasValue && onlyShared.Value)
             {
                 query = query.Where(n => n.Project2IlePaylas);
@@ -67,21 +70,21 @@ namespace Project1.Module.Services.Implementations
 
         public Task<NoteDto> CreateNoteAsync(CreateNoteRequestDto request, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             using IObjectSpace objectSpace = CreateObjectSpace();
+
             var not = objectSpace.CreateObject<Not>();
             not.Baslik = request.Baslik;
             not.Icerik = request.Icerik;
-            not.Derece = (BusinessObjects.Enums.NotDerecesi)request.Derece;
+            not.Derece = (NotDerecesi)request.Derece;
             not.Project2IlePaylas = request.Project2IlePaylas;
+            not.CreatedDate = DateTime.Now;
 
-            if (request.MusteriOid.HasValue && request.MusteriOid.Value != Guid.Empty)
+            if (request.MusteriOid.HasValue)
             {
                 not.Musteri = objectSpace.GetObjectByKey<Musteri>(request.MusteriOid.Value);
             }
 
-            if (request.KisiOid.HasValue && request.KisiOid.Value != Guid.Empty)
+            if (request.KisiOid.HasValue)
             {
                 not.Kisi = objectSpace.GetObjectByKey<Kisi>(request.KisiOid.Value);
             }
@@ -95,7 +98,8 @@ namespace Project1.Module.Services.Implementations
         {
             using IObjectSpace objectSpace = CreateObjectSpace();
             var not = objectSpace.GetObjectByKey<Not>(attachmentId);
-            if (not?.Dosya?.Content == null || not.Dosya.Content.Length == 0)
+
+            if (not?.Dosya == null || not.Dosya.Content == null)
             {
                 return Task.FromResult<(byte[] Bytes, string FileName, string ContentType)?>(null);
             }

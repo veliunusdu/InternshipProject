@@ -1,7 +1,7 @@
 using System;
 using Project1.Core.Services.Interfaces;
 
-namespace Project1.Module.Services.Implementations
+namespace Project1.Business.Services.Implementations
 {
     public class CrmNotificationService : ICrmNotificationService
     {

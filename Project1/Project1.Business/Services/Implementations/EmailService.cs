@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Project1.Core.Services.Interfaces;
 
-namespace Project1.Module.Services.Implementations
+namespace Project1.Business.Services.Implementations
 {
     public class EmailService : IEmailService
     {

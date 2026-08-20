@@ -16,7 +16,7 @@ using Project1.DTOs.Notes;
 using Project1.Mapping.Notes;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
-using Project1.Module.Services.Implementations;
+using Project1.Business.Services.Implementations;
 using Xunit;
 
 namespace Project1.Module.Tests.Services

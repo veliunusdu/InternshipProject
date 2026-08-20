@@ -10,7 +10,7 @@ using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Project1.Blazor.Server.Services;
-using Project1.Module.Services.Implementations;
+using Project1.Business.Services.Implementations;
 using Project1.Core.Services.Interfaces;
 using Project1.Module.Handlers;
 using MediatR;
