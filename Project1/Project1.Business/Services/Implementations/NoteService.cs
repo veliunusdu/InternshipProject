@@ -10,7 +10,7 @@ using Project1.Core.Mapping;
 using Project1.Core.Services.Interfaces;
 using Project1.DTOs.Notes;
 using Project1.Module.Models.Customers;
-using Project1.Module.BusinessObjects.Enums;
+using Project1.Core.Enums;
 using Project1.Module.Models.Notes;
 
 namespace Project1.Business.Services.Implementations

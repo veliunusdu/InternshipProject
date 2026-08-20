@@ -3,7 +3,7 @@ using DevExpress.ExpressApp;
 using Project1.Core.Commands;
 using Project1.Module.Models.Notes;
 using Project1.Module.Models.Customers;
-using Project1.Module.BusinessObjects.Enums;
+using Project1.Core.Enums;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +26,7 @@ namespace Project1.Module.Handlers
             Not yeniNot = objectSpace.CreateObject<Not>();
             yeniNot.Baslik = request.Baslik;
             yeniNot.Icerik = request.Icerik;
-            yeniNot.Derece = (NotDerecesi)request.Derece;
+            yeniNot.Derece = request.Derece;
 
             if (request.MusteriId.HasValue)
             {

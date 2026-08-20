@@ -4,7 +4,7 @@ using DevExpress.ExpressApp.Actions;
 using DevExpress.Persistent.Base;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
-using Project1.Module.BusinessObjects.Enums;
+using Project1.Core.Enums;
 
 namespace Project1.Module.Controllers.Customers
 {

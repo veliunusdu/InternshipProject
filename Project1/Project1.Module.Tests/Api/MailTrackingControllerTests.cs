@@ -10,10 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Project1.Blazor.Server.Controllers;
+using Project1.Core.Enums;
 using Project1.Core.Services.Interfaces;
-using Project1.Module.BusinessObjects.Enums;
 using Project1.Module.Models.Audit;
-using Project1.Module.Models.Enums;
 using Project1.Module.Models.Notes;
 using Xunit;
 

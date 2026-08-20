@@ -3,7 +3,7 @@
 using System;
 using System.ComponentModel;
 using DevExpress.ExpressApp.DC;
-using Project1.Module.BusinessObjects.Enums;
+using Project1.Core.Enums;
 using Project1.Module.Models.Customers;
 
 namespace Project1.Module.BusinessObjects.NonPersistent

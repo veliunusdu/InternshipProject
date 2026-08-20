@@ -5,6 +5,7 @@ using DevExpress.Persistent.BaseImpl;
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using FluentAssertions;
+using Project1.Core.Enums;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
 using Xunit;
@@ -99,7 +100,7 @@ namespace Project1.Module.Tests.Domain
             var not = new Not(session);
 
             // Assert
-            not.MailDurumu.Should().Be(Project1.Module.Models.Enums.MailDurumu.Gonderilmedi);
+            not.MailDurumu.Should().Be(MailDurumu.Gonderilmedi);
             not.MailGonderilmeTarihi.Should().BeNull();
             not.MailIletilmeTarihi.Should().BeNull();
             not.MailOkunmaTarihi.Should().BeNull();

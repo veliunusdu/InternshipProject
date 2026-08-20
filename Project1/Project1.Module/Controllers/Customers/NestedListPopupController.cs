@@ -4,7 +4,7 @@ using DevExpress.ExpressApp.Actions;
 using DevExpress.ExpressApp.SystemModule;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
-using Project1.Module.BusinessObjects.Enums;
+using Project1.Core.Enums;
 using Project1.Module.BusinessObjects.NonPersistent;
 using Project1.Core.Commands;
 using MediatR;

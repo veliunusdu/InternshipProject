@@ -3,7 +3,7 @@ using System.Linq;
 using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using FluentAssertions;
-using Project1.Module.BusinessObjects.Enums;
+using Project1.Core.Enums;
 using Project1.Module.Models.Audit;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;

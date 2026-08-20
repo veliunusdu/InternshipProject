@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Project1.Module.Models.Enums;
+using Project1.Core.Enums;
 using Project1.Module.Models.Notes;
 using Project1.Module.Models.Audit;
 using Project1.Core.Services.Interfaces;

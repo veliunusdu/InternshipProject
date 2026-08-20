@@ -8,7 +8,7 @@ using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.Base;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
-using Project1.Module.Models.Enums;
+using Project1.Core.Enums;
 using Project1.Module.Models.Audit;
 using Project1.Module.BusinessObjects.Security;
 using Project1.Module.Security;
