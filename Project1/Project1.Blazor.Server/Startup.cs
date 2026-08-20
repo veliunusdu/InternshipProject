@@ -15,7 +15,13 @@ using Project1.Core.Services.Interfaces;
 using Project1.Module.Handlers;
 using MediatR;
 using Project1.Blazor.Server.Hubs;
-using Project1.Mapping;
+using Project1.Core.Mapping;
+using Project1.DTOs.Customers;
+using Project1.DTOs.Notes;
+using Project1.Mapping.Customers;
+using Project1.Mapping.Notes;
+using Project1.Module.Models.Customers;
+using Project1.Module.Models.Notes;
 
 namespace Project1.Blazor.Server
 {
@@ -42,7 +48,9 @@ namespace Project1.Blazor.Server
             services.AddSingleton<ISystemStatusService, SystemStatusService>();
             services.AddScoped<INonSecuredObjectSpaceFactory, CustomNonSecuredObjectSpaceFactory>();
             services.AddScoped<INoteService, NoteService>();
-            services.AddCrmMappingServices();
+            services.AddSingleton<IMapper<Not, NoteDto>, NoteMapper>();
+            services.AddSingleton<IMapper<Musteri, MusteriDto>, MusteriMapper>();
+            services.AddSingleton<IMapper<Kisi, KisiDto>, KisiMapper>();
             
             // MediatR Configuration
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateNoteCommandHandler).Assembly));

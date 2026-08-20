@@ -45,6 +45,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />
     <ProjectReference Include="..\Project1.DTOs\Project1.DTOs.csproj" />
+    <ProjectReference Include="..\Project1.Mapping\Project1.Mapping.csproj" />
     <ProjectReference Include="..\Project1.Module\Project1.Module.csproj" />
     <ProjectReference Include="..\Project1.Blazor.Server\Project1.Blazor.Server.csproj" />
   </ItemGroup>
