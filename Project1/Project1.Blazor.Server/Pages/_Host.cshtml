@@ -98,7 +98,188 @@
                 }
             }
         };
+
+        // Giriş Ekranı Üst Tanıtım Çubuğu (Blazor VDOM Dışı, 100% Güvenli)
+        (() => {
+            let lastHasPwd = null;
+            function checkLogonState() {
+                const pwdInput = document.querySelector('input[type="password"]');
+                const hasPwd = !!pwdInput;
+                if (hasPwd === lastHasPwd) return;
+                lastHasPwd = hasPwd;
+
+                let topBar = document.getElementById('xaf-logon-top-bar');
+                if (hasPwd) {
+                    if (!topBar) {
+                        topBar = document.createElement('div');
+                        topBar.id = 'xaf-logon-top-bar';
+                        topBar.className = 'xaf-logon-top-bar';
+                        topBar.innerHTML = `
+                            <div class="xaf-logon-top-content">
+                                <span>🏢 <strong>Yeni Müşteri misiniz?</strong> Firmanız için hemen kayıt oluşturabilir ve portala erişebilirsiniz.</span>
+                                <a href="/signup" class="xaf-top-signup-btn">✨ Müşteri Olarak Kayıt Ol (Sign-Up) →</a>
+                            </div>
+                        `;
+                        document.body.appendChild(topBar);
+                    }
+                } else {
+                    if (topBar) topBar.remove();
+                }
+            }
+
+            setInterval(checkLogonState, 500);
+        })();
     </script>
+    <style>
+        .xaf-logon-top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999999;
+            background: linear-gradient(90deg, #1e3a8a 0%, #2563eb 100%);
+            color: #ffffff;
+            padding: 10px 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            font-size: 13px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .xaf-logon-top-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .xaf-top-signup-btn {
+            background: #ffffff;
+            color: #1e40af !important;
+            font-weight: 700;
+            padding: 6px 18px;
+            border-radius: 20px;
+            text-decoration: none !important;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .xaf-top-signup-btn:hover {
+            background: #f1f5f9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .xaf-injected-signup-box {
+            margin-top: 18px;
+            padding-top: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .xaf-injected-divider {
+            position: relative;
+            text-align: center;
+            margin: 14px 0 12px 0;
+        }
+
+        .xaf-injected-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #cbd5e1;
+            z-index: 1;
+        }
+
+        .xaf-injected-divider span {
+            position: relative;
+            z-index: 2;
+            background: #ffffff;
+            padding: 0 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+        }
+
+        .xaf-injected-card {
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 14px 16px;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .xaf-injected-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .xaf-injected-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .xaf-injected-header strong {
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        .xaf-injected-p {
+            font-size: 12px;
+            color: #64748b;
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+        }
+
+        .xaf-injected-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 9px 16px;
+            background: #2563eb;
+            color: #ffffff !important;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
+            box-sizing: border-box;
+        }
+
+        .xaf-injected-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        @@keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+    </style>
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>

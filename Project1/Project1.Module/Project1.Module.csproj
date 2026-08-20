@@ -6,14 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>$(NoWarn);DX1000</NoWarn>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Controllers\Entities\**" />
-    <EmbeddedResource Remove="Controllers\Entities\**" />
-    <None Remove="Controllers\Entities\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Controllers\DXViewController.cs" />
-  </ItemGroup>
+
   <ItemGroup>
     <None Remove="Model.DesignedDiffs.xafml" />
   </ItemGroup>

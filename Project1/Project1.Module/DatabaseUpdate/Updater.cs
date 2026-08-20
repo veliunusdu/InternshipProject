@@ -23,17 +23,68 @@ namespace Project1.Module.DatabaseUpdate
 
             PermissionPolicyRole adminRole = EnsureAdministratorRole();
             PermissionPolicyRole standardUserRole = EnsureStandardUserRole();
+            PermissionPolicyRole customerRole = EnsureCustomerRole();
 
-            PermissionPolicyUser adminUser = EnsureUser(SecurityConstants.AdministratorUserName, adminRole,
+            ApplicationUser adminUser = EnsureUser(SecurityConstants.AdministratorUserName, adminRole,
                 SecurityConstants.AdminInitialPasswordConfigurationKey);
-            PermissionPolicyUser standardUser = EnsureUser(SecurityConstants.StandardUserName, standardUserRole,
+            ApplicationUser standardUser = EnsureUser(SecurityConstants.StandardUserName, standardUserRole,
                 SecurityConstants.UserInitialPasswordConfigurationKey);
+
+            EnsureDefaultCustomerAndUser(customerRole);
 
             EnsureEmailPermission(standardUser, true);
             RemoveAdminEmailPermission(adminUser);
             RemoveLegacyOwnerPermissions();
 
             ObjectSpace.CommitChanges();
+        }
+
+        private PermissionPolicyRole EnsureCustomerRole()
+        {
+            PermissionPolicyRole role = ObjectSpace.FirstOrDefault<PermissionPolicyRole>(
+                r => r.Name == SecurityConstants.CustomerRoleName);
+
+            if (role == null)
+            {
+                role = ObjectSpace.CreateObject<PermissionPolicyRole>();
+                role.Name = SecurityConstants.CustomerRoleName;
+            }
+
+            ResetRolePermissions(role);
+            CustomerRoleConfigurator.Configure(role);
+            return role;
+        }
+
+        private void EnsureDefaultCustomerAndUser(PermissionPolicyRole customerRole)
+        {
+            Musteri defaultMusteri = ObjectSpace.FirstOrDefault<Musteri>(m => m.Ad == "Acme Lojistik A.Ş.");
+            if (defaultMusteri == null)
+            {
+                defaultMusteri = ObjectSpace.CreateObject<Musteri>();
+                defaultMusteri.Ad = "Acme Lojistik A.Ş.";
+                defaultMusteri.Telefon = "0555 123 45 67";
+                defaultMusteri.Adres = "İstanbul, Türkiye";
+            }
+
+            ApplicationUser customerUser = ObjectSpace.FirstOrDefault<ApplicationUser>(
+                u => u.UserName == SecurityConstants.DefaultCustomerUserName);
+
+            if (customerUser == null)
+            {
+                customerUser = ObjectSpace.CreateObject<ApplicationUser>();
+                customerUser.UserName = SecurityConstants.DefaultCustomerUserName;
+                customerUser.Email = "customer@acme.com";
+                customerUser.SetPassword("1234");
+            }
+
+            customerUser.Musteri = defaultMusteri;
+            customerUser.EmailConfirmed = true;
+            customerUser.IsActive = true;
+
+            if (!customerUser.Roles.Contains(customerRole))
+            {
+                customerUser.Roles.Add(customerRole);
+            }
         }
 
         private PermissionPolicyRole EnsureAdministratorRole()
@@ -72,6 +123,14 @@ namespace Project1.Module.DatabaseUpdate
         {
             foreach (PermissionPolicyTypePermissionObject permission in role.TypePermissions.ToList())
             {
+                foreach (PermissionPolicyObjectPermissionsObject objPerm in permission.ObjectPermissions.ToList())
+                {
+                    ObjectSpace.Delete(objPerm);
+                }
+                foreach (PermissionPolicyMemberPermissionsObject memberPerm in permission.MemberPermissions.ToList())
+                {
+                    ObjectSpace.Delete(memberPerm);
+                }
                 ObjectSpace.Delete(permission);
             }
 
@@ -86,16 +145,18 @@ namespace Project1.Module.DatabaseUpdate
             }
         }
 
-        private PermissionPolicyUser EnsureUser(string userName, PermissionPolicyRole role, string passwordConfigurationKey)
+        private ApplicationUser EnsureUser(string userName, PermissionPolicyRole role, string passwordConfigurationKey)
         {
-            PermissionPolicyUser user = ObjectSpace.FirstOrDefault<PermissionPolicyUser>(
+            ApplicationUser user = ObjectSpace.FirstOrDefault<ApplicationUser>(
                 u => u.UserName == userName);
             bool isNewUser = user == null;
 
             if (isNewUser)
             {
-                user = ObjectSpace.CreateObject<PermissionPolicyUser>();
+                user = ObjectSpace.CreateObject<ApplicationUser>();
                 user.UserName = userName;
+                user.IsActive = true;
+                user.EmailConfirmed = true;
             }
 
             if (!user.Roles.Contains(role))

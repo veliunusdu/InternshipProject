@@ -1,0 +1,356 @@
+@page "/signup"
+@using Project1.Core.Services.Interfaces
+@using Project1.DTOs.Auth
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="signup-container">
+    <div class="signup-card">
+        <div class="signup-header">
+            <div class="signup-icon">🏢</div>
+            <h2 class="signup-title">Müşteri Portalı Kayıt</h2>
+            <p class="signup-subtitle">Şirketiniz için portal hesabı oluşturun ve ekibinizi yönetin</p>
+        </div>
+
+        @if (isSubmitted && isSuccess)
+        {
+            <div class="signup-alert signup-alert-success">
+                <div class="alert-icon">✉️</div>
+                <div class="alert-content">
+                    <h4>Kayıt Başarıyla Tamamlandı!</h4>
+                    <p>
+                        <strong>@model.Email</strong> adresinize bir aktivasyon bağlantısı gönderdik.
+                        Hesabınızı aktifleştirmek için lütfen gelen kutunuzu kontrol edip onay linkine tıklayın.
+                    </p>
+                    <div style="background-color: #dcfce7; padding: 12px; border-radius: 6px; margin: 12px 0; font-size: 13px; color: #14532d;">
+                        <div>👤 <strong>Kullanıcı Adınız:</strong> <code>@model.UserName</code></div>
+                        <div style="margin-top: 4px;">💡 E-postanızı onayladıktan sonra, giriş ekranında bu kullanıcı adı ve şifrenizle oturum açabilirsiniz.</div>
+                    </div>
+                    <a href="/LoginPage" class="btn-return-login">🔑 Giriş Ekranına Git</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <div class="signup-alert signup-alert-error">
+                    <span class="alert-icon">⚠️</span>
+                    <span>@errorMessage</span>
+                </div>
+            }
+
+            <EditForm Model="@model" OnValidSubmit="HandleSignUpAsync">
+                <DataAnnotationsValidator />
+
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label class="form-label">Firma / Müşteri Adı <span class="required">*</span></label>
+                        <InputText @bind-Value="model.MusteriAdi" class="form-control" placeholder="Örn: Acme Lojistik A.Ş." disabled="@isLoading" />
+                        <ValidationMessage For="@(() => model.MusteriAdi)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group col">
+                        <label class="form-label">Kullanıcı Adı (Giriş İçin) <span class="required">*</span></label>
+                        <InputText @bind-Value="model.UserName" class="form-control" placeholder="Örn: dogan_turizm" disabled="@isLoading" />
+                        <ValidationMessage For="@(() => model.UserName)" class="text-danger" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label class="form-label">Yetkili E-Posta <span class="required">*</span></label>
+                        <InputText @bind-Value="model.Email" class="form-control" placeholder="info@sirketiniz.com" disabled="@isLoading" />
+                        <ValidationMessage For="@(() => model.Email)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group col">
+                        <label class="form-label">Telefon <span class="required">*</span></label>
+                        <InputText @bind-Value="model.Telefon" class="form-control" placeholder="0555 123 45 67" disabled="@isLoading" />
+                        <ValidationMessage For="@(() => model.Telefon)" class="text-danger" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label class="form-label">Şifre <span class="required">*</span></label>
+                        <InputText @bind-Value="model.Password" type="password" class="form-control" placeholder="En az 6 karakter" disabled="@isLoading" />
+                        <ValidationMessage For="@(() => model.Password)" class="text-danger" />
+                    </div>
+
+                    <div class="form-group col">
+                        <label class="form-label">Şifre Tekrar <span class="required">*</span></label>
+                        <input @bind="confirmPassword" type="password" class="form-control" placeholder="Şifrenizi tekrar girin" disabled="@isLoading" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Adres (İsteğe Bağlı)</label>
+                    <InputTextArea @bind-Value="model.Adres" class="form-control" rows="2" placeholder="Şirket adresi..." disabled="@isLoading" />
+                </div>
+
+                <button type="submit" class="btn-signup-submit" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <span class="spinner"></span>
+                        <span>Hesap Oluşturuluyor...</span>
+                    }
+                    else
+                    {
+                        <span>🚀 Müşteri Olarak Kaydol</span>
+                    }
+                </button>
+
+                <div class="signup-footer">
+                    <span>Zaten bir hesabınız var mı?</span>
+                    <a href="/LoginPage" class="link-login">Giriş Yap</a>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+<style>
+    .signup-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        padding: 24px;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    .signup-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 540px;
+        padding: 36px 40px;
+    }
+
+    .signup-header {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .signup-icon {
+        font-size: 40px;
+        margin-bottom: 8px;
+    }
+
+    .signup-title {
+        color: #0f172a;
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 6px 0;
+    }
+
+    .signup-subtitle {
+        color: #64748b;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .signup-alert {
+        display: flex;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .signup-alert-error {
+        background-color: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+    }
+
+    .signup-alert-success {
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+
+    .signup-alert-success h4 {
+        margin: 8px 0 6px 0;
+        font-weight: 700;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 16px;
+    }
+
+    .form-row .col {
+        flex: 1;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 6px;
+    }
+
+    .required {
+        color: #ef4444;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #0f172a;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .text-danger {
+        color: #ef4444;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .btn-signup-submit {
+        width: 100%;
+        padding: 12px 20px;
+        background: #2563eb;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .btn-signup-submit:hover:not(:disabled) {
+        background: #1d4ed8;
+    }
+
+    .btn-signup-submit:active:not(:disabled) {
+        transform: scale(0.99);
+    }
+
+    .btn-signup-submit:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    .btn-return-login {
+        display: inline-block;
+        margin-top: 14px;
+        padding: 10px 24px;
+        background: #16a34a;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+
+    .btn-return-login:hover {
+        background: #15803d;
+        color: white;
+    }
+
+    .signup-footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 13px;
+        color: #64748b;
+    }
+
+    .link-login {
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+        margin-left: 6px;
+    }
+
+    .link-login:hover {
+        text-decoration: underline;
+    }
+
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #ffffff;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+@code {
+    private RegisterCustomerRequest model = new();
+
+    private string confirmPassword = string.Empty;
+    private string? errorMessage;
+    private bool isLoading = false;
+    private bool isSubmitted = false;
+    private bool isSuccess = false;
+
+    private async Task HandleSignUpAsync()
+    {
+        errorMessage = null;
+
+        if (model.Password != confirmPassword)
+        {
+            errorMessage = "Girdiğiniz şifreler birbiriyle eşleşmiyor.";
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            var result = await AuthService.RegisterCustomerAsync(model);
+            if (result.Success)
+            {
+                isSuccess = true;
+                isSubmitted = true;
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Kayıt oluşturulurken bir hata meydana geldi.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Beklenmeyen bir hata oluştu: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

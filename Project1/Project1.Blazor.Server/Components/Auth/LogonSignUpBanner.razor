@@ -1,0 +1,129 @@
+@using Microsoft.AspNetCore.Components
+
+<div class="logon-signup-container">
+    <div class="logon-divider-box">
+        <span>VEYA</span>
+    </div>
+    
+    <div class="signup-callout">
+        <div class="signup-callout-header">
+            <span class="callout-badge">✨ Yeni Müşteri</span>
+            <strong>Henüz hesabınız yok mu?</strong>
+        </div>
+        <p class="signup-callout-text">
+            Firmanız adına anında müşteri hesabı oluşturabilir, e-posta onayınızdan sonra sisteme hemen giriş yapabilirsiniz.
+        </p>
+        <a href="/signup" class="btn-signup-link">
+            <span>🏢</span>
+            <span>Müşteri Olarak Kayıt Ol (Sign-Up)</span>
+            <span class="arrow-icon">→</span>
+        </a>
+    </div>
+</div>
+
+<style>
+    .logon-signup-container {
+        margin-top: 20px;
+        padding-top: 5px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .logon-divider-box {
+        position: relative;
+        text-align: center;
+        margin: 18px 0 16px 0;
+    }
+    
+    .logon-divider-box::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e2e8f0;
+        z-index: 1;
+    }
+    
+    .logon-divider-box span {
+        position: relative;
+        z-index: 2;
+        background: #ffffff;
+        padding: 0 14px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #94a3b8;
+        letter-spacing: 0.05em;
+    }
+    
+    .signup-callout {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: left;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+    
+    .signup-callout-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+    
+    .callout-badge {
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 20px;
+    }
+    
+    .signup-callout-header strong {
+        font-size: 13px;
+        color: #1e293b;
+    }
+    
+    .signup-callout-text {
+        font-size: 12px;
+        color: #64748b;
+        margin: 0 0 12px 0;
+        line-height: 1.45;
+    }
+    
+    .btn-signup-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 10px 16px;
+        background: #2563eb;
+        color: #ffffff !important;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 8px;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
+        box-sizing: border-box;
+    }
+    
+    .btn-signup-link:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 12px rgba(37, 99, 235, 0.35);
+    }
+    
+    .arrow-icon {
+        font-weight: bold;
+        transition: transform 0.2s ease;
+    }
+    
+    .btn-signup-link:hover .arrow-icon {
+        transform: translateX(3px);
+    }
+</style>

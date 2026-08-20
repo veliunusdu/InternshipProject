@@ -22,6 +22,7 @@ using Project1.Mapping.Customers;
 using Project1.Mapping.Notes;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
+using Project1.Module.BusinessObjects.Security;
 
 namespace Project1.Blazor.Server
 {
@@ -36,10 +37,15 @@ namespace Project1.Blazor.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IEmailService>(sp =>
+            services.AddSingleton(sp =>
             {
                 var config = sp.GetRequiredService<IConfiguration>();
-                var settings = config.GetSection("Email").Get<EmailSettings>() ?? new EmailSettings();
+                return config.GetSection("Email").Get<EmailSettings>() ?? new EmailSettings();
+            });
+
+            services.AddScoped<IEmailService>(sp =>
+            {
+                var settings = sp.GetRequiredService<EmailSettings>();
                 var logger = sp.GetService<ILogger<EmailService>>();
                 return new EmailService(settings, logger);
             });
@@ -48,6 +54,7 @@ namespace Project1.Blazor.Server
             services.AddSingleton<ISystemStatusService, SystemStatusService>();
             services.AddScoped<INonSecuredObjectSpaceFactory, CustomNonSecuredObjectSpaceFactory>();
             services.AddScoped<INoteService, NoteService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IMailTrackingService, MailTrackingService>();
             services.AddSingleton<IMapper<Not, NoteDto>, NoteMapper>();
             services.AddSingleton<IMapper<Musteri, MusteriDto>, MusteriMapper>();
@@ -102,7 +109,7 @@ namespace Project1.Blazor.Server
                     .UseIntegratedMode(options =>
                     {
                         options.RoleType = typeof(PermissionPolicyRole);
-                        options.UserType = typeof(PermissionPolicyUser);
+                        options.UserType = typeof(ApplicationUser);
                     })
                     .AddPasswordAuthentication();
 

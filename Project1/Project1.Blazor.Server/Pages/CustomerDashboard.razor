@@ -1,0 +1,234 @@
+@using Project1.Module.Models.Customers
+@using Project1.Module.Models.Notes
+@using Project1.Module.BusinessObjects.Security
+@using DevExpress.ExpressApp
+@using Microsoft.AspNetCore.Components.Authorization
+@using Project1.Module.Security
+@inject IObjectSpaceFactory ObjectSpaceFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="customer-dashboard-container p-3 p-md-4">
+    <!-- Hero Banner -->
+    <div class="customer-hero-card mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <div class="portal-badge mb-2">
+                    <span>🏢</span> Müşteri Portali
+                </div>
+                <h2 class="fw-bold text-white mb-1">@GreetingText, @customerName</h2>
+                <p class="text-white-50 mb-0 fs-6">
+                    Firmanıza ait temsilcileri, iletişim kişilerini ve sistem kayıtlarını bu panelden yönetebilirsiniz.
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-white bg-opacity-20 text-white border-0 px-3 py-2 rounded-pill font-monospace fs-7">
+                    📅 @DateTime.Now.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))
+                </span>
+                <button class="btn btn-light btn-sm px-3 py-1.5 rounded-pill shadow-sm d-flex align-items-center gap-1 fw-semibold" @onclick="RefreshData">
+                    <span>🔄</span> Yenile
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card stat-card border-0 shadow-sm rounded-4 p-3 h-100 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="stat-icon-wrapper bg-primary-subtle text-primary">🏢</span>
+                    <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1 fs-8">Aktif Profil</span>
+                </div>
+                <div class="stat-title text-muted fs-7">Firma Profilim</div>
+                <h4 class="fw-bold text-dark mb-1 text-truncate" title="@customerName">@customerName</h4>
+                <div class="text-secondary fs-8 mt-auto">
+                    <span>📞 @(string.IsNullOrWhiteSpace(customerPhone) ? "Telefon girilmedi" : customerPhone)</span>
+                </div>
+                <a href="/#Musteri_ListView" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card stat-card border-0 shadow-sm rounded-4 p-3 h-100 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="stat-icon-wrapper bg-info-subtle text-info">👥</span>
+                    <span class="badge bg-info-subtle text-info rounded-pill px-2.5 py-1 fs-8">Temsilciler</span>
+                </div>
+                <div class="stat-title text-muted fs-7">Kayıtlı İletişim Kişilerimiz</div>
+                <h3 class="fw-bold text-dark mb-1">@kisiSayisi <span class="fs-6 text-muted fw-normal">Kişi</span></h3>
+                <div class="text-secondary fs-8 mt-auto">Firmanız adına işlem yapabilecek kişiler</div>
+                <a href="/#Kisi_ListView" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card stat-card border-0 shadow-sm rounded-4 p-3 h-100 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="stat-icon-wrapper bg-warning-subtle text-warning">📝</span>
+                    <span class="badge bg-warning-subtle text-warning rounded-pill px-2.5 py-1 fs-8">Bilgilendirmeler</span>
+                </div>
+                <div class="stat-title text-muted fs-7">Sistem Notları & Belgeler</div>
+                <h3 class="fw-bold text-dark mb-1">@notSayisi <span class="fs-6 text-muted fw-normal">Not</span></h3>
+                <div class="text-secondary fs-8 mt-auto">Firmanız için paylaşılan not ve ekler</div>
+                <a href="/#Not_ListView" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Action Grid -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                    <span>👥</span> İletişim Kişileri Yönetimi
+                </h5>
+                <p class="text-muted fs-6 mb-4">
+                    Şirketinizde satın alma, muhasebe veya operasyon süreçlerini yürüten kişileri sisteme kaydedebilir, güncelleyebilir veya silebilirsiniz.
+                </p>
+                <div class="mt-auto d-flex gap-2">
+                    <a href="/#Kisi_ListView" class="btn btn-primary rounded-3 px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2">
+                        <span>👥</span> Kişilerimi Yönet
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                    <span>🏢</span> Şirket Profil Bilgileri
+                </h5>
+                <p class="text-muted fs-6 mb-3">
+                    Firmanızın adres, telefon ve kurumsal bilgilerini güncel tutarak iletişimin aksamamasını sağlayın.
+                </p>
+                <div class="bg-light p-3 rounded-3 mb-3 fs-7">
+                    <div class="mb-1"><strong>Firma:</strong> @customerName</div>
+                    <div class="mb-1"><strong>Telefon:</strong> @(string.IsNullOrWhiteSpace(customerPhone) ? "-" : customerPhone)</div>
+                    <div><strong>Adres:</strong> @(string.IsNullOrWhiteSpace(customerAddress) ? "-" : customerAddress)</div>
+                </div>
+                <div class="mt-auto">
+                    <a href="/#Musteri_ListView" class="btn btn-outline-primary rounded-3 px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2">
+                        <span>✏️</span> Bilgilerimi Düzenle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .customer-hero-card {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        border-radius: 20px;
+        padding: 28px 32px;
+        box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.3);
+    }
+
+    .portal-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.18);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        backdrop-filter: blur(4px);
+    }
+
+    .stat-icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .stat-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .fs-7 { font-size: 0.875rem; }
+    .fs-8 { font-size: 0.775rem; }
+</style>
+
+@code {
+    private string customerName = "Müşterimiz";
+    private string customerPhone = "";
+    private string customerAddress = "";
+    private int kisiSayisi = 0;
+    private int notSayisi = 0;
+
+    private string currentUserName = "";
+    private string DisplayUserName => string.IsNullOrWhiteSpace(currentUserName) ? "Müşteri" : currentUserName;
+
+    private string GreetingText => DateTime.Now.Hour switch
+    {
+        >= 5 and < 12 => "Günaydın",
+        >= 12 and < 18 => "İyi Günler",
+        _ => "İyi Akşamlar"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            currentUserName = authState.User?.Identity?.Name ?? "";
+        }
+        catch { }
+
+        RefreshData();
+    }
+
+    private void RefreshData()
+    {
+        try
+        {
+            using var objectSpace = ObjectSpaceFactory.CreateObjectSpace(typeof(ApplicationUser));
+            
+            ApplicationUser? appUser = null;
+            if (!string.IsNullOrEmpty(currentUserName))
+            {
+                appUser = objectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == currentUserName);
+            }
+
+            if (appUser?.Musteri != null)
+            {
+                var musteri = appUser.Musteri;
+                customerName = musteri.Ad ?? "Müşterimiz";
+                customerPhone = musteri.Telefon ?? "";
+                customerAddress = musteri.Adres ?? "";
+
+                kisiSayisi = objectSpace.GetObjectsCount(typeof(Kisi), DevExpress.Data.Filtering.CriteriaOperator.Parse("[Musteri.Oid] = ?", musteri.Oid));
+                notSayisi = objectSpace.GetObjectsCount(typeof(Not), DevExpress.Data.Filtering.CriteriaOperator.Parse("[Musteri.Oid] = ?", musteri.Oid));
+                return;
+            }
+
+            var currentMusteri = objectSpace.GetObjects<Musteri>().FirstOrDefault();
+            if (currentMusteri != null)
+            {
+                customerName = currentMusteri.Ad ?? "Müşterimiz";
+                customerPhone = currentMusteri.Telefon ?? "";
+                customerAddress = currentMusteri.Adres ?? "";
+                kisiSayisi = objectSpace.GetObjectsCount(typeof(Kisi), DevExpress.Data.Filtering.CriteriaOperator.Parse("[Musteri.Oid] = ?", currentMusteri.Oid));
+                notSayisi = objectSpace.GetObjectsCount(typeof(Not), DevExpress.Data.Filtering.CriteriaOperator.Parse("[Musteri.Oid] = ?", currentMusteri.Oid));
+            }
+            else
+            {
+                kisiSayisi = objectSpace.GetObjectsCount(typeof(Kisi), null);
+                notSayisi = objectSpace.GetObjectsCount(typeof(Not), null);
+            }
+        }
+        catch { }
+    }
+}

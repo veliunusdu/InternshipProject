@@ -18,6 +18,16 @@ namespace Project1.Core.Services.Interfaces
     );
 
     /// <summary>
+    /// Müşteri e-posta aktivasyon bildirimi için parametre nesnesi.
+    /// </summary>
+    public record SendEmailConfirmationRequest(
+        string ToEmail,
+        string CustomerName,
+        string ConfirmationUrl,
+        DateTime ExpiryDate
+    );
+
+    /// <summary>
     /// E-posta bildirim sonucu nesnesi.
     /// </summary>
     public record EmailResult(bool Success, string? ErrorMessage);
@@ -32,6 +42,13 @@ namespace Project1.Core.Services.Interfaces
         /// </summary>
         Task<EmailResult> SendNoteNotificationEmailAsync(
             SendNoteNotificationRequest request,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Asenkron olarak yeni müşteri hesap aktivasyon e-postası gönderir.
+        /// </summary>
+        Task<EmailResult> SendConfirmationEmailAsync(
+            SendEmailConfirmationRequest request,
             CancellationToken cancellationToken = default);
     }
 }

@@ -13,6 +13,10 @@
 {
     <AdminDashboard />
 }
+else if (IsCustomerUser)
+{
+    <CustomerDashboard />
+}
 else
 {
     <div class="dashboard-container p-3 p-md-4">
@@ -101,8 +105,12 @@ else
 
     private string currentUserName = "";
     private bool currentPrincipalIsAdmin;
+    private bool currentPrincipalIsCustomer;
     private bool IsAdminUser => currentPrincipalIsAdmin ||
                                 string.Equals(currentUserName, SecurityConstants.AdministratorUserName, StringComparison.OrdinalIgnoreCase);
+    private bool IsCustomerUser => currentPrincipalIsCustomer ||
+                                  string.Equals(currentUserName, SecurityConstants.DefaultCustomerUserName, StringComparison.OrdinalIgnoreCase);
+
     private string DisplayUserName => string.IsNullOrWhiteSpace(currentUserName)
         ? "Kullanıcı"
         : currentUserName;
@@ -121,6 +129,17 @@ else
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             currentUserName = authState.User?.Identity?.Name ?? "";
             currentPrincipalIsAdmin = authState.User?.IsInRole(SecurityConstants.AdministratorRoleName) == true;
+            currentPrincipalIsCustomer = authState.User?.IsInRole(SecurityConstants.CustomerRoleName) == true;
+
+            if (!currentPrincipalIsAdmin && !currentPrincipalIsCustomer && !string.IsNullOrEmpty(currentUserName))
+            {
+                using var os = ObjectSpaceFactory.CreateObjectSpace(typeof(ApplicationUser));
+                var user = os.FirstOrDefault<ApplicationUser>(u => u.UserName == currentUserName);
+                if (user?.Musteri != null || user?.Roles.Any(r => r.Name == SecurityConstants.CustomerRoleName) == true)
+                {
+                    currentPrincipalIsCustomer = true;
+                }
+            }
         }
         catch
         {

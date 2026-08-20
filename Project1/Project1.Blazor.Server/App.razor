@@ -7,8 +7,15 @@
     </Found>
     <NotFound>
         <LayoutView>
-            <PageTitle>Sayfa bulunamadı</PageTitle>
-            <p role="alert">Sorry, there's nothing at this address.</p>
+            <PageTitle>Sayfa Bulunamadı</PageTitle>
+            <div class="d-flex flex-column align-items-center justify-content-center min-vh-100 p-4 text-center bg-light">
+                <div class="card p-4 shadow-sm border-0 rounded-4" style="max-width: 450px;">
+                    <div style="font-size: 48px;" class="mb-2">🧭</div>
+                    <h3 class="fw-bold text-dark mb-2">Sayfa Bulunamadı</h3>
+                    <p class="text-secondary mb-4 fs-6">Aradığınız sayfa bulunamadı veya bağlantı adresi değişmiş olabilir.</p>
+                    <a href="/LoginPage" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold">🏠 Giriş Ekranına Dön</a>
+                </div>
+            </div>
         </LayoutView>
     </NotFound>
 </Router>

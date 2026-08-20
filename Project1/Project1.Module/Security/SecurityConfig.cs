@@ -17,9 +17,11 @@ namespace Project1.Module.Security
     {
         public const string AdministratorRoleName = "Administrators";
         public const string StandardUserRoleName = "Standard User";
+        public const string CustomerRoleName = "Customer";
 
         public const string AdministratorUserName = "Admin";
         public const string StandardUserName = "User";
+        public const string DefaultCustomerUserName = "customer_acme";
 
         public const string AdminInitialPasswordConfigurationKey = "InitialUsers:AdminPassword";
         public const string UserInitialPasswordConfigurationKey = "InitialUsers:UserPassword";
@@ -71,6 +73,7 @@ namespace Project1.Module.Security
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
 
             role.SetTypePermission<PermissionPolicyUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.SetTypePermission<ApplicationUser>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
 
             role.AddNavigationPermission(
                 "Application/NavigationItems/Items/Default/Items/AdminDashboard_View",
@@ -110,6 +113,9 @@ namespace Project1.Module.Security
             GrantWorkAccess<FileData>(role);
             GrantWorkAccess<AuditLog>(role);
 
+            role.SetTypePermission<PermissionPolicyUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.SetTypePermission<ApplicationUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
+
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.Create, SecurityPermissionState.Deny);
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.Write, SecurityPermissionState.Deny);
@@ -133,6 +139,68 @@ namespace Project1.Module.Security
             where T : class
         {
             role.SetTypePermission<T>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+        }
+    }
+
+    /// <summary>
+    /// Müşteri rolünün kendi şirketine ait kayıtlar üzerindeki satır seviyesi (Row-Level) izinlerini tanımlar.
+    /// </summary>
+    public static class CustomerRoleConfigurator
+    {
+        public static void Configure(PermissionPolicyRole role)
+        {
+            role.IsAdministrative = false;
+            role.CanEditModel = false;
+            role.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
+
+            // 1. Müşteri İzni: Tip seviyesinde izin verip nesne kriteri ile kendi firmasına kısıtla
+            role.SetTypePermission<Musteri>(SecurityOperations.ReadWriteAccess, SecurityPermissionState.Allow);
+            role.AddObjectPermission<Musteri>(
+                SecurityOperations.ReadWriteAccess, 
+                "[<ApplicationUser>][Oid = CurrentUserId() and Musteri.Oid = ^.Oid]", 
+                SecurityPermissionState.Allow);
+
+            // 2. Kişi (İlgili Kişi) İzni: Yeni kişi oluşturabilir ve kendi firmasına bağlı kişileri tam yönetir
+            role.SetTypePermission<Kisi>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            role.AddObjectPermission<Kisi>(
+                "Read;Write;Delete;Navigate", 
+                "[<ApplicationUser>][Oid = CurrentUserId() and Musteri.Oid = ^.Musteri.Oid]", 
+                SecurityPermissionState.Allow);
+
+            // 3. Not İzni: Sadece kendi firmasına ve kişilerine açılmış notları okur
+            role.SetTypePermission<Not>(SecurityOperations.ReadOnlyAccess, SecurityPermissionState.Allow);
+            role.AddObjectPermission<Not>(
+                SecurityOperations.ReadOnlyAccess, 
+                "[<ApplicationUser>][Oid = CurrentUserId() and (Musteri.Oid = ^.Musteri.Oid or Musteri.Oid = ^.Kisi.Musteri.Oid)]", 
+                SecurityPermissionState.Allow);
+
+            // 4. Dosya Eki İzni: Kendi notlarının eklerini indirir
+            role.SetTypePermission<FileData>(SecurityOperations.ReadOnlyAccess, SecurityPermissionState.Allow);
+
+            // 5. Kullanıcı ve Güvenlik Nesnelerini Okuma İzinleri
+            role.SetTypePermission<PermissionPolicyUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.SetTypePermission<ApplicationUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyRole>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyTypePermissionObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyNavigationPermissionObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyMemberPermissionsObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyObjectPermissionsObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.SetTypePermission<UserEmailPermission>(SecurityOperations.FullAccess, SecurityPermissionState.Deny);
+            role.SetTypePermission<AuditLog>(SecurityOperations.FullAccess, SecurityPermissionState.Deny);
+
+            // 6. Navigasyon (Menü) İzinleri
+            role.AddNavigationPermission(
+                "Application/NavigationItems/Items/Default/Items/UserDashboard_View",
+                SecurityPermissionState.Allow);
+            role.AddNavigationPermission(
+                "Application/NavigationItems/Items/Default/Items/Musteri_ListView",
+                SecurityPermissionState.Allow);
+            role.AddNavigationPermission(
+                "Application/NavigationItems/Items/Default/Items/Kisi_ListView",
+                SecurityPermissionState.Allow);
+            role.AddNavigationPermission(
+                "Application/NavigationItems/Items/Default/Items/Not_ListView",
+                SecurityPermissionState.Allow);
         }
     }
 }

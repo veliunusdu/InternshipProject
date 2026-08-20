@@ -13,12 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="xunit.runner.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="DevExpress.ExpressApp" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.ConditionalAppearance" Version="26.1.4" />
     <PackageReference Include="DevExpress.ExpressApp.Security.Xpo" Version="26.1.4" />
@@ -40,9 +34,11 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-
-
   <ItemGroup>
+    <Content Include="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>  <ItemGroup>
     <ProjectReference Include="..\Project1.Core\Project1.Core.csproj" />
     <ProjectReference Include="..\Project1.DTOs\Project1.DTOs.csproj" />
     <ProjectReference Include="..\Project1.Mapping\Project1.Mapping.csproj" />

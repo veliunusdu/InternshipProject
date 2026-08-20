@@ -30,6 +30,53 @@ namespace Project1.Business.Services.Implementations
             }
         }
 
+        public async Task<EmailResult> SendConfirmationEmailAsync(
+            SendEmailConfirmationRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                string? configurationError = ValidateConfiguration();
+                if (configurationError != null)
+                {
+                    _logger?.LogWarning("E-posta yapılandırması geçersiz: {Error}", configurationError);
+                    return new EmailResult(false, configurationError);
+                }
+
+                if (string.IsNullOrWhiteSpace(request.ToEmail))
+                {
+                    _logger?.LogWarning("Aktivasyon e-posta adresi belirtilmemiş.");
+                    return new EmailResult(false, "E-posta adresi belirtilmemiş.");
+                }
+
+                _logger?.LogInformation("Müşteri aktivasyon e-postası gönderiliyor. Alıcı: {ToEmail}", request.ToEmail);
+
+                using var message = CreateConfirmationMailMessage(request);
+                using var client = CreateSmtpClient();
+
+                await client.SendMailAsync(message, cancellationToken).ConfigureAwait(false);
+                _logger?.LogInformation("Müşteri aktivasyon e-postası başarıyla gönderildi. Alıcı: {ToEmail}", request.ToEmail);
+                return new EmailResult(true, null);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger?.LogWarning("Aktivasyon e-posta gönderim işlemi iptal edildi. Alıcı: {ToEmail}", request.ToEmail);
+                return new EmailResult(false, "E-posta gönderim işlemi iptal edildi.");
+            }
+            catch (Exception exception)
+            {
+                _logger?.LogError(exception, "Aktivasyon e-postası gönderilemedi ({ToEmail})", request.ToEmail);
+                return new EmailResult(false, exception.Message);
+            }
+        }
+
         public async Task<EmailResult> SendNoteNotificationEmailAsync(
             SendNoteNotificationRequest request,
             CancellationToken cancellationToken = default)
@@ -75,6 +122,46 @@ namespace Project1.Business.Services.Implementations
                 _logger?.LogError(exception, "E-posta gönderilemedi ({ToEmail})", request.ToEmail);
                 return new EmailResult(false, exception.Message);
             }
+        }
+
+        private MailMessage CreateConfirmationMailMessage(SendEmailConfirmationRequest request)
+        {
+            string safeMusteriName = WebUtility.HtmlEncode(request.CustomerName);
+            string safeUrl = request.ConfirmationUrl;
+
+            var message = new MailMessage
+            {
+                From = new MailAddress(_settings.SenderEmail, _settings.SenderName),
+                Subject = $"[Hesap Aktivasyonu] {request.CustomerName} - Müşteri Portalı Kaydı",
+                IsBodyHtml = true,
+                Body = $@"
+                    <div style='font-family: Arial, sans-serif; padding: 24px; background-color: #f4f6f9; border-radius: 8px;'>
+                        <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
+                            <h2 style='color: #2c3e50; margin-top: 0;'>Hoş Geldiniz, {safeMusteriName}!</h2>
+                            <p style='color: #34495e; font-size: 15px; line-height: 1.6;'>
+                                Müşteri portalı kaydınız başarıyla oluşturulmuştur. Hesabınızı aktifleştirmek ve portala güvenle giriş yapabilmek için lütfen aşağıdaki butona tıklayarak e-posta adresinizi doğrulayın.
+                            </p>
+                            <div style='text-align: center; margin: 30px 0;'>
+                                <a href='{safeUrl}' target='_blank' style='background-color: #27ae60; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px; display: inline-block;'>
+                                    ✅ E-Posta Adresimi Doğrula ve Giriş Yap
+                                </a>
+                            </div>
+                            <p style='color: #7f8c8d; font-size: 13px;'>
+                                Bu doğrulama bağlantısı <strong>{request.ExpiryDate:dd.MM.yyyy HH:mm}</strong> tarihine kadar geçerlidir (24 saat).
+                            </p>
+                            <p style='color: #95a5a6; font-size: 12px; word-break: break-all;'>
+                                Buton çalışmıyorsa aşağıdaki bağlantıyı tarayıcınıza kopyalayabilirsiniz:<br/>
+                                <a href='{safeUrl}' style='color: #3498db;'>{safeUrl}</a>
+                            </p>
+                            <hr style='border: none; border-top: 1px solid #eee; margin: 24px 0;' />
+                            <p style='font-size: 12px; color: #bdc3c7; text-align: center; margin-bottom: 0;'>
+                                Bu e-posta otomatik olarak gönderilmiştir. Bu kaydı siz yapmadıysanız lütfen bu mesajı dikkate almayınız.
+                            </p>
+                        </div>
+                    </div>"
+            };
+            message.To.Add(new MailAddress(request.ToEmail, request.CustomerName));
+            return message;
         }
 
         private MailMessage CreateMailMessage(SendNoteNotificationRequest request)
