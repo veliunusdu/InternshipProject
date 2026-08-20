@@ -21,6 +21,7 @@ namespace Project1.Module.Tests.Security
     {
         private Session CreateInMemorySession()
         {
+            var typesInfoSource = XpoTypesInfoHelper.GetXpoTypeInfoSource();
             var typesInfo = XpoTypesInfoHelper.GetTypesInfo();
             typesInfo.RegisterEntity(typeof(Musteri));
             typesInfo.RegisterEntity(typeof(Kisi));

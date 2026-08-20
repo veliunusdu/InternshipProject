@@ -153,22 +153,20 @@ namespace Project1.Module.Security
             role.CanEditModel = false;
             role.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
 
-            // 1. Müşteri İzni: Tip seviyesinde izin verip nesne kriteri ile kendi firmasına kısıtla
-            role.SetTypePermission<Musteri>(SecurityOperations.ReadWriteAccess, SecurityPermissionState.Allow);
+            // 1. Müşteri İzni: Yalnızca kendi firmasını okur ve günceller (Tüm müşterileri görmesini engellemek için Type-Level izin verilmez)
             role.AddObjectPermission<Musteri>(
                 SecurityOperations.ReadWriteAccess, 
                 "[<ApplicationUser>][Oid = CurrentUserId() and Musteri.Oid = ^.Oid]", 
                 SecurityPermissionState.Allow);
 
-            // 2. Kişi (İlgili Kişi) İzni: Yeni kişi oluşturabilir ve kendi firmasına bağlı kişileri tam yönetir
-            role.SetTypePermission<Kisi>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            // 2. Kişi İzni: Yeni kişi oluşturabilir (Create), ancak yalnızca kendi firmasına bağlı kişileri yönetir/görür
+            role.SetTypePermission<Kisi>(SecurityOperations.Create, SecurityPermissionState.Allow);
             role.AddObjectPermission<Kisi>(
                 "Read;Write;Delete;Navigate", 
                 "[<ApplicationUser>][Oid = CurrentUserId() and Musteri.Oid = ^.Musteri.Oid]", 
                 SecurityPermissionState.Allow);
 
-            // 3. Not İzni: Sadece kendi firmasına ve kişilerine açılmış notları okur
-            role.SetTypePermission<Not>(SecurityOperations.ReadOnlyAccess, SecurityPermissionState.Allow);
+            // 3. Not İzni: Yalnızca kendi firmasına ve kişilerine açılmış notları okur
             role.AddObjectPermission<Not>(
                 SecurityOperations.ReadOnlyAccess, 
                 "[<ApplicationUser>][Oid = CurrentUserId() and (Musteri.Oid = ^.Musteri.Oid or Musteri.Oid = ^.Kisi.Musteri.Oid)]", 

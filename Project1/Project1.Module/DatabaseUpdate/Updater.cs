@@ -81,6 +81,14 @@ namespace Project1.Module.DatabaseUpdate
             customerUser.EmailConfirmed = true;
             customerUser.IsActive = true;
 
+            foreach (var r in customerUser.Roles.ToList())
+            {
+                if (r.Name != SecurityConstants.CustomerRoleName)
+                {
+                    customerUser.Roles.Remove(r);
+                }
+            }
+
             if (!customerUser.Roles.Contains(customerRole))
             {
                 customerUser.Roles.Add(customerRole);
