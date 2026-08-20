@@ -9,6 +9,7 @@ using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using Project1.Module.Models.Notes;
 using Project1.Module.Models.Audit;
+using Project1.Module.Models.Base;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.Editors;
 
@@ -20,82 +21,17 @@ namespace Project1.Module.Models.Customers
     [ImageName("BO_Person")]
     [XafDisplayName("Kişi")]
     [Appearance("HideMusteriInKisiPopup", TargetItems = "Musteri", Criteria = "[IsMusteriHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
-    public class Kisi : BaseObject
+    public class Kisi : AuditedBaseObject
     {
         public Kisi(Session session) : base(session)
         {
         }
 
-        public override void AfterConstruction()
-        {
-            base.AfterConstruction();
-            CreatedDate = DateTime.Now;
-        }
+        [Browsable(false)]
+        public override string EntityDisplayName => "Kişi";
 
-        protected override void OnSaving()
-        {
-            base.OnSaving();
-            if (CreatedDate == default)
-            {
-                CreatedDate = DateTime.Now;
-            }
-
-            if (!Session.IsObjectsLoading && !IsDeleted)
-            {
-                string user = GetCurrentUserName();
-                if (Session.IsNewObject(this))
-                {
-                    new AuditLog(Session)
-                    {
-                        Tarih = DateTime.Now,
-                        Kullanici = user,
-                        IslemTuru = "Oluşturuldu",
-                        VarlikTipi = "Kişi",
-                        VarlikId = Oid,
-                        Aciklama = $"'{Ad} {Soyad}' adlı kişi kaydı oluşturuldu. (Müşteri: {Musteri?.Ad ?? "-"})"
-                    };
-                }
-                else
-                {
-                    new AuditLog(Session)
-                    {
-                        Tarih = DateTime.Now,
-                        Kullanici = user,
-                        IslemTuru = "Güncellendi",
-                        VarlikTipi = "Kişi",
-                        VarlikId = Oid,
-                        Aciklama = $"'{Ad} {Soyad}' adlı kişi kaydı güncellendi."
-                    };
-                }
-            }
-        }
-
-        protected override void OnDeleting()
-        {
-            base.OnDeleting();
-            string user = GetCurrentUserName();
-            new AuditLog(Session)
-            {
-                Tarih = DateTime.Now,
-                Kullanici = user,
-                IslemTuru = "Silindi (Soft Delete)",
-                VarlikTipi = "Kişi",
-                VarlikId = Oid,
-                Aciklama = $"'{Ad} {Soyad}' adlı kişi silindi."
-            };
-        }
-
-        private static string GetCurrentUserName()
-        {
-            try
-            {
-                return SecuritySystem.CurrentUserName ?? "Sistem";
-            }
-            catch
-            {
-                return "Sistem";
-            }
-        }
+        [Browsable(false)]
+        public override string RecordTitle => AdSoyad;
 
         private string _ad;
         [XafDisplayName("Ad")]
@@ -155,16 +91,5 @@ namespace Project1.Module.Models.Customers
         [Browsable(false)]
         [NonPersistent]
         public bool IsMusteriHidden { get; set; }
-
-        private DateTime _createdDate;
-        [XafDisplayName("Oluşturma Tarihi")]
-        [VisibleInListView(true)]
-        [VisibleInDetailView(false)]
-        [ReadOnly(true)]
-        public DateTime CreatedDate
-        {
-            get => _createdDate;
-            set => SetPropertyValue(nameof(CreatedDate), ref _createdDate, value);
-        }
     }
 }

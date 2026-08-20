@@ -9,6 +9,7 @@ using DevExpress.Xpo;
 using Project1.Module.Models.Customers;
 using Project1.Core.Enums;
 using Project1.Module.Models.Audit;
+using Project1.Module.Models.Base;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Model;
@@ -22,82 +23,17 @@ namespace Project1.Module.Models.Notes
     [XafDisplayName("Not")]
     [Appearance("HideMusteriInPopup", TargetItems = "Musteri", Criteria = "[IsMusteriHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
     [Appearance("HideKisiInPopup", TargetItems = "Kisi", Criteria = "[IsKisiHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
-    public class Not : BaseObject
+    public class Not : AuditedBaseObject
     {
         public Not(Session session) : base(session)
         {
         }
 
-        public override void AfterConstruction()
-        {
-            base.AfterConstruction();
-            CreatedDate = DateTime.Now;
-        }
+        [Browsable(false)]
+        public override string EntityDisplayName => "Not";
 
-        protected override void OnSaving()
-        {
-            base.OnSaving();
-            if (CreatedDate == default)
-            {
-                CreatedDate = DateTime.Now;
-            }
-
-            if (!Session.IsObjectsLoading && !IsDeleted)
-            {
-                string user = GetCurrentUserName();
-                if (Session.IsNewObject(this))
-                {
-                    new AuditLog(Session)
-                    {
-                        Tarih = DateTime.Now,
-                        Kullanici = user,
-                        IslemTuru = "Oluşturuldu",
-                        VarlikTipi = "Not",
-                        VarlikId = Oid,
-                        Aciklama = $"'{Baslik}' başlıklı yeni not oluşturuldu. (Müşteri: {Musteri?.Ad ?? "-"})"
-                    };
-                }
-                else
-                {
-                    new AuditLog(Session)
-                    {
-                        Tarih = DateTime.Now,
-                        Kullanici = user,
-                        IslemTuru = "Güncellendi",
-                        VarlikTipi = "Not",
-                        VarlikId = Oid,
-                        Aciklama = $"'{Baslik}' başlıklı not güncellendi."
-                    };
-                }
-            }
-        }
-
-        protected override void OnDeleting()
-        {
-            base.OnDeleting();
-            string user = GetCurrentUserName();
-            new AuditLog(Session)
-            {
-                Tarih = DateTime.Now,
-                Kullanici = user,
-                IslemTuru = "Silindi (Soft Delete)",
-                VarlikTipi = "Not",
-                VarlikId = Oid,
-                Aciklama = $"'{Baslik}' başlıklı not silindi."
-            };
-        }
-
-        private static string GetCurrentUserName()
-        {
-            try
-            {
-                return SecuritySystem.CurrentUserName ?? "Sistem";
-            }
-            catch
-            {
-                return "Sistem";
-            }
-        }
+        [Browsable(false)]
+        public override string RecordTitle => Baslik ?? "-";
 
         private string _baslik;
         [XafDisplayName("Not Başlığı")]
@@ -310,19 +246,6 @@ namespace Project1.Module.Models.Notes
                 ".svg" => "image/svg+xml",
                 _ => "application/octet-stream"
             };
-        }
-
-        private DateTime _createdDate;
-        [XafDisplayName("Oluşturma Tarihi")]
-        [ModelDefault("DisplayFormat", "{0:dd.MM.yyyy HH:mm}")]
-        [ModelDefault("EditMask", "dd.MM.yyyy HH:mm")]
-        [VisibleInListView(true)]
-        [VisibleInDetailView(false)]
-        [ReadOnly(true)]
-        public DateTime CreatedDate
-        {
-            get => _createdDate;
-            set => SetPropertyValue(nameof(CreatedDate), ref _createdDate, value);
         }
     }
 }

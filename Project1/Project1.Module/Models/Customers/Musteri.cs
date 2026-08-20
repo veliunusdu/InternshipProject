@@ -9,6 +9,7 @@ using DevExpress.Persistent.Validation;
 using DevExpress.Xpo;
 using Project1.Module.Models.Notes;
 using Project1.Module.Models.Audit;
+using Project1.Module.Models.Base;
 
 namespace Project1.Module.Models.Customers
 {
@@ -17,82 +18,17 @@ namespace Project1.Module.Models.Customers
     [DeferredDeletion(true)]
     [ImageName("BO_Customer")]
     [XafDisplayName("Müşteri")]
-    public class Musteri : BaseObject
+    public class Musteri : AuditedBaseObject
     {
         public Musteri(Session session) : base(session)
         {
         }
 
-        public override void AfterConstruction()
-        {
-            base.AfterConstruction();
-            CreatedDate = DateTime.Now;
-        }
+        [Browsable(false)]
+        public override string EntityDisplayName => "Müşteri";
 
-        protected override void OnSaving()
-        {
-            base.OnSaving();
-            if (CreatedDate == default)
-            {
-                CreatedDate = DateTime.Now;
-            }
-
-            if (!Session.IsObjectsLoading && !IsDeleted)
-            {
-                string user = GetCurrentUserName();
-                if (Session.IsNewObject(this))
-                {
-                    new AuditLog(Session)
-                    {
-                        Tarih = DateTime.Now,
-                        Kullanici = user,
-                        IslemTuru = "Oluşturuldu",
-                        VarlikTipi = "Müşteri",
-                        VarlikId = Oid,
-                        Aciklama = $"'{Ad}' adlı müşteri kaydı oluşturuldu."
-                    };
-                }
-                else
-                {
-                    new AuditLog(Session)
-                    {
-                        Tarih = DateTime.Now,
-                        Kullanici = user,
-                        IslemTuru = "Güncellendi",
-                        VarlikTipi = "Müşteri",
-                        VarlikId = Oid,
-                        Aciklama = $"'{Ad}' adlı müşteri kaydı güncellendi."
-                    };
-                }
-            }
-        }
-
-        protected override void OnDeleting()
-        {
-            base.OnDeleting();
-            string user = GetCurrentUserName();
-            new AuditLog(Session)
-            {
-                Tarih = DateTime.Now,
-                Kullanici = user,
-                IslemTuru = "Silindi (Soft Delete)",
-                VarlikTipi = "Müşteri",
-                VarlikId = Oid,
-                Aciklama = $"'{Ad}' adlı müşteri silindi."
-            };
-        }
-
-        private static string GetCurrentUserName()
-        {
-            try
-            {
-                return SecuritySystem.CurrentUserName ?? "Sistem";
-            }
-            catch
-            {
-                return "Sistem";
-            }
-        }
+        [Browsable(false)]
+        public override string RecordTitle => Ad ?? "-";
 
         private string _ad;
         [XafDisplayName("Müşteri Adı")]
@@ -118,17 +54,6 @@ namespace Project1.Module.Models.Customers
         {
             get => _adres;
             set => SetPropertyValue(nameof(Adres), ref _adres, value);
-        }
-
-        private DateTime _createdDate;
-        [XafDisplayName("Oluşturma Tarihi")]
-        [VisibleInListView(true)]
-        [VisibleInDetailView(false)]
-        [ReadOnly(true)]
-        public DateTime CreatedDate
-        {
-            get => _createdDate;
-            set => SetPropertyValue(nameof(CreatedDate), ref _createdDate, value);
         }
 
         [Association("Musteri-Kisiler")]
