@@ -12,12 +12,16 @@ namespace Project1.Module
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Validation.ValidationModule));
             RequiredModuleTypes.Add(typeof(DevExpress.ExpressApp.Security.SecurityModule));
             Security.CurrentCustomerOidOperator.Register();
+            Security.CurrentFirmaOidOperator.Register();
+            Security.CurrentUserFirmaOperator.Register();
         }
 
         public override void CustomizeTypesInfo(DevExpress.ExpressApp.DC.ITypesInfo typesInfo)
         {
             base.CustomizeTypesInfo(typesInfo);
             Security.CurrentCustomerOidOperator.Register();
+            Security.CurrentFirmaOidOperator.Register();
+            Security.CurrentUserFirmaOperator.Register();
         }
 
         public override IEnumerable<ModuleUpdater> GetModuleUpdaters(IObjectSpace objectSpace, Version versionFromDB)

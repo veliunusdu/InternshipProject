@@ -7,6 +7,7 @@ using DevExpress.ExpressApp.Security;
 using DevExpress.Persistent.BaseImpl.PermissionPolicy;
 using DevExpress.Xpo;
 using Project1.Module.Models.Customers;
+using Project1.Module.Models.Tenants;
 
 namespace Project1.Module.BusinessObjects.Security
 {
@@ -23,6 +24,15 @@ namespace Project1.Module.BusinessObjects.Security
         {
             get => _canSendEmailOnNoteCreation;
             set => SetPropertyValue(nameof(CanSendEmailOnNoteCreation), ref _canSendEmailOnNoteCreation, value);
+        }
+
+        private Firma _firma;
+        [XafDisplayName("Firma")]
+        [Association("Firma-Kullanicilar"), ExplicitLoading]
+        public Firma Firma
+        {
+            get => _firma;
+            set => SetPropertyValue(nameof(Firma), ref _firma, value);
         }
 
         private Musteri _musteri;

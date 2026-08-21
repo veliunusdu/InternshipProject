@@ -13,6 +13,9 @@ using Project1.Module.Models.Base;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.Editors;
 using DevExpress.ExpressApp.Model;
+using Project1.Module.BusinessObjects;
+using Project1.Module.BusinessObjects.Security;
+using Project1.Module.Models.Tenants;
 
 namespace Project1.Module.Models.Notes
 {
@@ -23,10 +26,33 @@ namespace Project1.Module.Models.Notes
     [XafDisplayName("Not")]
     [Appearance("HideMusteriInPopup", TargetItems = "Musteri", Criteria = "[IsMusteriHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
     [Appearance("HideKisiInPopup", TargetItems = "Kisi", Criteria = "[IsKisiHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
-    public class Not : AuditedBaseObject
+    public class Not : AuditedBaseObject, IFirmaAware
     {
         public Not(Session session) : base(session)
         {
+        }
+
+        public override void AfterConstruction()
+        {
+            base.AfterConstruction();
+            try
+            {
+                if (SecuritySystem.CurrentUser is ApplicationUser appUser)
+                {
+                    if (appUser.Musteri != null && Musteri == null)
+                    {
+                        Musteri = Session.GetObjectByKey<Musteri>(appUser.Musteri.Oid);
+                    }
+                    if (appUser.Firma != null && Firma == null)
+                    {
+                        Firma = Session.GetObjectByKey<Firma>(appUser.Firma.Oid);
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback for non-security initialization
+            }
         }
 
         [Browsable(false)]
@@ -34,6 +60,15 @@ namespace Project1.Module.Models.Notes
 
         [Browsable(false)]
         public override string RecordTitle => Baslik ?? "-";
+
+        private Firma _firma;
+        [XafDisplayName("Firma")]
+        [Association("Firma-Notlar"), ExplicitLoading]
+        public Firma Firma
+        {
+            get => _firma;
+            set => SetPropertyValue(nameof(Firma), ref _firma, value);
+        }
 
         private string _baslik;
         [XafDisplayName("Not Başlığı")]

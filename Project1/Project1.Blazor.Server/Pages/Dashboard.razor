@@ -24,7 +24,7 @@ else
             <div>
                 <div class="role-chip mb-3">Kullanıcı Çalışma Alanı</div>
                 <h3 class="fw-bold text-dark mb-1">@GreetingText, @DisplayUserName</h3>
-                <p class="text-secondary mb-0 fs-6">Müşteri, kişi ve not operasyonlarını buradan yönetebilirsin.</p>
+                <p class="text-secondary mb-0 fs-6">Kişi ve not operasyonlarını buradan yönetebilirsin.</p>
             </div>
             <div class="d-flex align-items-center gap-3 mt-3 mt-md-0">
                 <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill font-monospace fs-7">
@@ -37,28 +37,22 @@ else
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-12 col-md-4">
-                <StatCard Title="Müşteriler" Value="@musteriSayisi.ToString()" Subtitle="Kayıtlı Müşteri Sayısı" Icon="🏢" NavigationUrl="/#Musteri_ListView" />
-            </div>
-            <div class="col-12 col-md-4">
-                <StatCard Title="Notlar" Value="@notSayisi.ToString()" Subtitle="Sistemdeki Not Kayıtları" Icon="📝" NavigationUrl="/#Not_ListView" />
-            </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
                 <StatCard Title="İletişim Kişileri" Value="@kisiSayisi.ToString()" Subtitle="Kayıtlı Temsilciler" Icon="👥" NavigationUrl="/#Kisi_ListView" />
+            </div>
+            <div class="col-12 col-md-6">
+                <StatCard Title="Notlar" Value="@notSayisi.ToString()" Subtitle="Sistemdeki Not Kayıtları" Icon="📝" NavigationUrl="/#Not_ListView" />
             </div>
         </div>
 
         <div class="card border p-4 rounded-3 bg-white shadow-xs mb-4">
             <h6 class="fw-bold text-uppercase text-secondary fs-7 font-monospace mb-3">Önerilen İş Akışı</h6>
             <div class="row g-3">
-                <div class="col-12 col-md-4">
-                    <div class="workflow-step"><span>1</span><div><strong>Müşteri oluştur</strong><small>Temel firma veya müşteri bilgilerini kaydet.</small></div></div>
+                <div class="col-12 col-md-6">
+                    <div class="workflow-step"><span>1</span><div><strong>Kişi ekle</strong><small>Firmanıza bağlı iletişim kişilerini tanımlayın.</small></div></div>
                 </div>
-                <div class="col-12 col-md-4">
-                    <div class="workflow-step"><span>2</span><div><strong>Kişi ekle</strong><small>Müşteriye bağlı iletişim kişisini tanımla.</small></div></div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="workflow-step"><span>3</span><div><strong>Not oluştur</strong><small>İlgili kişi için görüşme veya işlem notu ekle.</small></div></div>
+                <div class="col-12 col-md-6">
+                    <div class="workflow-step"><span>2</span><div><strong>Not oluştur</strong><small>İlgili kişi için görüşme veya işlem notu ekleyin.</small></div></div>
                 </div>
             </div>
         </div>
@@ -66,29 +60,20 @@ else
         <div class="card border p-4 rounded-3 bg-white shadow-xs">
             <h6 class="fw-bold text-uppercase text-secondary fs-7 font-monospace mb-3">Hızlı Erişim</h6>
             <div class="row g-3">
-                <div class="col-12 col-md-4">
-                    <a href="/#Musteri_ListView" class="modern-tile">
-                        <div class="fs-4 me-3">🏢</div>
-                        <div>
-                            <div class="fw-semibold text-dark">Müşteri Yönetimi</div>
-                            <small class="text-muted">Listele, ekle ve düzenle</small>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-12 col-md-4">
-                    <a href="/#Not_ListView" class="modern-tile">
-                        <div class="fs-4 me-3">📝</div>
-                        <div>
-                            <div class="fw-semibold text-dark">Not Yönetimi</div>
-                            <small class="text-muted">Listele, ekle ve düzenle</small>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-6">
                     <a href="/#Kisi_ListView" class="modern-tile">
                         <div class="fs-4 me-3">👥</div>
                         <div>
                             <div class="fw-semibold text-dark">İletişim Kişileri</div>
+                            <small class="text-muted">Listele, ekle ve düzenle</small>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-12 col-md-6">
+                    <a href="/#Not_ListView" class="modern-tile">
+                        <div class="fs-4 me-3">📝</div>
+                        <div>
+                            <div class="fw-semibold text-dark">Not Yönetimi</div>
                             <small class="text-muted">Listele, ekle ve düzenle</small>
                         </div>
                     </a>
@@ -99,7 +84,6 @@ else
 }
 
 @code {
-    private int musteriSayisi = 0;
     private int notSayisi = 0;
     private int kisiSayisi = 0;
 
@@ -151,8 +135,7 @@ else
     {
         try
         {
-            using var objectSpace = ObjectSpaceFactory.CreateObjectSpace(typeof(Musteri));
-            musteriSayisi = objectSpace.GetObjectsCount(typeof(Musteri), null);
+            using var objectSpace = ObjectSpaceFactory.CreateObjectSpace(typeof(Kisi));
             notSayisi = objectSpace.GetObjectsCount(typeof(Not), null);
             kisiSayisi = objectSpace.GetObjectsCount(typeof(Kisi), null);
         }

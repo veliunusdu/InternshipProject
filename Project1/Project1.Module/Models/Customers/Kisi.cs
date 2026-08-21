@@ -12,6 +12,9 @@ using Project1.Module.Models.Audit;
 using Project1.Module.Models.Base;
 using DevExpress.ExpressApp.ConditionalAppearance;
 using DevExpress.ExpressApp.Editors;
+using Project1.Module.BusinessObjects;
+using Project1.Module.BusinessObjects.Security;
+using Project1.Module.Models.Tenants;
 
 namespace Project1.Module.Models.Customers
 {
@@ -21,10 +24,33 @@ namespace Project1.Module.Models.Customers
     [ImageName("BO_Person")]
     [XafDisplayName("Kişi")]
     [Appearance("HideMusteriInKisiPopup", TargetItems = "Musteri", Criteria = "[IsMusteriHidden] = True", Context = "DetailView", Visibility = ViewItemVisibility.Hide)]
-    public class Kisi : AuditedBaseObject
+    public class Kisi : AuditedBaseObject, IFirmaAware
     {
         public Kisi(Session session) : base(session)
         {
+        }
+
+        public override void AfterConstruction()
+        {
+            base.AfterConstruction();
+            try
+            {
+                if (SecuritySystem.CurrentUser is ApplicationUser appUser)
+                {
+                    if (appUser.Musteri != null && Musteri == null)
+                    {
+                        Musteri = Session.GetObjectByKey<Musteri>(appUser.Musteri.Oid);
+                    }
+                    if (appUser.Firma != null && Firma == null)
+                    {
+                        Firma = Session.GetObjectByKey<Firma>(appUser.Firma.Oid);
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback for non-security initialization
+            }
         }
 
         [Browsable(false)]
@@ -32,6 +58,15 @@ namespace Project1.Module.Models.Customers
 
         [Browsable(false)]
         public override string RecordTitle => AdSoyad;
+
+        private Firma _firma;
+        [XafDisplayName("Firma")]
+        [Association("Firma-Kisiler"), ExplicitLoading]
+        public Firma Firma
+        {
+            get => _firma;
+            set => SetPropertyValue(nameof(Firma), ref _firma, value);
+        }
 
         private string _ad;
         [XafDisplayName("Ad")]

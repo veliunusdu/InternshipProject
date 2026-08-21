@@ -31,8 +31,17 @@ namespace Project1.Win
                 })
                 .Add<Project1.Module.Project1Module>()
                 .Add<Project1WinModule>();
+
+            builder.Security
+                .UseIntegratedMode(options =>
+                {
+                    options.RoleType = typeof(DevExpress.Persistent.BaseImpl.PermissionPolicy.PermissionPolicyRole);
+                    options.UserType = typeof(Project1.Module.BusinessObjects.Security.ApplicationUser);
+                })
+                .AddPasswordAuthentication();
+
             builder.ObjectSpaceProviders
-                .AddXpo((application, options) =>
+                .AddSecuredXpo((application, options) =>
                 {
                     options.ConnectionString = connectionString;
                     options.ThreadSafe = true;

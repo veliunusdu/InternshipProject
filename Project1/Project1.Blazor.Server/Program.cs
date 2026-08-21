@@ -30,6 +30,7 @@ namespace Project1.Blazor.Server
             }
             else
             {
+                Project1.Module.Security.CurrentUserFirmaOperator.Register();
                 DevExpress.ExpressApp.Blazor.Editors.LookupPropertyEditor.DefaultUseViewMode = true;
                 DevExpress.ExpressApp.FrameworkSettings.DefaultSettingsCompatibilityMode = DevExpress.ExpressApp.FrameworkSettingsCompatibilityMode.Latest;
                 IHost host = CreateHostBuilder(args).Build();

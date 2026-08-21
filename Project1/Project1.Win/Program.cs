@@ -38,6 +38,7 @@ namespace Project1.Win
                 Console.WriteLine($"            2 - {DBUpdaterStatus.UpdateNotNeeded}");
                 return 0;
             }
+            Project1.Module.Security.CurrentUserFirmaOperator.Register();
             DevExpress.ExpressApp.FrameworkSettings.DefaultSettingsCompatibilityMode = DevExpress.ExpressApp.FrameworkSettingsCompatibilityMode.Latest;
             WindowsFormsSettings.LoadApplicationSettings();
             Application.EnableVisualStyles();

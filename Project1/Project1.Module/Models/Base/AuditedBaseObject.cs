@@ -7,6 +7,9 @@ using DevExpress.Persistent.Base;
 using DevExpress.Persistent.BaseImpl;
 using DevExpress.Xpo;
 using Project1.Module.Models.Audit;
+using Project1.Module.BusinessObjects;
+using Project1.Module.BusinessObjects.Security;
+using Project1.Module.Models.Tenants;
 
 namespace Project1.Module.Models.Base
 {
@@ -38,6 +41,7 @@ namespace Project1.Module.Models.Base
         {
             base.AfterConstruction();
             CreatedDate = DateTime.Now;
+            AssignCurrentFirma();
         }
 
         protected override void OnSaving()
@@ -47,6 +51,8 @@ namespace Project1.Module.Models.Base
             {
                 CreatedDate = DateTime.Now;
             }
+
+            AssignCurrentFirma();
 
             if (!Session.IsObjectsLoading && !IsDeleted)
             {
@@ -90,6 +96,24 @@ namespace Project1.Module.Models.Base
             catch
             {
                 return "Sistem";
+            }
+        }
+
+        protected virtual void AssignCurrentFirma()
+        {
+            try
+            {
+                if (this is IFirmaAware firmaAware && firmaAware.Firma == null)
+                {
+                    if (SecuritySystem.CurrentUser is ApplicationUser appUser && appUser.Firma != null)
+                    {
+                        firmaAware.Firma = Session.GetObjectByKey<Firma>(appUser.Firma.Oid);
+                    }
+                }
+            }
+            catch
+            {
+                // Güvenlik nesnesi henüz yüklenmediyse veya session bağlamı dışındaysa yutulur
             }
         }
     }

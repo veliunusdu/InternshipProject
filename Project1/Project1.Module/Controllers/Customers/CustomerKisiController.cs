@@ -23,6 +23,14 @@ namespace Project1.Module.Controllers.Customers
             {
                 newObjectViewController.ObjectCreated += NewObjectViewController_ObjectCreated;
             }
+
+            View.ObjectSpace.Committing += ObjectSpace_Committing;
+            AssignCurrentUserMusteri(View.CurrentObject as Kisi);
+        }
+
+        private void ObjectSpace_Committing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            AssignCurrentUserMusteri(View.CurrentObject as Kisi);
         }
 
         protected override void OnDeactivated()
@@ -33,6 +41,7 @@ namespace Project1.Module.Controllers.Customers
                 newObjectViewController = null;
             }
 
+            View.ObjectSpace.Committing -= ObjectSpace_Committing;
             base.OnDeactivated();
         }
 
@@ -40,27 +49,38 @@ namespace Project1.Module.Controllers.Customers
         {
             if (e.CreatedObject is Kisi kisi)
             {
-                ApplicationUser? currentUser = Application?.Security?.User as ApplicationUser;
-                if (currentUser == null && Application?.Security?.UserId is Guid userGuid)
-                {
-                    currentUser = e.ObjectSpace.GetObjectByKey<ApplicationUser>(userGuid);
-                }
+                AssignCurrentUserMusteri(kisi);
+            }
+        }
 
-                if (currentUser == null && !string.IsNullOrEmpty(Application?.Security?.UserName))
-                {
-                    currentUser = e.ObjectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == Application.Security.UserName);
-                }
+        private void AssignCurrentUserMusteri(Kisi kisi)
+        {
+            if (kisi == null) return;
 
-                if (currentUser == null && SecuritySystem.CurrentUser is ApplicationUser su)
-                {
-                    currentUser = su;
-                }
+            ApplicationUser currentUser = Application?.Security?.User as ApplicationUser;
+            if (currentUser == null && Application?.Security?.UserId is Guid userGuid)
+            {
+                currentUser = View.ObjectSpace.GetObjectByKey<ApplicationUser>(userGuid);
+            }
 
-                if (currentUser?.Musteri != null)
-                {
-                    // Giriş yapan müşterinin şirketini yeni kişiye otomatik ata
-                    kisi.Musteri = e.ObjectSpace.GetObject(currentUser.Musteri);
-                }
+            if (currentUser == null && !string.IsNullOrEmpty(Application?.Security?.UserName))
+            {
+                currentUser = View.ObjectSpace.FirstOrDefault<ApplicationUser>(u => u.UserName == Application.Security.UserName);
+            }
+
+            if (currentUser == null && SecuritySystem.CurrentUser is ApplicationUser su)
+            {
+                currentUser = su;
+            }
+
+            if (currentUser?.Musteri != null && kisi.Musteri == null)
+            {
+                kisi.Musteri = View.ObjectSpace.GetObjectByKey<Musteri>(currentUser.Musteri.Oid);
+            }
+
+            if (currentUser?.Firma != null && kisi.Firma == null)
+            {
+                kisi.Firma = View.ObjectSpace.GetObjectByKey<Project1.Module.Models.Tenants.Firma>(currentUser.Firma.Oid);
             }
         }
     }

@@ -41,11 +41,13 @@ namespace Project1.Module.Controllers.Navigation
                 {
                     if (!isAdmin)
                     {
-                        // Standart kullanıcı: Yönetici paneli, Yönetim grubu ve yetki sayfalarını gizle
+                        // Standart / Firma kullanıcısı: Yönetici paneli, Yönetim grubu ve Müşteriler menüsünü tamamen kaldır
                         RemoveItem(defaultGroup, "AdminDashboard_View");
                         RemoveItem(defaultGroup, "Yonetim");
                         RemoveItem(defaultGroup, "Role");
                         RemoveItem(defaultGroup, "User");
+                        RemoveItem(defaultGroup, "Firma_ListView");
+                        RemoveItem(defaultGroup, "Musteri_ListView");
                     }
                     else
                     {

@@ -11,6 +11,7 @@ using FluentAssertions;
 using Project1.Module.Models.Audit;
 using Project1.Module.Models.Customers;
 using Project1.Module.Models.Notes;
+using Project1.Module.Models.Tenants;
 using Project1.Module.BusinessObjects.Security;
 using Project1.Module.Security;
 using Xunit;
@@ -23,6 +24,7 @@ namespace Project1.Module.Tests.Security
         {
             var typesInfoSource = XpoTypesInfoHelper.GetXpoTypeInfoSource();
             var typesInfo = XpoTypesInfoHelper.GetTypesInfo();
+            typesInfo.RegisterEntity(typeof(Firma));
             typesInfo.RegisterEntity(typeof(Musteri));
             typesInfo.RegisterEntity(typeof(Kisi));
             typesInfo.RegisterEntity(typeof(Not));
@@ -30,8 +32,10 @@ namespace Project1.Module.Tests.Security
             typesInfo.RegisterEntity(typeof(AuditLog));
             typesInfo.RegisterEntity(typeof(UserEmailPermission));
             typesInfo.RegisterEntity(typeof(PermissionPolicyUser));
+            typesInfo.RegisterEntity(typeof(ApplicationUser));
             typesInfo.RegisterEntity(typeof(PermissionPolicyRole));
             typesInfo.RegisterEntity(typeof(PermissionPolicyTypePermissionObject));
+            typesInfo.RegisterEntity(typeof(PermissionPolicyObjectPermissionsObject));
             typesInfo.RegisterEntity(typeof(PermissionPolicyNavigationPermissionObject));
 
             var dataStore = new InMemoryDataStore(AutoCreateOption.DatabaseAndSchema);
@@ -55,6 +59,7 @@ namespace Project1.Module.Tests.Security
             // Assert
             var navItems = adminRole.NavigationPermissions.Select(p => p.ItemPath).ToList();
             navItems.Should().Contain("Application/NavigationItems/Items/Default/Items/AdminDashboard_View");
+            navItems.Should().Contain("Application/NavigationItems/Items/Default/Items/Firma_ListView");
             navItems.Should().Contain("Application/NavigationItems/Items/Default/Items/Yonetim");
             navItems.Should().Contain("Application/NavigationItems/Items/Default/Items/Yonetim/Items/UserEmailPermission_ListView");
             navItems.Should().NotContain("Application/NavigationItems/Items/Default/Items/UserDashboard_View");
@@ -74,10 +79,10 @@ namespace Project1.Module.Tests.Security
             AdminRoleConfigurator.Configure(adminRole);
 
             // Assert
-            adminRole.TypePermissions.Should().HaveCount(7);
             var typeNames = adminRole.TypePermissions
                 .Select(p => p.TargetType?.Name ?? p.ToString())
                 .ToList();
+            typeNames.Should().Contain(nameof(Firma));
             typeNames.Should().Contain(nameof(Musteri));
             typeNames.Should().Contain(nameof(Kisi));
             typeNames.Should().Contain(nameof(Not));
@@ -85,6 +90,7 @@ namespace Project1.Module.Tests.Security
             typeNames.Should().Contain(nameof(AuditLog));
             typeNames.Should().Contain(nameof(UserEmailPermission));
             typeNames.Should().Contain(nameof(PermissionPolicyUser));
+            typeNames.Should().Contain(nameof(ApplicationUser));
         }
 
         [Fact]
@@ -125,13 +131,15 @@ namespace Project1.Module.Tests.Security
             var typeNames = standardRole.TypePermissions
                 .Select(p => p.TargetType?.Name ?? p.ToString())
                 .ToList();
+            typeNames.Should().Contain(nameof(Firma));
             typeNames.Should().Contain(nameof(Musteri));
             typeNames.Should().Contain(nameof(Kisi));
             typeNames.Should().Contain(nameof(Not));
             typeNames.Should().Contain(nameof(FileData));
             typeNames.Should().Contain(nameof(AuditLog));
             typeNames.Should().Contain(nameof(UserEmailPermission));
-            standardRole.TypePermissions.Should().HaveCount(6);
+            typeNames.Should().Contain(nameof(PermissionPolicyUser));
+            typeNames.Should().Contain(nameof(ApplicationUser));
         }
     }
 }

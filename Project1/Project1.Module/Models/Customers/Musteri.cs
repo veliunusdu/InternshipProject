@@ -10,6 +10,8 @@ using DevExpress.Xpo;
 using Project1.Module.Models.Notes;
 using Project1.Module.Models.Audit;
 using Project1.Module.Models.Base;
+using Project1.Module.BusinessObjects;
+using Project1.Module.Models.Tenants;
 
 namespace Project1.Module.Models.Customers
 {
@@ -18,7 +20,7 @@ namespace Project1.Module.Models.Customers
     [DeferredDeletion(true)]
     [ImageName("BO_Customer")]
     [XafDisplayName("Müşteri")]
-    public class Musteri : AuditedBaseObject
+    public class Musteri : AuditedBaseObject, IFirmaAware
     {
         public Musteri(Session session) : base(session)
         {
@@ -29,6 +31,15 @@ namespace Project1.Module.Models.Customers
 
         [Browsable(false)]
         public override string RecordTitle => Ad ?? "-";
+
+        private Firma _firma;
+        [XafDisplayName("Firma")]
+        [Association("Firma-Musteriler"), ExplicitLoading]
+        public Firma Firma
+        {
+            get => _firma;
+            set => SetPropertyValue(nameof(Firma), ref _firma, value);
+        }
 
         private string _ad;
         [XafDisplayName("Müşteri Adı")]

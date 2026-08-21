@@ -23,6 +23,7 @@ namespace Project1.Module.Tests.Security
         {
             var typesInfoSource = XpoTypesInfoHelper.GetXpoTypeInfoSource();
             var typesInfo = XpoTypesInfoHelper.GetTypesInfo();
+            typesInfo.RegisterEntity(typeof(Project1.Module.Models.Tenants.Firma));
             typesInfo.RegisterEntity(typeof(Musteri));
             typesInfo.RegisterEntity(typeof(Kisi));
             typesInfo.RegisterEntity(typeof(Not));
