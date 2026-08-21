@@ -102,7 +102,7 @@ namespace Project1.Module.Tests.Security
             var navPermissions = role.NavigationPermissions.ToList();
             navPermissions.Should().NotBeEmpty();
             navPermissions.Should().Contain(np => np.ItemPath.Contains("UserDashboard_View"));
-            navPermissions.Should().Contain(np => np.ItemPath.Contains("Musteri_ListView"));
+            navPermissions.Should().NotContain(np => np.ItemPath.Contains("Musteri_ListView"));
             navPermissions.Should().Contain(np => np.ItemPath.Contains("Kisi_ListView"));
             navPermissions.Should().Contain(np => np.ItemPath.Contains("Not_ListView"));
             navPermissions.Should().NotContain(np => np.ItemPath.Contains("Yonetim"));

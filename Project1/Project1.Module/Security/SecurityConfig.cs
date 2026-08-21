@@ -11,9 +11,6 @@ using Project1.Module.BusinessObjects.Security;
 
 namespace Project1.Module.Security
 {
-    /// <summary>
-    /// Uygulamanın rol, başlangıç hesabı ve yapılandırma anahtarlarını tek yerde tutar.
-    /// </summary>
     public static class SecurityConstants
     {
         public const string AdministratorRoleName = "Administrators";
@@ -27,13 +24,9 @@ namespace Project1.Module.Security
 
         public const string AdminInitialPasswordConfigurationKey = "InitialUsers:AdminPassword";
         public const string UserInitialPasswordConfigurationKey = "InitialUsers:UserPassword";
-
         public const string ResetInitialPasswordsConfigurationKey = "InitialUsers:ResetPasswords";
     }
 
-    /// <summary>
-    /// Başlangıç parolalarını kaynak kod veya appsettings.json yerine ortam değişkenlerinden alır.
-    /// </summary>
     public static class InitialUserPasswordProvider
     {
         public static string GetRequiredPassword(string configurationKey, string accountName)
@@ -57,14 +50,14 @@ namespace Project1.Module.Security
     }
 
     /// <summary>
-    /// Admin iş verilerini ve e-posta yetkilerini yönetir; tüm firmaların verilerine tam erişim yetkisine sahiptir.
+    /// ADMIN: Tüm sistem ve verilere tam erişim.
     /// </summary>
     public static class AdminRoleConfigurator
     {
         public static void Configure(PermissionPolicyRole role)
         {
             role.IsAdministrative = false;
-            role.CanEditModel = false;
+            role.CanEditModel = true;
             role.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
 
             role.SetTypePermission<Firma>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
@@ -77,6 +70,11 @@ namespace Project1.Module.Security
 
             role.SetTypePermission<PermissionPolicyUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<ApplicationUser>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyRole>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyTypePermissionObject>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyNavigationPermissionObject>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyMemberPermissionsObject>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            role.SetTypePermission<PermissionPolicyObjectPermissionsObject>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
 
             role.AddNavigationPermission(
                 "Application/NavigationItems/Items/Default/Items/AdminDashboard_View",
@@ -103,8 +101,9 @@ namespace Project1.Module.Security
     }
 
     /// <summary>
-    /// Firma kullanıcısının (FirmaKullanicisiRole) yalnızca kendi firmasına bağlı kayıtlar üzerindeki izinlerini tanımlar.
-    /// Kriter: [Firma] = CurrentUserFirma()
+    /// FIRMA KULLANICISI: Sadece kendi firmasına (Firma) bağlı kayıtları görebilir ve düzenleyebilir.
+    /// KURAL: İş sınıfları (Firma, Musteri, Kisi, Not) için SetTypePermission (Create hariç) doğrudan geniş izin verilmez.
+    /// Nesne seviyesinde AddObjectPermission ve alan seviyesinde AddMemberPermission kullanılır.
     /// </summary>
     public static class FirmaKullanicisiRoleConfigurator
     {
@@ -114,56 +113,32 @@ namespace Project1.Module.Security
             role.CanEditModel = false;
             role.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
 
-            // 1. Firma İzni: Yalnızca kendi firmasını okur
-            role.SetTypePermission<Firma>(SecurityOperations.ReadOnlyAccess, SecurityPermissionState.Allow);
-            role.AddObjectPermission<Firma>(
-                SecurityOperations.ReadOnlyAccess,
-                "[Oid] = CurrentUserFirma() or [Oid] = CurrentFirmaOid()",
-                SecurityPermissionState.Allow);
+            // 1. Firma: Sadece kendi firmasını görebilir
+            role.AddObjectPermission<Firma>(SecurityOperations.ReadOnlyAccess, "[Oid] = CurrentFirmaOid()", SecurityPermissionState.Allow);
 
-            // 2. Müşteri İzni: Read, Write, Create, Delete -> [Firma.Oid] = CurrentUserFirma()
-            role.SetTypePermission<Musteri>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
-            role.AddObjectPermission<Musteri>(
-                "Read;Write;Delete;Navigate",
-                "[Firma.Oid] = CurrentUserFirma() or [Firma.Oid] = CurrentFirmaOid()",
-                SecurityPermissionState.Allow);
-            role.AddMemberPermission<Musteri>(
-                SecurityOperations.Write,
-                nameof(Musteri.Firma),
-                null,
-                SecurityPermissionState.Deny);
+            // 2. Müşteri: Kendi firmasına ait müşterileri yönetebilir
+            role.SetTypePermission<Musteri>(SecurityOperations.Create, SecurityPermissionState.Allow);
+            role.AddObjectPermission<Musteri>("Read;Write;Delete;Navigate", "[Firma.Oid] = CurrentFirmaOid()", SecurityPermissionState.Allow);
+            // Firma alanının elle değiştirilmesini engelle (FirmaAtamaViewController zaten otomatik atıyor)
+            role.AddMemberPermission<Musteri>(SecurityOperations.Write, nameof(Musteri.Firma), "[Firma.Oid] = CurrentFirmaOid()", SecurityPermissionState.Deny);
 
-            // 3. Kişi İzni: Read, Write, Create, Delete -> [Firma.Oid] = CurrentUserFirma()
-            role.SetTypePermission<Kisi>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
-            role.AddObjectPermission<Kisi>(
-                "Read;Write;Delete;Navigate",
-                "[Firma.Oid] = CurrentUserFirma() or [Firma.Oid] = CurrentFirmaOid()",
-                SecurityPermissionState.Allow);
-            role.AddMemberPermission<Kisi>(
-                SecurityOperations.Write,
-                nameof(Kisi.Firma),
-                null,
-                SecurityPermissionState.Deny);
+            // 3. Kişi: Sadece kendi firmasına ait kişileri yönetir
+            role.SetTypePermission<Kisi>(SecurityOperations.Create, SecurityPermissionState.Allow);
+            role.AddObjectPermission<Kisi>("Read;Write;Delete;Navigate", "[Firma.Oid] = CurrentFirmaOid()", SecurityPermissionState.Allow);
+            role.AddMemberPermission<Kisi>(SecurityOperations.Write, nameof(Kisi.Firma), "[Firma.Oid] = CurrentFirmaOid()", SecurityPermissionState.Deny);
 
-            // 4. Not İzni: Read, Write, Create, Delete -> [Firma.Oid] = CurrentUserFirma()
-            role.SetTypePermission<Not>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
-            role.AddObjectPermission<Not>(
-                "Read;Write;Delete;Navigate",
-                "[Firma.Oid] = CurrentUserFirma() or [Firma.Oid] = CurrentFirmaOid()",
-                SecurityPermissionState.Allow);
-            role.AddMemberPermission<Not>(
-                SecurityOperations.Write,
-                nameof(Not.Firma),
-                null,
-                SecurityPermissionState.Deny);
+            // 4. Not: Sadece kendi firmasına ait notları yönetir
+            role.SetTypePermission<Not>(SecurityOperations.Create, SecurityPermissionState.Allow);
+            role.AddObjectPermission<Not>("Read;Write;Delete;Navigate", "[Firma.Oid] = CurrentFirmaOid()", SecurityPermissionState.Allow);
+            role.AddMemberPermission<Not>(SecurityOperations.Write, nameof(Not.Firma), "[Firma.Oid] = CurrentFirmaOid()", SecurityPermissionState.Deny);
 
-            // 5. Dosya ve Denetim İzinleri
+            // 5. Sistem Nesneleri (Dosya, Log, Kullanıcı Bilgisi)
             role.SetTypePermission<FileData>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
             role.SetTypePermission<AuditLog>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
-
-            // 6. Kullanıcı İzinleri
             role.SetTypePermission<PermissionPolicyUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<ApplicationUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.AddObjectPermission<ApplicationUser>(SecurityOperations.ReadWriteAccess, "[Oid] = CurrentUserId()", SecurityPermissionState.Allow);
+
             role.SetTypePermission<PermissionPolicyRole>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<PermissionPolicyTypePermissionObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<PermissionPolicyNavigationPermissionObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
@@ -175,16 +150,11 @@ namespace Project1.Module.Security
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.Write, SecurityPermissionState.Deny);
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.Delete, SecurityPermissionState.Deny);
 
-            // 7. Navigasyon İzinleri (Müşteriler menüsü gizlenir, sadece Kişiler ve Notlar görünür)
-            role.AddNavigationPermission(
-                "Application/NavigationItems/Items/Default/Items/UserDashboard_View",
-                SecurityPermissionState.Allow);
-            role.AddNavigationPermission(
-                "Application/NavigationItems/Items/Default/Items/Kisi_ListView",
-                SecurityPermissionState.Allow);
-            role.AddNavigationPermission(
-                "Application/NavigationItems/Items/Default/Items/Not_ListView",
-                SecurityPermissionState.Allow);
+            // 6. Menü (Navigasyon) İzinleri
+            role.AddNavigationPermission("Application/NavigationItems/Items/Default/Items/UserDashboard_View", SecurityPermissionState.Allow);
+            role.AddNavigationPermission("Application/NavigationItems/Items/Default/Items/Musteri_ListView", SecurityPermissionState.Allow);
+            role.AddNavigationPermission("Application/NavigationItems/Items/Default/Items/Kisi_ListView", SecurityPermissionState.Allow);
+            role.AddNavigationPermission("Application/NavigationItems/Items/Default/Items/Not_ListView", SecurityPermissionState.Allow);
         }
     }
 
@@ -200,7 +170,7 @@ namespace Project1.Module.Security
     }
 
     /// <summary>
-    /// Müşteri rolünün kendi şirketine ait kayıtlar üzerindeki satır seviyesi (Row-Level) izinlerini tanımlar.
+    /// MÜŞTERİ (END-USER): Sisteme giren son kullanıcı. SADECE kendi kaydını, kendi kişilerini ve notlarını görmelidir.
     /// </summary>
     public static class CustomerRoleConfigurator
     {
@@ -211,50 +181,43 @@ namespace Project1.Module.Security
             role.PermissionPolicy = SecurityPermissionPolicy.DenyAllByDefault;
 
             // 1. Müşteri İzni: Yalnızca kendi firmasını okur ve günceller (Tüm müşterileri görmesini engellemek için Type-Level izin verilmez)
-            role.SetTypePermission<Musteri>(SecurityOperations.ReadOnlyAccess, SecurityPermissionState.Allow);
             role.AddObjectPermission<Musteri>(
                 SecurityOperations.ReadWriteAccess, 
-                "[Oid] = CurrentCustomerOid() or [<ApplicationUser>][Oid = CurrentUserId() and Musteri.Oid = ^.Oid]", 
+                "[<ApplicationUser>][Oid = CurrentUserId() and Musteri.Oid = ^.Oid]", 
                 SecurityPermissionState.Allow);
 
-            // 2. Kişi İzni: Yeni kişi oluşturabilir (Create) ve silebilir (Delete), ancak yalnızca kendi müşterisine bağlı kişileri yönetir
-            role.SetTypePermission<Kisi>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            // 2. Kişi İzni: Yeni kişi oluşturabilir (Create), ancak yalnızca kendi firmasına bağlı kişileri yönetir/görür
+            role.SetTypePermission<Kisi>(SecurityOperations.Create, SecurityPermissionState.Allow);
             role.AddObjectPermission<Kisi>(
                 "Read;Write;Delete;Navigate", 
-                "[Musteri.Oid] = CurrentCustomerOid() or [<ApplicationUser>][Oid = CurrentUserId() and Musteri.Oid = ^.Musteri.Oid]", 
+                "[<ApplicationUser>][Oid = CurrentUserId() and Musteri.Oid = ^.Musteri.Oid]", 
                 SecurityPermissionState.Allow);
 
-            // 3. Not İzni: Yalnızca kendi müşterisine ve kişilerine açılmış notları okur
-            role.SetTypePermission<Not>(SecurityOperations.ReadOnlyAccess, SecurityPermissionState.Allow);
+            // 3. Not İzni: Yalnızca kendi firmasına ve kişilerine açılmış notları okur
             role.AddObjectPermission<Not>(
                 SecurityOperations.ReadOnlyAccess, 
-                "[Musteri.Oid] = CurrentCustomerOid() or [Kisi.Musteri.Oid] = CurrentCustomerOid() or [<ApplicationUser>][Oid = CurrentUserId() and (Musteri.Oid = ^.Musteri.Oid or Musteri.Oid = ^.Kisi.Musteri.Oid)]", 
+                "[<ApplicationUser>][Oid = CurrentUserId() and (Musteri.Oid = ^.Musteri.Oid or Musteri.Oid = ^.Kisi.Musteri.Oid)]", 
                 SecurityPermissionState.Allow);
 
             // 4. Dosya Eki İzni: Kendi notlarının eklerini indirir
             role.SetTypePermission<FileData>(SecurityOperations.ReadOnlyAccess, SecurityPermissionState.Allow);
 
-            // 5. Denetim İzni: Otomatik sistem loglarının yazılabilmesi için izin verilir
-            role.SetTypePermission<AuditLog>(SecurityOperations.FullAccess, SecurityPermissionState.Allow);
+            // 5. Firma İzni: Kendi firmasını okur
+            role.AddObjectPermission<Firma>(SecurityOperations.ReadOnlyAccess, "[Oid] = CurrentFirmaOid()", SecurityPermissionState.Allow);
 
-            // 6. Firma İzni: Bağlı olduğu firmayı okur
-            role.SetTypePermission<Firma>(SecurityOperations.ReadOnlyAccess, SecurityPermissionState.Allow);
-            role.AddObjectPermission<Firma>(
-                SecurityOperations.ReadOnlyAccess, 
-                "[Oid] = CurrentUserFirma() or [Oid] = CurrentFirmaOid()", 
-                SecurityPermissionState.Allow);
-
-            // 7. Kullanıcı ve Güvenlik Nesnelerini Okuma İzinleri
+            // 6. Kullanıcı ve Güvenlik Nesnelerini Okuma İzinleri
             role.SetTypePermission<PermissionPolicyUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<ApplicationUser>(SecurityOperations.Read, SecurityPermissionState.Allow);
+            role.AddObjectPermission<ApplicationUser>(SecurityOperations.ReadWriteAccess, "[Oid] = CurrentUserId()", SecurityPermissionState.Allow);
             role.SetTypePermission<PermissionPolicyRole>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<PermissionPolicyTypePermissionObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<PermissionPolicyNavigationPermissionObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<PermissionPolicyMemberPermissionsObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<PermissionPolicyObjectPermissionsObject>(SecurityOperations.Read, SecurityPermissionState.Allow);
             role.SetTypePermission<UserEmailPermission>(SecurityOperations.FullAccess, SecurityPermissionState.Deny);
+            role.SetTypePermission<AuditLog>(SecurityOperations.FullAccess, SecurityPermissionState.Deny);
 
-            // 8. Navigasyon (Menü) İzinleri
+            // 7. Navigasyon (Menü) İzinleri
             role.AddNavigationPermission(
                 "Application/NavigationItems/Items/Default/Items/UserDashboard_View",
                 SecurityPermissionState.Allow);
@@ -267,3 +230,4 @@ namespace Project1.Module.Security
         }
     }
 }
+

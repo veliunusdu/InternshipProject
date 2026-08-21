@@ -21,20 +21,6 @@ namespace Project1.Module.Tests.Security
 {
     public class FirmaRowLevelSecurityTests
     {
-        static FirmaRowLevelSecurityTests()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
-            {
-                var assemblyName = new System.Reflection.AssemblyName(args.Name).Name;
-                var path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, assemblyName + ".dll");
-                if (System.IO.File.Exists(path))
-                {
-                    return System.Reflection.Assembly.LoadFrom(path);
-                }
-                return null;
-            };
-        }
-
         private Session CreateInMemorySession()
         {
             var typesInfoSource = XpoTypesInfoHelper.GetXpoTypeInfoSource();

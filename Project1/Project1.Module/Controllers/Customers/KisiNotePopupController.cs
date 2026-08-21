@@ -34,10 +34,14 @@ namespace Project1.Module.Controllers.Customers
 
             if (View.CurrentObject is Kisi seciliKisi)
             {
-                yeniNot.Kisi = objectSpace.GetObject(seciliKisi);
+                yeniNot.Kisi = objectSpace.GetObjectByKey<Kisi>(seciliKisi.Oid);
                 if (seciliKisi.Musteri != null)
                 {
-                    yeniNot.Musteri = objectSpace.GetObject(seciliKisi.Musteri);
+                    yeniNot.Musteri = objectSpace.GetObjectByKey<Musteri>(seciliKisi.Musteri.Oid);
+                }
+                if (seciliKisi.Firma != null)
+                {
+                    yeniNot.Firma = objectSpace.GetObjectByKey<Project1.Module.Models.Tenants.Firma>(seciliKisi.Firma.Oid);
                 }
                 yeniNot.IsKisiHidden = true;
                 yeniNot.IsMusteriHidden = true;
